@@ -303,6 +303,14 @@ export function useMultiplayer() {
           // ignore parsing error
         }
       };
+
+      ws.onerror = () => {
+        // Safe silent fallback: when deployed without WS backend, gracefully fall back to BroadcastChannel
+      };
+
+      ws.onclose = () => {
+        socketRef.current = null;
+      };
     } catch {
       // WebSocket server fallback to BroadcastChannel
     }
