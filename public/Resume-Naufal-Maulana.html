@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume-Naufal Maulana</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset & Base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+      color: #1a1a1a;
+      background-color: #e5e7eb;
+      line-height: 1.35;
+      font-size: 8.8pt;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Screen Preview Canvas (A4 Standard) */
+    .page {
+      background: #ffffff;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 20px auto;
+      padding: 12mm 15mm 10mm 15mm;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Print Specifics */
+    @page {
+      size: A4;
+      margin: 10mm 14mm 10mm 14mm;
+    }
+
+    @media print {
+      body {
+        background: transparent;
+      }
+      .page {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        box-shadow: none;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    /* Header Styling */
+    .header {
+      text-align: center;
+      margin-bottom: 7px;
+    }
+
+    .name {
+      font-size: 17pt;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #111827;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .role-title {
+      font-size: 9.5pt;
+      font-weight: 600;
+      color: #27272a;
+      margin-bottom: 4px;
+    }
+
+    .contact-info {
+      font-size: 8.3pt;
+      color: #3f3f46;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .contact-info a {
+      color: #18181b;
+      text-decoration: none;
+    }
+
+    .contact-info a:hover {
+      text-decoration: underline;
+    }
+
+    .separator {
+      color: #71717a;
+    }
+
+    /* Section Rules */
+    .section {
+      margin-top: 7px;
+    }
+
+    .section-title {
+      font-size: 9.2pt;
+      font-weight: 700;
+      color: #111827;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #18181b;
+      padding-bottom: 2px;
+      margin-bottom: 5px;
+    }
+
+    /* Professional Summary */
+    .summary-text {
+      text-align: justify;
+      color: #27272a;
+      font-size: 8.4pt;
+      line-height: 1.38;
+    }
+
+    /* Technical Skills */
+    .skill-row {
+      display: flex;
+      margin-bottom: 2px;
+      font-size: 8.4pt;
+      line-height: 1.35;
+    }
+
+    .skill-category {
+      font-weight: 600;
+      color: #18181b;
+      width: 155px;
+      flex-shrink: 0;
+    }
+
+    .skill-items {
+      color: #27272a;
+      flex-grow: 1;
+    }
+
+    /* Experience & Projects */
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 5px;
+      margin-bottom: 1px;
+    }
+
+    .item-title-left {
+      font-size: 8.7pt;
+      color: #18181b;
+    }
+
+    .item-title-left strong {
+      font-weight: 600;
+    }
+
+    .item-title-left .tech-stack {
+      font-weight: 400;
+      color: #52525b;
+      font-size: 8.2pt;
+    }
+
+    .item-meta-right {
+      font-size: 8.2pt;
+      color: #3f3f46;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    /* Bullet Points */
+    ul.bullet-list {
+      list-style-type: disc;
+      padding-left: 15px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    ul.bullet-list li {
+      font-size: 8.3pt;
+      color: #27272a;
+      margin-bottom: 1.8px;
+      line-height: 1.34;
+      text-align: justify;
+    }
+
+    /* Education Details */
+    .edu-detail {
+      font-size: 8.2pt;
+      color: #3f3f46;
+      margin-top: 1px;
+    }
+
+    /* Floating Print Button for Screen View */
+    .print-bar {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      background: #18181b;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 9pt;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .print-bar:hover {
+      background: #27272a;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating Print Button -->
+  <div class="print-bar no-print" onclick="window.print()">
+    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+    </svg>
+    Save / Print to PDF (Ctrl + P)
+  </div>
+
+  <div class="page">
+    
+    <!-- HEADER -->
+    <header class="header">
+      <h1 class="name">NAUFAL MAULANA IZZUDDIN</h1>
+      <div class="role-title">Frontend Engineer &bull; Web Development &bull; AI Integrations &bull; UI/UX</div>
+      <div class="contact-info">
+        <span>Kebumen, Central Java, Indonesia</span>
+        <span class="separator">&bull;</span>
+        <a href="mailto:naufalmaulana806@gmail.com">naufalmaulana806@gmail.com</a>
+        <span class="separator">&bull;</span>
+        <a href="tel:+6285770266735">+62 857-7026-6735</a>
+        <span class="separator">&bull;</span>
+        <a href="https://www.linkedin.com/in/naufalmaulanaizzuddin" target="_blank">linkedin.com/in/naufalmaulanaizzuddin</a>
+        <span class="separator">&bull;</span>
+        <a href="https://github.com/SiNopaal" target="_blank">github.com/SiNopaal</a>
+      </div>
+    </header>
+
+    <!-- PROFESSIONAL SUMMARY -->
+    <section class="section">
+      <div class="section-title">PROFESSIONAL SUMMARY</div>
+      <p class="summary-text">
+        Frontend Engineer and Software Engineering student at Telkom University Purwokerto specializing in modern web interfaces, responsive design systems, and AI-powered automation. Hands-on experience developing performant web applications with TypeScript, Next.js (App Router), React, and Tailwind CSS, coupled with building custom automation bots and scripting workflows via Python, Node.js, and LLM APIs. Adept at turning Figma UI/UX designs into production code while automating repetitive backend and data pipelines.
+      </p>
+    </section>
+
+    <!-- TECHNICAL ARSENAL -->
+    <section class="section">
+      <div class="section-title">TECHNICAL ARSENAL</div>
+      <div class="skill-row">
+        <span class="skill-category">Frontend &amp; Web:</span>
+        <span class="skill-items">TypeScript, JavaScript (ES6+), Next.js (App Router), React.js, Tailwind CSS, HTML5/CSS3, Responsive UI/UX, Flutter</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-category">AI &amp; Bot Automation:</span>
+        <span class="skill-items">LLM APIs, Python Scripting, Node.js Bot Development, Webhooks, Prompt Engineering, Function Calling</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-category">Backend &amp; Data Basics:</span>
+        <span class="skill-items">NestJS, Laravel, PostgreSQL, MySQL, Neon DB, RESTful APIs, Git/GitHub, Vercel</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-category">UI/UX &amp; Design Systems:</span>
+        <span class="skill-items">Figma, Design Tokens, Component Libraries, Interactive Prototyping, Wireframing, User Flows</span>
+      </div>
+      <div class="skill-row">
+        <span class="skill-category">Tooling &amp; Testing:</span>
+        <span class="skill-items">Postman, Bash/Shell Scripting, Black Box Testing (100% Pass Rate Benchmark), User Acceptance Testing (UAT)</span>
+      </div>
+    </section>
+
+    <!-- WORK & INTERNSHIP EXPERIENCE -->
+    <section class="section">
+      <div class="section-title">WORK &amp; INTERNSHIP EXPERIENCE</div>
+      <div class="item-header">
+        <div class="item-title-left">
+          <strong>PT Seven Inc</strong> &mdash; <span>UI/UX Designer Intern</span>
+        </div>
+        <div class="item-meta-right">Jun 2025 &ndash; Aug 2025 | Yogyakarta, Indonesia</div>
+      </div>
+      <ul class="bullet-list">
+        <li>Steered the design-to-frontend pipeline for "Titik Visual", architecting 13+ responsive, conversion-optimized landing pages.</li>
+        <li>Crafted comprehensive multi-role UI/UX systems for "Nebeng" ride-sharing platform across 4 personas to eliminate user friction.</li>
+        <li>Authored modular Figma UI kits and specifications, collaborating directly with engineering teams to ensure 100% pixel-perfect implementation.</li>
+      </ul>
+    </section>
+
+    <!-- FEATURED FRONTEND, AI & SCRIPTING PROJECTS -->
+    <section class="section">
+      <div class="section-title">FLAGSHIP FRONTEND, AI &amp; SCRIPTING PROJECTS</div>
+      
+      <!-- Project 1 -->
+      <div class="item-header">
+        <div class="item-title-left">
+          <strong>Patukrejomulyo E-Gov &mdash; Smart Public Incident Platform</strong>
+          <span class="tech-stack">| Next.js, TypeScript, Tailwind, Maps API, NestJS</span>
+        </div>
+        <div class="item-meta-right">2024</div>
+      </div>
+      <ul class="bullet-list">
+        <li>Engineered an administrative web dashboard featuring real-time report feeds and dynamic incident status tracking.</li>
+        <li>Integrated Google Maps API to create an interactive spatial map visualization for incident clusters, speeding up official triage by 50%.</li>
+        <li>Connected client interfaces with AI categorization endpoints; executed 32 Black Box test scenarios with a 100% pass rate.</li>
+      </ul>
+
+      <!-- Project 2 -->
+      <div class="item-header">
+        <div class="item-title-left">
+          <strong>Commercial Laundry Operations &amp; Client Web Suite</strong>
+          <span class="tech-stack">| React, Next.js, Tailwind CSS, REST APIs, Figma</span>
+        </div>
+        <div class="item-meta-right">2026</div>
+      </div>
+      <ul class="bullet-list">
+        <li>Directed a development team as Project Lead, orchestrating client requirements, sprint milestones, and production delivery across multiple web repositories.</li>
+        <li>Designed in Figma and developed "Londri-Admin", an administrative dashboard featuring order lifecycle management, status workflows, and revenue reporting.</li>
+        <li>Engineered "Laundry Central" commercial company profile and interactive landing interfaces, achieving responsive UI performance and pixel-perfect design fidelity.</li>
+      </ul>
+
+      <!-- Project 3 -->
+      <div class="item-header">
+        <div class="item-title-left">
+          <strong>AI Bot Scripting &amp; Automated Web Solutions</strong>
+          <span class="tech-stack">| Python, Node.js, OpenAI/Gemini APIs, REST Webhooks</span>
+        </div>
+        <div class="item-meta-right">2024 &ndash; 2026</div>
+      </div>
+      <ul class="bullet-list">
+        <li>Engineered custom automated bots and scripts leveraging Python and Node.js integrated with LLM APIs to handle autonomous data parsing, content generation, and messaging event triggers.</li>
+        <li>Built lightweight frontends in Next.js to provide interactive control panels for monitoring bot execution logs and managing automation parameters.</li>
+        <li>Implemented robust error-handling, webhook listeners, and API rate-limit management for reliable script execution.</li>
+      </ul>
+    </section>
+
+    <!-- EDUCATION -->
+    <section class="section">
+      <div class="section-title">EDUCATION</div>
+      <div class="item-header">
+        <div class="item-title-left">
+          <strong>Universitas Telkom</strong> &mdash; <span>Bachelor of Software Engineering (S1 Rekayasa Perangkat Lunak)</span>
+        </div>
+        <div class="item-meta-right">Expected: 2026 | Purwokerto, Indonesia</div>
+      </div>
+      <div class="edu-detail">
+        &bull; Relevant Focus: Web Programming, Human-Computer Interaction (HCI), Artificial Intelligence, Scripting &amp; Automation.
+      </div>
+      <div class="edu-detail">
+        &bull; Active in developing AI-powered automation bots, script-driven workflow tools, and modern frontend interfaces.
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>

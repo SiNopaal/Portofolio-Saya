@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+:root {
+  --background: #090909;
+  --foreground: #f5f5f5;
+}
+
+html {
+  scroll-behavior: initial;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-kanit), sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: #8b5cf6;
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090909;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#8b5cf6, #3b82f6);
+  border-radius: 999px;
+}
+
+/* ---------- Utility classes ---------- */
+
+.text-gradient {
+  background: linear-gradient(120deg, #a78bfa 0%, #60a5fa 40%, #fb923c 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 6s linear infinite;
+}
+
+.text-gradient-static {
+  background: linear-gradient(120deg, #a78bfa, #60a5fa, #fb923c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes gradient-shift {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.section-rule {
+  position: relative;
+}
+
+.section-rule::before {
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  right: 1.5rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.08) 75%,
+    transparent 100%
+  );
+}
+
+/* Subtle noise background texture overlay */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
