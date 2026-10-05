@@ -182,49 +182,41 @@ export function playWaterRippleSound() {
 
 export const TELEPORT_DESTINATIONS = [
   {
-    id: "projects",
-    name: "Featured Works",
-    badge: "01. Commercial & AI Labs",
-    icon: "🌐",
-    pos: [-8.5, 0.2, 8.5] as [number, number, number],
+    id: "nw-programming",
+    name: "Programming Arena",
+    badge: "NW • Stack & Languages",
+    icon: "💻",
+    pos: [-26.0, 0.2, -26.0] as [number, number, number],
     color: "#38bdf8",
   },
   {
-    id: "terminal",
-    name: "AI Bot Terminal",
-    badge: "02. Autonomous Console",
-    icon: "🤖",
-    pos: [0.0, 0.2, 11.5] as [number, number, number],
-    color: "#10b981",
-  },
-  {
-    id: "about",
-    name: "About Naufal",
-    badge: "03. UI/UX Architecture",
-    icon: "👤",
-    pos: [8.5, 0.2, 8.5] as [number, number, number],
-    color: "#ec4899",
-  },
-  {
-    id: "stack",
-    name: "Tech Arsenal",
-    badge: "04. Next.js, TS & LLMs",
-    icon: "⚡",
-    pos: [-8.5, 0.2, -8.5] as [number, number, number],
+    id: "ne-observatory",
+    name: "Quantum AI Observatory",
+    badge: "NE • Quantum & Distributed",
+    icon: "⚛️",
+    pos: [26.0, 0.2, -26.0] as [number, number, number],
     color: "#a855f7",
   },
   {
-    id: "contact",
-    name: "Get in Touch",
-    badge: "05. WhatsApp & GitHub",
-    icon: "📱",
-    pos: [8.5, 0.2, -8.5] as [number, number, number],
+    id: "sw-devops",
+    name: "DevOps Cloud Runway",
+    badge: "SW • CI/CD & Kubernetes",
+    icon: "🚀",
+    pos: [-26.0, 0.2, 26.0] as [number, number, number],
     color: "#f59e0b",
+  },
+  {
+    id: "se-zen",
+    name: "Clean Architecture Zen",
+    badge: "SE • SOLID & Security",
+    icon: "🛡️",
+    pos: [26.0, 0.2, 26.0] as [number, number, number],
+    color: "#10b981",
   },
   {
     id: "spawn",
     name: "Center Nexus Spawn",
-    badge: "Titik Pusat Metaverse",
+    badge: "Pusat Metaverse Arena",
     icon: "📍",
     pos: [0.0, 0.2, 1.8] as [number, number, number],
     color: "#06b6d4",
@@ -251,39 +243,39 @@ function createKioskTexture(selectedId: string): THREE.CanvasTexture {
   ctx.fillStyle = "#0e172a";
   ctx.fillRect(12, 12, 488, 64);
   ctx.fillStyle = "#38bdf8";
-  ctx.font = "bold 25px monospace";
+  ctx.font = "bold 24px monospace";
   ctx.fillText("⚡ TELEPORT KIOSK", 28, 50);
 
   ctx.fillStyle = "#94a3b8";
-  ctx.font = "14px monospace";
-  ctx.fillText("CLICK TO SELECT", 320, 50);
+  ctx.font = "13px monospace";
+  ctx.fillText("KLIK TUJUAN AREA", 310, 50);
 
-  // 6 Destination buttons
+  // 5 Destination buttons
   TELEPORT_DESTINATIONS.forEach((d, idx) => {
-    const y = 84 + idx * 64;
+    const y = 88 + idx * 72;
     const isSel = d.id === selectedId;
 
-    ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.25)" : "rgba(15, 23, 42, 0.85)";
-    ctx.fillRect(24, y, 464, 56);
+    ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.28)" : "rgba(15, 23, 42, 0.85)";
+    ctx.fillRect(24, y, 464, 60);
 
-    ctx.strokeStyle = isSel ? "#38bdf8" : "rgba(255, 255, 255, 0.15)";
+    ctx.strokeStyle = isSel ? d.color : "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = isSel ? 3 : 1;
-    ctx.strokeRect(24, y, 464, 56);
+    ctx.strokeRect(24, y, 464, 60);
 
     ctx.fillStyle = isSel ? "#ffffff" : "#cbd5e1";
-    ctx.font = "bold 20px sans-serif";
-    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 35);
+    ctx.font = "bold 19px sans-serif";
+    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 37);
 
-    ctx.fillStyle = isSel ? "#38bdf8" : "#64748b";
+    ctx.fillStyle = isSel ? d.color : "#64748b";
     ctx.font = "12px monospace";
-    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 260, y + 35);
+    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 252, y + 37);
   });
 
   // Footer status bar
   ctx.fillStyle = "#38bdf8";
   ctx.font = "bold 15px monospace";
   ctx.textAlign = "center";
-  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 484);
+  ctx.fillText(">>> MASUK KE PORTAL UNTUK TELEPORT <<<", 256, 484);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
@@ -1293,9 +1285,9 @@ export function CyberTeleportStation({
             <meshBasicMaterial map={kioskTex} toneMapped={false} />
           </mesh>
 
-          {/* 6 Interactive Clickable Zones on the Screen */}
+          {/* 5 Interactive Clickable Zones on the Screen */}
           {TELEPORT_DESTINATIONS.map((dest, i) => {
-            const btnY = 0.40 - i * 0.162;
+            const btnY = 0.375 - i * 0.191;
             return (
               <mesh
                 key={dest.id}
@@ -1305,7 +1297,7 @@ export function CyberTeleportStation({
                   setSelectedDestId(dest.id);
                 }}
               >
-                <planeGeometry args={[1.44, 0.145]} />
+                <planeGeometry args={[1.44, 0.165]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             );

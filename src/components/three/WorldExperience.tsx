@@ -1445,7 +1445,15 @@ function FloatingCodeRunesCloud({ count = 36 }: { count?: number }) {
 }
 
 /* --- Cyber Bonsai Tree (The Digital Pine Bonsai &bull; Organic Harmony) --- */
-function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
+function CyberBonsaiTree({
+  position,
+  accentColor = "#0f766e",
+  glowColor = "#5eead4",
+}: {
+  position: [number, number, number];
+  accentColor?: string;
+  glowColor?: string;
+}) {
   const foliageRef = useRef<THREE.Group>(null);
   const pollenRef = useRef<THREE.Points>(null);
 
@@ -1481,7 +1489,7 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
       {/* Plinth Bronze Accent Lip */}
       <mesh position={[0, 0.445, 0]}>
         <boxGeometry args={[0.98, 0.015, 0.98]} />
-        <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.85} />
+        <meshStandardMaterial color={accentColor} roughness={0.2} metalness={0.85} />
       </mesh>
 
       {/* Shallow Slate Ceramic Bonsai Pot */}
@@ -1528,21 +1536,21 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
           {/* Main Top Cloud */}
           <mesh position={[0.12, 0.98, 0]} castShadow>
             <dodecahedronGeometry args={[0.28, 1]} />
-            <meshStandardMaterial color="#134e4a" roughness={0.85} metalness={0.1} />
+            <meshStandardMaterial color={accentColor} roughness={0.65} metalness={0.2} emissive={accentColor} emissiveIntensity={0.25} />
           </mesh>
           <mesh position={[0.16, 1.05, 0.05]} castShadow>
             <dodecahedronGeometry args={[0.2, 1]} />
-            <meshStandardMaterial color="#0f766e" roughness={0.8} metalness={0.15} />
+            <meshStandardMaterial color={glowColor} roughness={0.5} metalness={0.3} emissive={glowColor} emissiveIntensity={0.35} />
           </mesh>
           {/* Left Lower Cloud */}
           <mesh position={[-0.32, 0.62, 0.06]} castShadow>
             <dodecahedronGeometry args={[0.22, 1]} />
-            <meshStandardMaterial color="#134e4a" roughness={0.85} metalness={0.1} />
+            <meshStandardMaterial color={accentColor} roughness={0.65} metalness={0.2} emissive={accentColor} emissiveIntensity={0.2} />
           </mesh>
           {/* Right Mid Cloud */}
           <mesh position={[0.36, 0.78, -0.05]} castShadow>
             <dodecahedronGeometry args={[0.24, 1]} />
-            <meshStandardMaterial color="#0d9488" roughness={0.8} metalness={0.15} />
+            <meshStandardMaterial color={glowColor} roughness={0.6} metalness={0.2} emissive={glowColor} emissiveIntensity={0.3} />
           </mesh>
         </group>
 
@@ -1554,12 +1562,12 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
               args={[pollenPositions, 3]}
             />
           </bufferGeometry>
-          <pointsMaterial size={0.035} color="#5eead4" transparent opacity={0.65} />
+          <pointsMaterial size={0.035} color={glowColor} transparent opacity={0.65} />
         </points>
       </group>
 
       {/* Dedicated Subtle Warm Micro-Spotlight */}
-      <pointLight position={[0, 1.2, 0]} color="#ccfbf1" intensity={0.7} distance={3.5} />
+      <pointLight position={[0, 1.2, 0]} color={glowColor} intensity={0.7} distance={3.5} />
     </group>
   );
 }
@@ -3732,6 +3740,123 @@ function ZenGardenCorner({
 }
 
 /* ============================================================
+   ZEN-MINIMALIST PROMENADE DECORATIONS (Clean, Non-Crowded)
+============================================================ */
+
+/* 1. Floor Data Traces: Subtle dual neon guide inlays along the 4 diagonal corridors */
+function FloorDataTraces() {
+  const corridors = [
+    { angle: (-3 * Math.PI) / 4, color: "#38bdf8" }, // NW
+    { angle: -Math.PI / 4, color: "#a855f7" },        // NE
+    { angle: (3 * Math.PI) / 4, color: "#f59e0b" },  // SW
+    { angle: Math.PI / 4, color: "#10b981" },         // SE
+  ];
+
+  return (
+    <group position={[0, 0.018, 0]}>
+      {corridors.map((c, i) => {
+        const dist = 15.5;
+        const cx = Math.sin(c.angle) * dist;
+        const cz = Math.cos(c.angle) * dist;
+
+        return (
+          <group key={`data-trace-${i}`} position={[cx, 0, cz]} rotation={[0, c.angle, 0]}>
+            {/* Left Thin Neon Trace Line */}
+            <mesh position={[-0.45, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.06, 21.0]} />
+              <meshBasicMaterial color={c.color} transparent opacity={0.45} depthWrite={false} />
+            </mesh>
+            {/* Right Thin Neon Trace Line */}
+            <mesh position={[0.45, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[0.06, 21.0]} />
+              <meshBasicMaterial color={c.color} transparent opacity={0.45} depthWrite={false} />
+            </mesh>
+            {/* Waypoint Floor Nodes along the corridor */}
+            {[-7.0, 0.0, 7.0].map((wz, wi) => (
+              <mesh key={`waypoint-${wi}`} position={[0, 0.002, wz]} rotation={[-Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[0.22, 0.22]} />
+                <meshBasicMaterial color={c.color} transparent opacity={0.6} depthWrite={false} />
+              </mesh>
+            ))}
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* 2. Promenade Light Bollards: 8 slender titanium stanchions with soft starlight glow */
+function PromenadeLightBollards() {
+  const bollards = [
+    // NW corridor
+    { x: -10.5, z: -8.5, color: "#38bdf8" },
+    { x: -17.5, z: -15.5, color: "#38bdf8" },
+    // NE corridor
+    { x: 10.5, z: -8.5, color: "#a855f7" },
+    { x: 17.5, z: -15.5, color: "#a855f7" },
+    // SW corridor
+    { x: -10.5, z: 8.5, color: "#f59e0b" },
+    { x: -17.5, z: 15.5, color: "#f59e0b" },
+    // SE corridor
+    { x: 10.5, z: 8.5, color: "#10b981" },
+    { x: 17.5, z: 15.5, color: "#10b981" },
+  ];
+
+  return (
+    <group>
+      {bollards.map((b, i) => (
+        <group key={`bollard-${i}`} position={[b.x, 0, b.z]}>
+          {/* Heavy Titanium Post */}
+          <mesh position={[0, 0.32, 0]} castShadow>
+            <cylinderGeometry args={[0.035, 0.045, 0.64, 12]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.85} />
+          </mesh>
+          {/* Soft Starlight Top Capsule */}
+          <mesh position={[0, 0.66, 0]}>
+            <sphereGeometry args={[0.045, 16, 16]} />
+            <meshStandardMaterial color={b.color} emissive={b.color} emissiveIntensity={0.8} />
+          </mesh>
+          {/* Subtle Path Glow */}
+          <pointLight position={[0, 0.66, 0]} color={b.color} intensity={0.5} distance={3.2} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/* 3. Minimalist Promenade Trees: 4 solitary cyber-bonsai trees gracefully placed */
+function MinimalistPromenadeTrees() {
+  return (
+    <group>
+      {/* NW: Programming Promenade */}
+      <CyberBonsaiTree
+        position={[-18.5, 0, -13.0]}
+        accentColor="#0284c7"
+        glowColor="#38bdf8"
+      />
+      {/* NE: Quantum Promenade */}
+      <CyberBonsaiTree
+        position={[18.5, 0, -13.0]}
+        accentColor="#7c3aed"
+        glowColor="#c084fc"
+      />
+      {/* SW: DevOps Promenade */}
+      <CyberBonsaiTree
+        position={[-18.5, 0, 13.0]}
+        accentColor="#d97706"
+        glowColor="#fbbf24"
+      />
+      {/* SE: Clean Architecture Promenade */}
+      <CyberBonsaiTree
+        position={[18.5, 0, 13.0]}
+        accentColor="#059669"
+        glowColor="#34d399"
+      />
+    </group>
+  );
+}
+
+/* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena({
@@ -3820,6 +3945,11 @@ function CyberMetaverseArena({
         carRef={carRef}
         onNearbyNode={onNearbyZenNode}
       />
+
+      {/* 4. Zen-Minimalist Promenade Decorations (Floor Traces, Light Bollards & Solitary Trees) */}
+      <FloorDataTraces />
+      <PromenadeLightBollards />
+      <MinimalistPromenadeTrees />
 
       {/* Elevated Stepping Terraces / Walkways (Teleport Station Platform) */}
       {ELEVATED_PLATFORMS.map((plat, idx) => (
