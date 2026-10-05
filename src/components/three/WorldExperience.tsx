@@ -1027,704 +1027,29 @@ function SciFiMonolith({
 }
 
 /* ============================================================
-   3D ANIME STREETWEAR & CASUAL AVATARS (Procedural PBR Rigs)
+   2.5D HIGH-DEFINITION ANIME CHARACTER (HD Sprite & 3D Kinematics)
 ============================================================ */
 
-/* --- Male Streetwear Hoodie Character Parts --- */
-function MaleHoodieTorso({
-  color,
-  accentColor,
-}: {
-  color: string;
-  accentColor: string;
-}) {
-  return (
-    <group>
-      {/* Lower Hem Waistband */}
-      <mesh position={[0, 0.96, 0]} castShadow>
-        <cylinderGeometry args={[0.21, 0.2, 0.12, 16]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
+const animeSpriteCache = new Map<string, THREE.Texture>();
 
-      {/* Deep Charcoal / Black Lower Hoodie Body */}
-      <mesh position={[0, 1.1, 0]} castShadow>
-        <boxGeometry args={[0.4, 0.2, 0.24]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* Kangaroo Pouch Pocket in Front */}
-      <mesh position={[0, 1.07, 0.128]} castShadow>
-        <boxGeometry args={[0.26, 0.13, 0.035]} />
-        <meshStandardMaterial color="#27272a" roughness={0.9} metalness={0.05} />
-      </mesh>
-      {/* Left & Right Pocket Opening Slits */}
-      <mesh position={[-0.135, 1.08, 0.132]}>
-        <boxGeometry args={[0.015, 0.09, 0.02]} />
-        <meshStandardMaterial color="#09090b" roughness={0.9} />
-      </mesh>
-      <mesh position={[0.135, 1.08, 0.132]}>
-        <boxGeometry args={[0.015, 0.09, 0.02]} />
-        <meshStandardMaterial color="#09090b" roughness={0.9} />
-      </mesh>
-
-      {/* Crisp White Upper Chest Colorblock Yoke */}
-      <mesh position={[0, 1.3, 0.01]} castShadow>
-        <boxGeometry args={[0.44, 0.26, 0.25]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.8} metalness={0.05} />
-      </mesh>
-
-      {/* Minimalist Streetwear Chest Emblem */}
-      <mesh position={[0, 1.28, 0.14]}>
-        <boxGeometry args={[0.1, 0.028, 0.01]} />
-        <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.2} />
-      </mesh>
-
-      {/* Collar Cowl */}
-      <mesh position={[0, 1.45, 0.02]}>
-        <cylinderGeometry args={[0.16, 0.18, 0.08, 16]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* Hanging White Drawstrings with Metallic Aglet Tips */}
-      <group position={[0, 0, 0]}>
-        {/* Left String */}
-        <mesh position={[-0.05, 1.33, 0.14]}>
-          <cylinderGeometry args={[0.007, 0.007, 0.19, 8]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.6} />
-        </mesh>
-        <mesh position={[-0.05, 1.22, 0.14]}>
-          <cylinderGeometry args={[0.009, 0.009, 0.03, 8]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
-        </mesh>
-
-        {/* Right String (slight asymmetry for realistic drape) */}
-        <mesh position={[0.05, 1.31, 0.14]}>
-          <cylinderGeometry args={[0.007, 0.007, 0.23, 8]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.6} />
-        </mesh>
-        <mesh position={[0.05, 1.18, 0.14]}>
-          <cylinderGeometry args={[0.009, 0.009, 0.03, 8]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
-        </mesh>
-      </group>
-
-      {/* Draped Fabric Hood on Upper Back */}
-      <mesh position={[0, 1.35, -0.14]} rotation={[0.25, 0, 0]} castShadow>
-        <boxGeometry args={[0.28, 0.2, 0.12]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} metalness={0.05} />
-      </mesh>
-    </group>
-  );
+function getAnimeSpriteTexture(modelType: CharacterModelType): THREE.Texture {
+  const file =
+    modelType === "female_casual"
+      ? "/characters/female_casual.png"
+      : "/characters/male_hoodie.png";
+  let tex = animeSpriteCache.get(file);
+  if (!tex) {
+    const loader = new THREE.TextureLoader();
+    tex = loader.load(file);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.generateMipmaps = true;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    animeSpriteCache.set(file, tex);
+  }
+  return tex;
 }
 
-function MaleHoodieHead({
-  color,
-  accentColor,
-  isRemote = false,
-}: {
-  color: string;
-  accentColor: string;
-  isRemote?: boolean;
-}) {
-  return (
-    <group>
-      {/* Slender Anime Neck */}
-      <mesh position={[0, -0.09, 0]}>
-        <cylinderGeometry args={[0.065, 0.075, 0.1, 12]} />
-        <meshStandardMaterial color="#fcd4b8" roughness={0.65} metalness={0.02} />
-      </mesh>
-
-      {/* Anime Cranium & Face */}
-      <mesh position={[0, 0.04, 0.01]} castShadow>
-        <sphereGeometry args={[0.18, 20, 18]} />
-        <meshStandardMaterial color="#fcd4b8" roughness={0.65} metalness={0.02} />
-      </mesh>
-      {/* Anime Tapered Chin */}
-      <mesh position={[0, -0.04, 0.08]} rotation={[0.25, 0, 0]} castShadow>
-        <boxGeometry args={[0.11, 0.1, 0.12]} />
-        <meshStandardMaterial color="#fcd4b8" roughness={0.65} metalness={0.02} />
-      </mesh>
-
-      {/* Anime Eyes */}
-      <mesh position={[-0.055, 0.03, 0.16]}>
-        <boxGeometry args={[0.035, 0.02, 0.01]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.2} />
-      </mesh>
-      <mesh position={[0.055, 0.03, 0.16]}>
-        <boxGeometry args={[0.035, 0.02, 0.01]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.2} />
-      </mesh>
-      {/* Eye Catchlight Highlights */}
-      <mesh position={[-0.048, 0.036, 0.166]}>
-        <sphereGeometry args={[0.006, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
-      <mesh position={[0.062, 0.036, 0.166]}>
-        <sphereGeometry args={[0.006, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
-
-      {/* Eyebrows */}
-      <mesh position={[-0.055, 0.065, 0.162]}>
-        <boxGeometry args={[0.04, 0.007, 0.005]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} />
-      </mesh>
-      <mesh position={[0.055, 0.065, 0.162]}>
-        <boxGeometry args={[0.04, 0.007, 0.005]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} />
-      </mesh>
-
-      {/* Spiky Anime Hair Bangs */}
-      <mesh position={[0, 0.1, 0.14]} rotation={[-0.2, 0, 0]}>
-        <boxGeometry args={[0.08, 0.06, 0.04]} />
-        <meshStandardMaterial color="#18181b" roughness={0.8} />
-      </mesh>
-      <mesh position={[-0.065, 0.08, 0.15]} rotation={[-0.1, 0, 0.2]}>
-        <boxGeometry args={[0.05, 0.07, 0.03]} />
-        <meshStandardMaterial color="#18181b" roughness={0.8} />
-      </mesh>
-      <mesh position={[0.065, 0.08, 0.15]} rotation={[-0.1, 0, -0.2]}>
-        <boxGeometry args={[0.05, 0.07, 0.03]} />
-        <meshStandardMaterial color="#18181b" roughness={0.8} />
-      </mesh>
-
-      {/* 3D Fabric Streetwear Hood Enveloping Head */}
-      <mesh position={[0, 0.06, -0.03]} castShadow>
-        <sphereGeometry args={[0.21, 24, 20]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} metalness={0.05} />
-      </mesh>
-      {/* Front Face Opening Rim */}
-      <mesh position={[0, 0.05, 0.06]} rotation={[0.25, 0, 0]}>
-        <torusGeometry args={[0.17, 0.028, 10, 24]} />
-        <meshStandardMaterial color="#27272a" roughness={0.9} metalness={0.05} />
-      </mesh>
-
-      {/* Natural Warm Character Fill Light */}
-      {!isRemote && (
-        <pointLight position={[0, 0.2, 0.4]} intensity={1.4} distance={6} color="#fffbeb" />
-      )}
-    </group>
-  );
-}
-
-function MaleHoodieLeftArm({
-  leftForearmRef,
-  color,
-  accentColor,
-}: {
-  leftForearmRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-  isPunching?: boolean;
-}) {
-  return (
-    <group>
-      {/* Shoulder Yoke (White Colorblock) */}
-      <mesh position={[-0.02, 0.03, 0]} castShadow>
-        <cylinderGeometry args={[0.06, 0.055, 0.1, 12]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.8} metalness={0.05} />
-      </mesh>
-      {/* Upper Sleeve (Black Hoodie Cloth) */}
-      <mesh position={[-0.03, -0.09, 0]} castShadow>
-        <cylinderGeometry args={[0.055, 0.05, 0.14, 12]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* Forearm & Fist Hinge at Elbow */}
-      <group ref={leftForearmRef} position={[-0.03, -0.21, 0]}>
-        {/* Lower Sleeve */}
-        <mesh position={[0, -0.09, 0]} castShadow>
-          <cylinderGeometry args={[0.052, 0.048, 0.15, 12]} />
-          <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-        </mesh>
-        {/* Ribbed Wrist Cuff */}
-        <mesh position={[0, -0.17, 0]}>
-          <cylinderGeometry args={[0.049, 0.046, 0.04, 12]} />
-          <meshStandardMaterial color="#27272a" roughness={0.9} />
-        </mesh>
-        {/* Anime Hand */}
-        <mesh position={[0, -0.23, 0.01]} castShadow>
-          <boxGeometry args={[0.065, 0.075, 0.065]} />
-          <meshStandardMaterial color="#fcd4b8" roughness={0.65} metalness={0.02} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-function MaleHoodieRightArm({
-  rightForearmRef,
-  color,
-  accentColor,
-  isPunching = false,
-}: {
-  rightForearmRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-  isPunching?: boolean;
-}) {
-  return (
-    <group>
-      {/* Shoulder Yoke (White Colorblock) */}
-      <mesh position={[0.02, 0.03, 0]} castShadow>
-        <cylinderGeometry args={[0.06, 0.055, 0.1, 12]} />
-        <meshStandardMaterial color="#f8fafc" roughness={0.8} metalness={0.05} />
-      </mesh>
-      {/* Upper Sleeve (Black Hoodie Cloth) */}
-      <mesh position={[0.03, -0.09, 0]} castShadow>
-        <cylinderGeometry args={[0.055, 0.05, 0.14, 12]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* Forearm & Fist Hinge at Elbow */}
-      <group ref={rightForearmRef} position={[0.03, -0.21, 0]}>
-        {/* Lower Sleeve */}
-        <mesh position={[0, -0.09, 0]} castShadow>
-          <cylinderGeometry args={[0.052, 0.048, 0.15, 12]} />
-          <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-        </mesh>
-        {/* Ribbed Wrist Cuff */}
-        <mesh position={[0, -0.17, 0]}>
-          <cylinderGeometry args={[0.049, 0.046, 0.04, 12]} />
-          <meshStandardMaterial color="#27272a" roughness={0.9} />
-        </mesh>
-        {/* Anime Punching Fist */}
-        <mesh position={[0, -0.23, 0.01]} castShadow>
-          <boxGeometry args={[0.07, 0.08, 0.07]} />
-          <meshStandardMaterial color="#fcd4b8" roughness={0.65} metalness={0.02} />
-        </mesh>
-        {isPunching && (
-          <mesh position={[0, -0.25, 0.04]}>
-            <sphereGeometry args={[0.045, 8, 8]} />
-            <meshBasicMaterial color={accentColor} transparent opacity={0.6} />
-          </mesh>
-        )}
-      </group>
-    </group>
-  );
-}
-
-function MaleHoodieLeg({
-  isLeft,
-  leftShinRef,
-  color,
-  accentColor,
-}: {
-  isLeft: boolean;
-  leftShinRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-}) {
-  const sideSign = isLeft ? -1 : 1;
-  return (
-    <group>
-      {/* Streetwear Dark Cargo Pants Thigh */}
-      <mesh position={[0, -0.16, 0]} castShadow>
-        <cylinderGeometry args={[0.075, 0.068, 0.32, 12]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* 3D Side Cargo Flap Pocket */}
-      <group position={[sideSign * 0.08, -0.14, 0]}>
-        <mesh castShadow>
-          <boxGeometry args={[0.035, 0.12, 0.1]} />
-          <meshStandardMaterial color="#293548" roughness={0.85} metalness={0.05} />
-        </mesh>
-        {/* Pocket Flap */}
-        <mesh position={[sideSign * 0.005, 0.05, 0]}>
-          <boxGeometry args={[0.038, 0.03, 0.1]} />
-          <meshStandardMaterial color="#1e293b" roughness={0.85} metalness={0.05} />
-        </mesh>
-      </group>
-
-      {/* Shin & Sneaker Group */}
-      <group ref={leftShinRef} position={[0, -0.32, 0]}>
-        {/* Lower Cargo Pant Leg */}
-        <mesh position={[0, -0.16, 0]} castShadow>
-          <cylinderGeometry args={[0.066, 0.055, 0.3, 12]} />
-          <meshStandardMaterial color="#1e293b" roughness={0.85} metalness={0.05} />
-        </mesh>
-        {/* Elastic Ankle Gather */}
-        <mesh position={[0, -0.32, 0]}>
-          <cylinderGeometry args={[0.056, 0.052, 0.04, 12]} />
-          <meshStandardMaterial color="#18181b" roughness={0.9} />
-        </mesh>
-
-        {/* Chunky Streetwear Sneakers */}
-        {/* White Platform Midsole */}
-        <mesh position={[0, -0.47, 0.04]} castShadow>
-          <boxGeometry args={[0.12, 0.05, 0.25]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.5} metalness={0.05} />
-        </mesh>
-        {/* Black Sneaker Upper */}
-        <mesh position={[0, -0.41, 0.03]} castShadow>
-          <boxGeometry args={[0.11, 0.09, 0.22]} />
-          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.1} />
-        </mesh>
-        {/* White Sneaker Toe Box */}
-        <mesh position={[0, -0.43, 0.14]} castShadow>
-          <boxGeometry args={[0.1, 0.06, 0.07]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.6} />
-        </mesh>
-        {/* White Sneaker Laces & Tongue */}
-        <mesh position={[0, -0.38, 0.07]}>
-          <boxGeometry args={[0.06, 0.04, 0.1]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.8} />
-        </mesh>
-        {/* Accent Heel Clip */}
-        <mesh position={[0, -0.43, -0.07]}>
-          <boxGeometry args={[0.09, 0.03, 0.02]} />
-          <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.3} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-/* --- Female Casual Denim Character Parts --- */
-function FemaleCasualTorso({
-  color,
-  accentColor,
-}: {
-  color: string;
-  accentColor: string;
-}) {
-  return (
-    <group>
-      {/* Brown Leather Belt */}
-      <mesh position={[0, 0.96, 0]} castShadow>
-        <cylinderGeometry args={[0.19, 0.18, 0.06, 16]} />
-        <meshStandardMaterial color="#78350f" roughness={0.5} metalness={0.1} />
-      </mesh>
-      {/* Silver Belt Buckle */}
-      <mesh position={[0, 0.96, 0.16]}>
-        <boxGeometry args={[0.065, 0.045, 0.02]} />
-        <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.2} />
-      </mesh>
-
-      {/* Fitted Inner White Scoop-Neck Tee */}
-      <mesh position={[0, 1.08, 0.01]} castShadow>
-        <boxGeometry args={[0.32, 0.18, 0.18]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.75} metalness={0.02} />
-      </mesh>
-      <mesh position={[0, 1.25, 0.01]} castShadow>
-        <boxGeometry args={[0.36, 0.2, 0.2]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.75} metalness={0.02} />
-      </mesh>
-      {/* Scoop Neckline (Fair Skin Showing) */}
-      <mesh position={[0, 1.34, 0.08]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.02, 12]} />
-        <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-      </mesh>
-
-      {/* Open Black Zip Hoodie Jacket */}
-      {/* Left Front Jacket Flap */}
-      <mesh position={[-0.15, 1.2, 0.03]} rotation={[0, 0.15, 0]} castShadow>
-        <boxGeometry args={[0.11, 0.28, 0.21]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {/* Right Front Jacket Flap */}
-      <mesh position={[0.15, 1.2, 0.03]} rotation={[0, -0.15, 0]} castShadow>
-        <boxGeometry args={[0.11, 0.28, 0.21]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {/* Jacket Back */}
-      <mesh position={[0, 1.21, -0.1]} castShadow>
-        <boxGeometry args={[0.38, 0.28, 0.06]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-
-      {/* Silver Zipper Tracks on Jacket Edges */}
-      <mesh position={[-0.09, 1.18, 0.12]}>
-        <boxGeometry args={[0.008, 0.26, 0.01]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.2} />
-      </mesh>
-      <mesh position={[0.09, 1.18, 0.12]}>
-        <boxGeometry args={[0.008, 0.26, 0.01]} />
-        <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.2} />
-      </mesh>
-
-      {/* Draped Fabric Hood on Upper Back */}
-      <mesh position={[0, 1.36, -0.14]} rotation={[0.3, 0, 0]} castShadow>
-        <boxGeometry args={[0.26, 0.16, 0.11]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} metalness={0.05} />
-      </mesh>
-
-      {/* Draped Drawstrings */}
-      <mesh position={[-0.08, 1.26, 0.13]}>
-        <cylinderGeometry args={[0.005, 0.005, 0.16, 8]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.6} />
-      </mesh>
-      <mesh position={[0.08, 1.24, 0.13]}>
-        <cylinderGeometry args={[0.005, 0.005, 0.19, 8]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.6} />
-      </mesh>
-    </group>
-  );
-}
-
-function FemaleCasualHead({
-  color,
-  accentColor,
-  isRemote = false,
-}: {
-  color: string;
-  accentColor: string;
-  isRemote?: boolean;
-}) {
-  return (
-    <group>
-      {/* Slender Fair Neck */}
-      <mesh position={[0, -0.09, 0]}>
-        <cylinderGeometry args={[0.055, 0.065, 0.1, 12]} />
-        <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-      </mesh>
-
-      {/* Delicate Anime Head */}
-      <mesh position={[0, 0.03, 0.01]} castShadow>
-        <sphereGeometry args={[0.17, 20, 18]} />
-        <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-      </mesh>
-      <mesh position={[0, -0.04, 0.07]} rotation={[0.22, 0, 0]} castShadow>
-        <boxGeometry args={[0.095, 0.09, 0.1]} />
-        <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-      </mesh>
-
-      {/* Expressive Anime Eyes */}
-      <mesh position={[-0.05, 0.035, 0.15]}>
-        <boxGeometry args={[0.032, 0.022, 0.01]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.2} />
-      </mesh>
-      <mesh position={[0.05, 0.035, 0.15]}>
-        <boxGeometry args={[0.032, 0.022, 0.01]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.2} />
-      </mesh>
-      {/* Catchlights */}
-      <mesh position={[-0.044, 0.038, 0.156]}>
-        <sphereGeometry args={[0.006, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
-      <mesh position={[0.056, 0.038, 0.156]}>
-        <sphereGeometry args={[0.006, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" />
-      </mesh>
-
-      {/* Slender Eyebrows */}
-      <mesh position={[-0.05, 0.065, 0.152]}>
-        <boxGeometry args={[0.035, 0.005, 0.005]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.9} />
-      </mesh>
-      <mesh position={[0.05, 0.065, 0.152]}>
-        <boxGeometry args={[0.035, 0.005, 0.005]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.9} />
-      </mesh>
-
-      {/* Soft Lips */}
-      <mesh position={[0, -0.045, 0.13]}>
-        <boxGeometry args={[0.028, 0.008, 0.01]} />
-        <meshStandardMaterial color="#fb7185" roughness={0.5} />
-      </mesh>
-
-      {/* Shoulder-Length Straight Dark Anime Hair */}
-      {/* Hair Cap */}
-      <mesh position={[0, 0.06, -0.02]} castShadow>
-        <sphereGeometry args={[0.195, 20, 18]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.8} />
-      </mesh>
-      {/* Neat Front Bangs */}
-      <mesh position={[0, 0.08, 0.13]} rotation={[-0.15, 0, 0]}>
-        <boxGeometry args={[0.16, 0.05, 0.05]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.8} />
-      </mesh>
-      {/* Left Side Hair Strands */}
-      <mesh position={[-0.11, -0.05, 0.04]} rotation={[0.05, 0, -0.08]}>
-        <boxGeometry args={[0.04, 0.22, 0.07]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.8} />
-      </mesh>
-      {/* Right Side Hair Strands */}
-      <mesh position={[0.11, -0.05, 0.04]} rotation={[0.05, 0, 0.08]}>
-        <boxGeometry args={[0.04, 0.22, 0.07]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.8} />
-      </mesh>
-      {/* Straight Back Hair Curtain Falling to Shoulders */}
-      <mesh position={[0, -0.06, -0.1]} castShadow>
-        <boxGeometry args={[0.26, 0.26, 0.05]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.8} />
-      </mesh>
-
-      {/* Natural Warm Character Fill Light */}
-      {!isRemote && (
-        <pointLight position={[0, 0.2, 0.4]} intensity={1.4} distance={6} color="#fffbeb" />
-      )}
-    </group>
-  );
-}
-
-function FemaleCasualLeftArm({
-  leftForearmRef,
-  color,
-  accentColor,
-}: {
-  leftForearmRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-  isPunching?: boolean;
-}) {
-  return (
-    <group>
-      {/* Pushed-Up Loose Jacket Sleeve */}
-      <mesh position={[-0.02, -0.06, 0]} castShadow>
-        <cylinderGeometry args={[0.055, 0.06, 0.14, 12]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {/* Ruched Sleeve Cuff */}
-      <mesh position={[-0.02, -0.14, 0]}>
-        <cylinderGeometry args={[0.062, 0.058, 0.04, 12]} />
-        <meshStandardMaterial color="#27272a" roughness={0.9} />
-      </mesh>
-
-      {/* Exposed Fair Forearm & Delicate Hands */}
-      <group ref={leftForearmRef} position={[-0.02, -0.18, 0]}>
-        {/* Slender Bare Forearm */}
-        <mesh position={[0, -0.08, 0]} castShadow>
-          <cylinderGeometry args={[0.042, 0.038, 0.16, 12]} />
-          <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-        </mesh>
-        {/* Minimalist Wrist Watch / Slim Bracelet */}
-        <mesh position={[0, -0.16, 0]}>
-          <cylinderGeometry args={[0.043, 0.043, 0.02, 12]} />
-          <meshStandardMaterial color={accentColor} metalness={0.7} roughness={0.3} />
-        </mesh>
-        {/* Delicate Anime Hand */}
-        <mesh position={[0, -0.22, 0.01]} castShadow>
-          <boxGeometry args={[0.055, 0.07, 0.055]} />
-          <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-function FemaleCasualRightArm({
-  rightForearmRef,
-  color,
-  accentColor,
-  isPunching = false,
-}: {
-  rightForearmRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-  isPunching?: boolean;
-}) {
-  return (
-    <group>
-      {/* Pushed-Up Loose Jacket Sleeve */}
-      <mesh position={[0.02, -0.06, 0]} castShadow>
-        <cylinderGeometry args={[0.055, 0.06, 0.14, 12]} />
-        <meshStandardMaterial color="#18181b" roughness={0.85} metalness={0.05} />
-      </mesh>
-      {/* Ruched Sleeve Cuff */}
-      <mesh position={[0.02, -0.14, 0]}>
-        <cylinderGeometry args={[0.062, 0.058, 0.04, 12]} />
-        <meshStandardMaterial color="#27272a" roughness={0.9} />
-      </mesh>
-
-      {/* Exposed Fair Forearm & Punching Fist */}
-      <group ref={rightForearmRef} position={[0.02, -0.18, 0]}>
-        <mesh position={[0, -0.08, 0]} castShadow>
-          <cylinderGeometry args={[0.042, 0.038, 0.16, 12]} />
-          <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-        </mesh>
-        {/* Delicate Fist */}
-        <mesh position={[0, -0.22, 0.01]} castShadow>
-          <boxGeometry args={[0.06, 0.075, 0.06]} />
-          <meshStandardMaterial color="#fde5d2" roughness={0.65} metalness={0.02} />
-        </mesh>
-        {isPunching && (
-          <mesh position={[0, -0.24, 0.04]}>
-            <sphereGeometry args={[0.045, 8, 8]} />
-            <meshBasicMaterial color={accentColor} transparent opacity={0.6} />
-          </mesh>
-        )}
-      </group>
-    </group>
-  );
-}
-
-function FemaleCasualLeg({
-  isLeft,
-  leftShinRef,
-  color,
-  accentColor,
-}: {
-  isLeft: boolean;
-  leftShinRef: React.RefObject<THREE.Group | null>;
-  color: string;
-  accentColor: string;
-}) {
-  return (
-    <group>
-      {/* Blue Denim Jeans Thigh */}
-      <mesh position={[0, -0.16, 0]} castShadow>
-        <cylinderGeometry args={[0.07, 0.062, 0.32, 12]} />
-        <meshStandardMaterial color="#2563eb" roughness={0.82} metalness={0.02} />
-      </mesh>
-      {/* Denim Back Pocket Stitch Detailing */}
-      <mesh position={[0, -0.1, -0.06]}>
-        <boxGeometry args={[0.08, 0.08, 0.01]} />
-        <meshStandardMaterial color="#1d4ed8" roughness={0.85} />
-      </mesh>
-
-      {/* Shin & Canvas Sneaker Group */}
-      <group ref={leftShinRef} position={[0, -0.32, 0]}>
-        {/* Lower Denim Jean Leg */}
-        <mesh position={[0, -0.17, 0]} castShadow>
-          <cylinderGeometry args={[0.06, 0.05, 0.3, 12]} />
-          <meshStandardMaterial color="#2563eb" roughness={0.82} metalness={0.02} />
-        </mesh>
-        {/* Jean Cuff Hem Just Above Sneaker */}
-        <mesh position={[0, -0.32, 0]}>
-          <cylinderGeometry args={[0.052, 0.049, 0.03, 12]} />
-          <meshStandardMaterial color="#1d4ed8" roughness={0.85} />
-        </mesh>
-
-        {/* Classic Converse-Style Canvas Sneakers */}
-        {/* White Vulcanized Rubber Sole */}
-        <mesh position={[0, -0.46, 0.04]} castShadow>
-          <boxGeometry args={[0.1, 0.038, 0.24]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.5} metalness={0.05} />
-        </mesh>
-        {/* Black Canvas Sneaker Upper */}
-        <mesh position={[0, -0.4, 0.03]} castShadow>
-          <boxGeometry args={[0.09, 0.09, 0.2]} />
-          <meshStandardMaterial color="#18181b" roughness={0.8} metalness={0.05} />
-        </mesh>
-        {/* White Rubber Toe Cap */}
-        <mesh position={[0, -0.42, 0.13]} castShadow>
-          <boxGeometry args={[0.085, 0.055, 0.07]} />
-          <meshStandardMaterial color="#f8fafc" roughness={0.5} />
-        </mesh>
-        {/* White Canvas Laces & Tongue */}
-        <mesh position={[0, -0.37, 0.06]}>
-          <boxGeometry args={[0.05, 0.035, 0.09]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.8} />
-        </mesh>
-        {/* White Circular Ankle Star Patch */}
-        <mesh
-          position={[isLeft ? 0.046 : -0.046, -0.39, 0]}
-          rotation={[0, 0, Math.PI / 2]}
-        >
-          <cylinderGeometry args={[0.016, 0.016, 0.005, 10]} />
-          <meshStandardMaterial color="#ffffff" roughness={0.6} />
-        </mesh>
-      </group>
-    </group>
-  );
-}
-
-/* ============================================================
-   3D ANIME CHARACTER / AVATAR (Procedural Rig with Walk Cycle)
-============================================================ */
 function CyberCharacter({
   carRef,
   steerRef,
@@ -1757,27 +1082,23 @@ function CyberCharacter({
   isHit?: boolean;
 }) {
   const blobTex = useMemo(() => getBlobTexture(), []);
+  const spriteTex = useMemo(() => getAnimeSpriteTexture(modelType), [modelType]);
 
   const rootGroup = useRef<THREE.Group>(null);
-  const bodyGroup = useRef<THREE.Group>(null);
-  const headGroup = useRef<THREE.Group>(null);
-  const leftLegRef = useRef<THREE.Group>(null);
-  const rightLegRef = useRef<THREE.Group>(null);
-  const leftShinRef = useRef<THREE.Group>(null);
-  const rightShinRef = useRef<THREE.Group>(null);
-  const leftArmRef = useRef<THREE.Group>(null);
-  const rightArmRef = useRef<THREE.Group>(null);
-  const leftForearmRef = useRef<THREE.Group>(null);
-  const rightForearmRef = useRef<THREE.Group>(null);
-  const droneRef = useRef<THREE.Group>(null);
-  const auraRef = useRef<THREE.Mesh>(null);
   const flipPivotRef = useRef<THREE.Group>(null);
-  const flipProgressRef = useRef<number>(0);
-  const wasAirborneRef = useRef<boolean>(false);
+  const billboardGroupRef = useRef<THREE.Group>(null);
+  const spriteMeshRef = useRef<THREE.Mesh>(null);
   const somersaultRingRef = useRef<THREE.Mesh>(null);
 
   const walkPhaseRef = useRef<number>(0);
   const walkWeightRef = useRef<number>(0);
+  const flipProgressRef = useRef<number>(0);
+  const wasAirborneRef = useRef<boolean>(false);
+  const facingSignRef = useRef<number>(1);
+
+  const isFemale = modelType === "female_casual";
+  const planeWidth = isFemale ? 1.65 : 1.76;
+  const planeHeight = isFemale ? 1.92 : 1.95;
 
   useFrame((state, delta) => {
     const player = carRef.current;
@@ -1853,161 +1174,89 @@ function CyberCharacter({
       }
     }
 
-    // Smoothly blend walking animation in & out
+    // Billboarding: Sprite smoothly faces the camera yaw (never looks paper-thin!)
+    if (billboardGroupRef.current && rootGroup.current) {
+      const cam = state.camera;
+      const rootPos = rootGroup.current.position;
+      const dx = cam.position.x - rootPos.x;
+      const dz = cam.position.z - rootPos.z;
+      const camAngle = Math.atan2(dx, dz);
+
+      // Rotate group on Y to match camera direction
+      billboardGroupRef.current.rotation.y = camAngle - rootGroup.current.rotation.y;
+
+      // Determine horizontal flip based on movement relative to camera
+      if (absSpeed > 0.25) {
+        let diff = player.rot - camAngle;
+        while (diff < -Math.PI) diff += Math.PI * 2;
+        while (diff > Math.PI) diff -= Math.PI * 2;
+        // If moving right across camera view
+        if (diff > 0.15 && diff < Math.PI - 0.15) {
+          facingSignRef.current = 1;
+        } else if (diff < -0.15 && diff > -Math.PI + 0.15) {
+          facingSignRef.current = -1;
+        }
+      }
+    }
+
+    // Smooth walk weight
     const targetWalkWeight = isMoving && !isAirborne ? 1.0 : 0.0;
     walkWeightRef.current = THREE.MathUtils.damp(walkWeightRef.current, targetWalkWeight, 12, delta);
     const walkWeight = walkWeightRef.current;
 
-    // Advance walk cycle only when moving
-    const cycleFreq = isSprinting ? 12 : 8.5;
+    // Advance walk cycle
+    const cycleFreq = isSprinting ? 13 : 9;
     if (walkWeight > 0.01) {
       walkPhaseRef.current += delta * cycleFreq;
     }
     const phase = walkPhaseRef.current;
     const stride = Math.min(1.0, absSpeed / 2.6) * walkWeight;
 
-    // Arm swing & punch kinematics with elbow flexion
-    if (leftArmRef.current && rightArmRef.current && leftForearmRef.current && rightForearmRef.current) {
-      if (isPunching) {
-        // Fast anime punch jab forward with right fist
-        rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -Math.PI / 1.75, 26, delta);
-        rightArmRef.current.position.z = THREE.MathUtils.damp(rightArmRef.current.position.z, 0.35, 26, delta);
-        rightForearmRef.current.rotation.x = THREE.MathUtils.damp(rightForearmRef.current.rotation.x, -0.15, 26, delta);
+    // Dynamic 2.5D Animated Sprite Kinematics
+    if (spriteMeshRef.current) {
+      // Step bounce (up-down rhythmic footfalls)
+      const bounce = isAirborne ? 0 : Math.abs(Math.sin(phase)) * (isSprinting ? 0.075 : 0.04) * stride;
+      // Gentle breathing idle pulse
+      const breathing = isMoving || isAirborne ? 0 : Math.sin(state.clock.elapsedTime * 2.8) * 0.014;
+      // Foot strike squash & stretch
+      const squash = isAirborne ? 0 : Math.sin(phase * 2) * 0.03 * stride;
 
-        leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, 0.3, 20, delta);
-        leftForearmRef.current.rotation.x = THREE.MathUtils.damp(leftForearmRef.current.rotation.x, -0.7, 20, delta);
-      } else if (isHit) {
-        rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -0.75, 18, delta);
-        leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, -0.75, 18, delta);
-        rightForearmRef.current.rotation.x = -0.4;
-        leftForearmRef.current.rotation.x = -0.4;
-      } else if (isAirborne) {
-        if (tuck > 0.05) {
-          // Acrobatic front flip / salto depan arm tuck
-          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(-0.45, -1.35, tuck);
-          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(-0.45, -1.35, tuck);
-          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
-          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
-          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(0.1, 0.28, tuck);
-          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(-0.1, -0.28, tuck);
-        } else {
-          // Natural jumping aerial posture
-          leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, -0.45, 10, delta);
-          rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -0.45, 10, delta);
-          leftForearmRef.current.rotation.x = -0.2;
-          rightForearmRef.current.rotation.x = -0.2;
-        }
-      } else {
-        // Natural opposite arm swing
-        const armCycle = Math.sin(phase) * (isSprinting ? 0.8 : 0.5) * stride;
-        leftArmRef.current.rotation.x = armCycle;
-        rightArmRef.current.rotation.x = -armCycle;
-        rightArmRef.current.position.z = 0;
+      // Position adjustments
+      const punchZ = isPunching ? 0.32 : 0;
+      const hitShake = isHit ? Math.sin(state.clock.elapsedTime * 35) * 0.07 : 0;
+      const hitZ = isHit ? -0.15 : 0;
 
-        // Natural elbow flexion
-        const leftElbow = -0.32 - (isSprinting ? 0.35 : 0.18) * Math.max(0, Math.sin(phase)) * stride;
-        const rightElbow = -0.32 - (isSprinting ? 0.35 : 0.18) * Math.max(0, -Math.sin(phase)) * stride;
-        leftForearmRef.current.rotation.x = leftElbow;
-        rightForearmRef.current.rotation.x = rightElbow;
-
-        leftArmRef.current.rotation.z = isSprinting ? 0.22 : 0.1;
-        rightArmRef.current.rotation.z = isSprinting ? -0.22 : -0.1;
-      }
-    }
-
-    // Leg stride kinematics with knee flexion
-    if (leftLegRef.current && rightLegRef.current && leftShinRef.current && rightShinRef.current) {
-      if (isAirborne) {
-        if (tuck > 0.05) {
-          // Front flip knee & shin tuck
-          leftLegRef.current.rotation.x = THREE.MathUtils.lerp(0.3, -1.15, tuck);
-          rightLegRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
-          leftShinRef.current.rotation.x = THREE.MathUtils.lerp(0.45, 1.6, tuck);
-          rightShinRef.current.rotation.x = THREE.MathUtils.lerp(0.65, 1.6, tuck);
-        } else {
-          leftLegRef.current.rotation.x = THREE.MathUtils.damp(leftLegRef.current.rotation.x, 0.3, 10, delta);
-          rightLegRef.current.rotation.x = THREE.MathUtils.damp(rightLegRef.current.rotation.x, -0.2, 10, delta);
-          leftShinRef.current.rotation.x = THREE.MathUtils.damp(leftShinRef.current.rotation.x, 0.45, 10, delta);
-          rightShinRef.current.rotation.x = THREE.MathUtils.damp(rightShinRef.current.rotation.x, 0.65, 10, delta);
-        }
-      } else {
-        // Thigh swing
-        const legCycle = Math.sin(phase) * (isSprinting ? 0.9 : 0.62) * stride;
-        leftLegRef.current.rotation.x = -legCycle;
-        rightLegRef.current.rotation.x = legCycle;
-
-        // Knee bends backward only when foot swings back / lifts off
-        const leftKneeBend = Math.max(0, -Math.sin(phase)) * (isSprinting ? 1.15 : 0.78) * stride;
-        const rightKneeBend = Math.max(0, Math.sin(phase)) * (isSprinting ? 1.15 : 0.78) * stride;
-        leftShinRef.current.rotation.x = leftKneeBend;
-        rightShinRef.current.rotation.x = rightKneeBend;
-      }
-    }
-
-    // Torso counter-rotation, lateral hip sway & bounce
-    if (bodyGroup.current) {
-      if (isHit) {
-        bodyGroup.current.rotation.x = -0.42;
-        bodyGroup.current.position.z = -0.15;
-      } else if (isPunching) {
-        bodyGroup.current.rotation.y = -0.36;
-        bodyGroup.current.rotation.x = 0.15;
-        bodyGroup.current.position.z = 0.08;
-      } else {
-        // Rhythmic vertical step bounce (2 bounces per cycle)
-        const bounce = isAirborne ? 0 : Math.abs(Math.sin(phase)) * (isSprinting ? 0.055 : 0.028) * stride;
-        bodyGroup.current.position.y = bounce;
-        bodyGroup.current.position.z = 0;
-
-        // Spine counter-rotation (cross-body torsion)
-        const spineTwist = Math.sin(phase) * 0.075 * stride;
-        bodyGroup.current.rotation.y = THREE.MathUtils.damp(bodyGroup.current.rotation.y, spineTwist, 12, delta);
-
-        // Lateral hip sway (Z roll)
-        const hipSway = Math.sin(phase) * 0.035 * stride;
-        bodyGroup.current.rotation.z = THREE.MathUtils.damp(bodyGroup.current.rotation.z, hipSway + tiltRef.current.roll * 0.5, 10, delta);
-
-        // Dynamic forward lean
-        const forwardLean = THREE.MathUtils.clamp(speed * 0.024, -0.1, isSprinting ? 0.32 : 0.18);
-        bodyGroup.current.rotation.x = THREE.MathUtils.damp(bodyGroup.current.rotation.x, forwardLean, 10, delta);
-      }
-    }
-
-    // Head looks in steer direction
-    if (headGroup.current) {
-      headGroup.current.rotation.y = THREE.MathUtils.damp(
-        headGroup.current.rotation.y,
-        steerRef.current * 0.45,
-        10,
+      spriteMeshRef.current.position.y = planeHeight / 2 + bounce + breathing;
+      spriteMeshRef.current.position.z = THREE.MathUtils.damp(
+        spriteMeshRef.current.position.z,
+        punchZ + hitZ,
+        22,
         delta
       );
-      if (tuck > 0.05) {
-        headGroup.current.rotation.x = THREE.MathUtils.lerp(0, 0.35, tuck);
-      } else {
-        headGroup.current.rotation.x = 0;
-      }
-    }
+      spriteMeshRef.current.position.x = hitShake;
 
-    // Floating AI Companion Drone
-    if (droneRef.current) {
-      const t = state.clock.elapsedTime;
-      droneRef.current.position.y = 1.62 + Math.sin(t * 3.4) * 0.12;
-      droneRef.current.position.x = 0.58 + Math.cos(t * 1.8) * 0.08;
-      droneRef.current.position.z = -0.28 + Math.sin(t * 1.8) * 0.08;
-      droneRef.current.rotation.y += delta * 2.2;
-    }
+      // Dynamic squash & stretch + horizontal direction flip
+      const targetScaleX = facingSignRef.current * (1 - squash);
+      const targetScaleY = 1 + squash;
+      spriteMeshRef.current.scale.x = THREE.MathUtils.damp(spriteMeshRef.current.scale.x, targetScaleX, 20, delta);
+      spriteMeshRef.current.scale.y = targetScaleY;
 
-    // Sprint aura pulse
-    if (auraRef.current) {
-      auraRef.current.visible = isSprinting;
-      if (isSprinting) {
-        const aScale = 1.0 + (Math.sin(state.clock.elapsedTime * 12) * 0.5 + 0.5) * 0.35;
-        auraRef.current.scale.set(aScale, aScale, aScale);
-      }
+      // Forward lean when running
+      const forwardLean = THREE.MathUtils.clamp(speed * 0.022, -0.06, isSprinting ? 0.24 : 0.12);
+      spriteMeshRef.current.rotation.x = THREE.MathUtils.damp(spriteMeshRef.current.rotation.x, forwardLean, 12, delta);
+
+      // Lateral banking roll
+      const swayRoll = Math.sin(phase) * 0.035 * stride;
+      spriteMeshRef.current.rotation.z = THREE.MathUtils.damp(
+        spriteMeshRef.current.rotation.z,
+        swayRoll - steerRef.current * 0.08,
+        12,
+        delta
+      );
     }
   });
 
-  const avatarEmoji = modelType === "female_casual" ? "👧" : "👦";
+  const avatarEmoji = isFemale ? "👧" : "👦";
 
   return (
     <group ref={rootGroup}>
@@ -2047,96 +1296,37 @@ function CyberCharacter({
       {/* 3D Somersault Pivot (Salto Depan - Center of mass at hips y = 0.85) */}
       <group ref={flipPivotRef} position={[0, 0.85, 0]}>
         <group position={[0, -0.85, 0]}>
-          {/* Upper Body + Head + Arms */}
-          <group ref={bodyGroup}>
-            {modelType === "female_casual" ? (
-              <FemaleCasualTorso color={color} accentColor={accentColor} />
-            ) : (
-              <MaleHoodieTorso color={color} accentColor={accentColor} />
+          {/* Billboard Group: Dynamically faces the camera */}
+          <group ref={billboardGroupRef}>
+            {/* 2.5D Animated HD Sprite Plane */}
+            <mesh ref={spriteMeshRef} position={[0, planeHeight / 2, 0]} castShadow>
+              <planeGeometry args={[planeWidth, planeHeight]} />
+              <meshStandardMaterial
+                map={spriteTex}
+                transparent
+                alphaTest={0.08}
+                depthWrite
+                side={THREE.DoubleSide}
+                roughness={0.65}
+                metalness={0.02}
+              />
+            </mesh>
+
+            {/* Punch Action Kinetic Flash */}
+            {isPunching && (
+              <mesh position={[facingSignRef.current * 0.45, 1.25, 0.2]}>
+                <sphereGeometry args={[0.2, 12, 10]} />
+                <meshBasicMaterial color={accentColor} transparent opacity={0.7} />
+              </mesh>
             )}
 
-            {/* Head */}
-            <group ref={headGroup} position={[0, 1.62, 0]}>
-              {modelType === "female_casual" ? (
-                <FemaleCasualHead color={color} accentColor={accentColor} isRemote={isRemote} />
-              ) : (
-                <MaleHoodieHead color={color} accentColor={accentColor} isRemote={isRemote} />
-              )}
-            </group>
-
-            {/* Left Arm */}
-            <group ref={leftArmRef} position={[-0.3, 1.38, 0]}>
-              {modelType === "female_casual" ? (
-                <FemaleCasualLeftArm
-                  leftForearmRef={leftForearmRef}
-                  color={color}
-                  accentColor={accentColor}
-                  isPunching={isPunching}
-                />
-              ) : (
-                <MaleHoodieLeftArm
-                  leftForearmRef={leftForearmRef}
-                  color={color}
-                  accentColor={accentColor}
-                  isPunching={isPunching}
-                />
-              )}
-            </group>
-
-            {/* Right Arm */}
-            <group ref={rightArmRef} position={[0.3, 1.38, 0]}>
-              {modelType === "female_casual" ? (
-                <FemaleCasualRightArm
-                  rightForearmRef={rightForearmRef}
-                  color={color}
-                  accentColor={accentColor}
-                  isPunching={isPunching}
-                />
-              ) : (
-                <MaleHoodieRightArm
-                  rightForearmRef={rightForearmRef}
-                  color={color}
-                  accentColor={accentColor}
-                  isPunching={isPunching}
-                />
-              )}
-            </group>
-          </group>
-
-          {/* Left Leg */}
-          <group ref={leftLegRef} position={[-0.14, 0.9, 0]}>
-            {modelType === "female_casual" ? (
-              <FemaleCasualLeg
-                isLeft={true}
-                leftShinRef={leftShinRef}
-                color={color}
-                accentColor={accentColor}
-              />
-            ) : (
-              <MaleHoodieLeg
-                isLeft={true}
-                leftShinRef={leftShinRef}
-                color={color}
-                accentColor={accentColor}
-              />
-            )}
-          </group>
-
-          {/* Right Leg */}
-          <group ref={rightLegRef} position={[0.14, 0.9, 0]}>
-            {modelType === "female_casual" ? (
-              <FemaleCasualLeg
-                isLeft={false}
-                leftShinRef={rightShinRef}
-                color={color}
-                accentColor={accentColor}
-              />
-            ) : (
-              <MaleHoodieLeg
-                isLeft={false}
-                leftShinRef={rightShinRef}
-                color={color}
-                accentColor={accentColor}
+            {/* Soft Warm Character Fill Light */}
+            {!isRemote && (
+              <pointLight
+                position={[0, 1.3, 0.5]}
+                intensity={1.6}
+                distance={5.5}
+                color="#fffbeb"
               />
             )}
           </group>
@@ -2154,35 +1344,10 @@ function CyberCharacter({
         </group>
       </group>
 
-      {/* Floating Tactical AI Drone Companion */}
-      <group ref={droneRef} position={[0.55, 1.65, -0.25]}>
-        <mesh castShadow>
-          <octahedronGeometry args={[0.08, 0]} />
-          <meshStandardMaterial color="#18181b" metalness={0.8} roughness={0.2} />
-        </mesh>
-        {/* Forward Holographic Scanner Eye */}
-        <mesh position={[0, 0, 0.07]}>
-          <sphereGeometry args={[0.03, 14, 10]} />
-          <meshStandardMaterial color="#ffffff" emissive={accentColor} emissiveIntensity={3.5} />
-        </mesh>
-        {/* Orbit Ring */}
-        <mesh rotation={[Math.PI / 3, 0, 0]}>
-          <torusGeometry args={[0.14, 0.009, 8, 24]} />
-          <meshStandardMaterial color={accentColor} roughness={0.3} metalness={0.6} />
-        </mesh>
-        <pointLight color={accentColor} intensity={1.5} distance={3.5} />
-      </group>
-
-      {/* Sprint Aura */}
-      <mesh ref={auraRef} position={[0, 0.9, 0]} visible={false}>
-        <sphereGeometry args={[0.9, 16, 12]} />
-        <meshBasicMaterial color={accentColor} wireframe transparent opacity={0.25} />
-      </mesh>
-
-      {/* Radial Ground Shadow */}
+      {/* Soft Radial Contact Ground Shadow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
-        <planeGeometry args={[1.6, 1.6]} />
-        <meshBasicMaterial map={blobTex} transparent depthWrite={false} opacity={0.88} />
+        <planeGeometry args={[1.5, 1.5]} />
+        <meshBasicMaterial map={blobTex} transparent depthWrite={false} opacity={0.82} />
       </mesh>
     </group>
   );
