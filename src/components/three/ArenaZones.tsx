@@ -140,52 +140,44 @@ export function playPunchSound() {
 
 export const TELEPORT_DESTINATIONS = [
   {
+    id: "parkour",
+    name: "Sektor 1: Sky Parkour (NW)",
+    badge: "NW Tower Apex Summit",
+    icon: "🧗",
+    pos: [-45.0, 1.15, 45.0] as [number, number, number],
+    color: "#38bdf8",
+  },
+  {
     id: "boxing",
-    name: "Cyber Boxing Ring",
-    badge: "Sparring & Punch Arena",
+    name: "Sektor 2: Boxing Ring (SW)",
+    badge: "SW Tower Sparring Arena",
     icon: "🥊",
-    pos: [0.0, 1.15, -38.0] as [number, number, number],
+    pos: [-45.0, 1.15, -45.0] as [number, number, number],
     color: "#ef4444",
   },
   {
-    id: "parkour",
-    name: "Sky Parkour Summit",
-    badge: "5.5m Apex Viewing Deck",
-    icon: "🧗",
-    pos: [0.0, 5.75, 51.0] as [number, number, number],
-    color: "#ec4899",
-  },
-  {
-    id: "speedway",
-    name: "West Hyper Runway",
-    badge: "Speed Trampoline Circuit",
-    icon: "⚡",
-    pos: [-40.0, 1.25, 0.0] as [number, number, number],
-    color: "#10b981",
-  },
-  {
-    id: "beacon",
-    name: "Tech Citadel Tower",
-    badge: "Main Tech Stack Tower",
+    id: "citadel",
+    name: "Sektor 3: Tech Citadel (SE)",
+    badge: "SE Tower Spire Tower",
     icon: "🗼",
-    pos: [0.0, 1.25, -13.0] as [number, number, number],
+    pos: [45.0, 1.25, -45.0] as [number, number, number],
     color: "#a855f7",
   },
   {
     id: "djpad",
-    name: "DJ Synth Pad",
-    badge: "16-Grid Soundboard",
+    name: "Sektor 4: DJ Synth Pad (NE)",
+    badge: "NE Tower Audio Lounge",
     icon: "🎵",
-    pos: [12.8, 0.9, 0.0] as [number, number, number],
+    pos: [45.0, 1.15, 45.0] as [number, number, number],
     color: "#ec4899",
   },
   {
-    id: "spawn",
-    name: "Center Nexus Spawn",
-    badge: "Titik Pusat Metaverse",
+    id: "nexus",
+    name: "Sektor Utama: Center Nexus",
+    badge: "Pusat Metaverse & Hub",
     icon: "📍",
     pos: [0.0, 0.2, 1.8] as [number, number, number],
-    color: "#38bdf8",
+    color: "#06b6d4",
   },
 ];
 
@@ -216,32 +208,32 @@ function createKioskTexture(selectedId: string): THREE.CanvasTexture {
   ctx.font = "14px monospace";
   ctx.fillText("CLICK TO SELECT", 320, 50);
 
-  // 6 Destination buttons
+  // 5 Destination buttons
   TELEPORT_DESTINATIONS.forEach((d, idx) => {
-    const y = 82 + idx * 59;
+    const y = 86 + idx * 72;
     const isSel = d.id === selectedId;
 
     ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.32)" : "rgba(15, 23, 42, 0.85)";
-    ctx.fillRect(24, y, 464, 52);
+    ctx.fillRect(24, y, 464, 60);
 
     ctx.strokeStyle = isSel ? "#38bdf8" : "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = isSel ? 3 : 1;
-    ctx.strokeRect(24, y, 464, 52);
+    ctx.strokeRect(24, y, 464, 60);
 
     ctx.fillStyle = isSel ? "#ffffff" : "#cbd5e1";
     ctx.font = "bold 19px sans-serif";
-    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 33);
+    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 36);
 
     ctx.fillStyle = isSel ? "#38bdf8" : "#64748b";
     ctx.font = "12px monospace";
-    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 256, y + 33);
+    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 256, y + 36);
   });
 
   // Footer status bar
   ctx.fillStyle = "#38bdf8";
   ctx.font = "bold 15px monospace";
   ctx.textAlign = "center";
-  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 484);
+  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 480);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
@@ -343,8 +335,10 @@ function createDJMuteTexture(isMuted: boolean, note: string): THREE.CanvasTextur
 
 export function CyberContactBeacon({
   carState,
+  position = [45.0, 1.0, -45.0],
 }: {
   carState: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  position?: [number, number, number];
 }) {
   const [isNearby, setIsNearby] = useState(false);
   const techRingRef = useRef<THREE.Group>(null);
@@ -353,8 +347,8 @@ export function CyberContactBeacon({
 
   useFrame((state, delta) => {
     const p = carState.current.pos;
-    const dist = Math.hypot(p.x - 0.0, p.z - (-15.0));
-    const nearby = dist < 4.8 && p.y >= 0.75;
+    const dist = Math.hypot(p.x - position[0], p.z - position[2]);
+    const nearby = dist < 5.5 && p.y >= 0.75;
     if (nearby !== isNearby) {
       setIsNearby(nearby);
     }
@@ -378,7 +372,7 @@ export function CyberContactBeacon({
   });
 
   return (
-    <group position={[0.0, 1.1, -15.0]}>
+    <group position={position}>
       {/* Skyward Light Beam (Translucent Cylinder reaching into clouds) */}
       <mesh position={[0, 12, 0]}>
         <cylinderGeometry args={[0.8, 1.6, 24, 24, 1, true]} />
@@ -662,8 +656,10 @@ const DJ_PAD_GRID = [
 
 export function CyberDJSynthPad({
   carState,
+  position = [45.0, 0.9, 45.0],
 }: {
   carState: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  position?: [number, number, number];
 }) {
   const [activePadId, setActivePadId] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -693,13 +689,13 @@ export function CyberDJSynthPad({
   useFrame((state, delta) => {
     const p = carState.current.pos;
     const onStage =
-      Math.abs(p.x - 14.5) <= 4.5 &&
-      Math.abs(p.z - 0.0) <= 4.0 &&
+      Math.abs(p.x - position[0]) <= 4.5 &&
+      Math.abs(p.z - position[2]) <= 4.0 &&
       p.y >= 0.65;
 
     if (onStage) {
-      const relX = p.x - 14.5;
-      const relZ = p.z - 0.0;
+      const relX = p.x - position[0];
+      const relZ = p.z - position[2];
 
       // Centered dance floor pads (cIdx: 0..3, rIdx: 0..3)
       const col = Math.floor((relX + 2.94) / 1.32);
@@ -742,7 +738,7 @@ export function CyberDJSynthPad({
   });
 
   return (
-    <group position={[14.5, 0.75, 0.0]}>
+    <group position={position}>
       {/* 4 Corner Neon DJ Towers (Lampu Arena pada platform diperluas 9.0 x 8.0) */}
       {[
         [-4.1, -3.6],
@@ -1008,10 +1004,14 @@ export function CyberDJSynthPad({
 
 export function CyberTeleportStation({
   carState,
+  position = [-14.0, 0.75, 0.0],
+  rotation = [0, Math.PI / 2, 0],
 }: {
   carState: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
 }) {
-  const [selectedDestId, setSelectedDestId] = useState("beacon");
+  const [selectedDestId, setSelectedDestId] = useState("parkour");
   const [warpFlash, setWarpFlash] = useState(false);
   const lastTeleportRef = useRef(0);
 
@@ -1043,12 +1043,12 @@ export function CyberTeleportStation({
       energyFieldRef.current.scale.set(scale, scale, 1);
     }
 
-    // Portal center at: [-14.0, 1.8, 0.0]
+    // Portal center at position
     const p = carState.current.pos;
-    const distToPortal = Math.hypot(p.x - (-14.0), p.z - 0.0);
+    const distToPortal = Math.hypot(p.x - position[0], p.z - position[2]);
 
     // If player walks into the center of the vertical portal
-    if (distToPortal < 1.35 && p.y >= 0.65) {
+    if (distToPortal < 1.35 && Math.abs(p.y - (position[1] + 1.15)) < 1.6) {
       const now = Date.now();
       if (now - lastTeleportRef.current > 2200) {
         lastTeleportRef.current = now;
@@ -1068,7 +1068,7 @@ export function CyberTeleportStation({
   });
 
   return (
-    <group position={[-14.0, 0.75, 0.0]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={position} rotation={rotation}>
       {/* 3D Vertical Stargate Frame Structure */}
       <group position={[0, 1.9, 0]}>
         {/* Outer Heavy Industrial Metal Ring */}
@@ -1247,9 +1247,9 @@ export function CyberTeleportStation({
             <meshBasicMaterial map={kioskTex} toneMapped={false} />
           </mesh>
 
-          {/* 6 Interactive Clickable Zones on the Screen */}
+          {/* 5 Interactive Clickable Zones on the Screen */}
           {TELEPORT_DESTINATIONS.map((dest, i) => {
-            const btnY = 0.393 - i * 0.1565;
+            const btnY = 0.38 - i * 0.19;
             return (
               <mesh
                 key={dest.id}
@@ -1259,7 +1259,7 @@ export function CyberTeleportStation({
                   setSelectedDestId(dest.id);
                 }}
               >
-                <planeGeometry args={[1.44, 0.138]} />
+                <planeGeometry args={[1.44, 0.16]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             );
@@ -1372,10 +1372,12 @@ function createBoxingMatTexture(): THREE.CanvasTexture {
 
 export function CyberBoxingRing({
   carState,
+  position = [-45.0, 0.0, -45.0],
   isPunching = false,
   onPunchHit,
 }: {
   carState: React.MutableRefObject<{ pos: THREE.Vector3; rot: number; speed: number }>;
+  position?: [number, number, number];
   isPunching?: boolean;
   onPunchHit?: (
     target: string,
@@ -1386,11 +1388,11 @@ export function CyberBoxingRing({
 }) {
   const matTex = useMemo(() => createBoxingMatTexture(), []);
 
-  // Sparring Dummy 1 (Blue side: x: -2.2, z: -38.0)
+  // Sparring Dummy 1 (Blue side: x: -2.2, z: 0)
   const dummy1Ref = useRef<THREE.Group>(null);
   const dummy1Spring = useRef({ angleX: 0, angleZ: 0, velX: 0, velZ: 0 });
 
-  // Sparring Dummy 2 (Red side: x: 2.2, z: -38.0)
+  // Sparring Dummy 2 (Red side: x: 2.2, z: 0)
   const dummy2Ref = useRef<THREE.Group>(null);
   const dummy2Spring = useRef({ angleX: 0, angleZ: 0, velX: 0, velZ: 0 });
 
@@ -1431,29 +1433,29 @@ export function CyberBoxingRing({
       const fistZ = car.pos.z + pfz * 1.15;
 
       // Check Dummy 1
-      const d1Dist = Math.hypot(fistX - (-2.2), fistZ - (-38.0));
+      const d1Dist = Math.hypot(fistX - (position[0] - 2.2), fistZ - position[2]);
       if (d1Dist < 1.65 && (!dummyCooldownRef.current["d1"] || now - dummyCooldownRef.current["d1"] > 450)) {
         dummyCooldownRef.current["d1"] = now;
         s1.velX += pfz * 16.0;
         s1.velZ -= pfx * 16.0;
         playPunchSound();
-        onPunchHit?.("sparring-dummy-blue", [pfx, pfz], 6.0, [-2.2, 2.1, -38.0]);
+        onPunchHit?.("sparring-dummy-blue", [pfx, pfz], 6.0, [position[0] - 2.2, 2.1, position[2]]);
       }
 
       // Check Dummy 2
-      const d2Dist = Math.hypot(fistX - 2.2, fistZ - (-38.0));
+      const d2Dist = Math.hypot(fistX - (position[0] + 2.2), fistZ - position[2]);
       if (d2Dist < 1.65 && (!dummyCooldownRef.current["d2"] || now - dummyCooldownRef.current["d2"] > 450)) {
         dummyCooldownRef.current["d2"] = now;
         s2.velX += pfz * 16.0;
         s2.velZ -= pfx * 16.0;
         playPunchSound();
-        onPunchHit?.("sparring-dummy-red", [pfx, pfz], 6.0, [2.2, 2.1, -38.0]);
+        onPunchHit?.("sparring-dummy-red", [pfx, pfz], 6.0, [position[0] + 2.2, 2.1, position[2]]);
       }
     }
   });
 
   return (
-    <group position={[0.0, 0.0, -38.0]}>
+    <group position={position}>
       {/* Ring Mat Surface Decal */}
       <mesh position={[0, 0.905, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[9.7, 9.7]} />
@@ -1688,50 +1690,46 @@ export function CyberSkyParkour() {
 
   return (
     <group>
-      {/* Heavy Structural Support Pillars under Parkour Platforms */}
-      {/* Pillars under Platform 1 (z: 29.0, h: 1.6) */}
+      {/* Heavy Structural Support Pillars under Parkour Platforms (Sektor NW) */}
+      {/* Pillars under Platform 1 (x: -36.0, z: 45.0, h: 1.8) */}
       {[
-        [-3.2, 26.5],
-        [3.2, 26.5],
-        [-3.2, 31.5],
-        [3.2, 31.5],
+        [-38.5, 42.5],
+        [-33.5, 42.5],
+        [-38.5, 47.5],
+        [-33.5, 47.5],
       ].map(([px, pz], i) => (
-        <mesh key={`p1-col-${i}`} position={[px, 0.8, pz]} castShadow>
-          <cylinderGeometry args={[0.22, 0.28, 1.6, 12]} />
+        <mesh key={`p1-col-${i}`} position={[px, 0.9, pz]} castShadow>
+          <cylinderGeometry args={[0.22, 0.28, 1.8, 12]} />
           <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
         </mesh>
       ))}
 
-      {/* Pillars under Stepping Stones (z: 35.5, h: 2.7) */}
-      <mesh position={[-4.5, 1.35, 35.5]} castShadow>
-        <cylinderGeometry args={[0.3, 0.4, 2.7, 12]} />
-        <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
-      </mesh>
-      <mesh position={[4.5, 1.35, 35.5]} castShadow>
-        <cylinderGeometry args={[0.3, 0.4, 2.7, 12]} />
+      {/* Pillar under Stepping Stone (x: -27.0, z: 45.0, h: 2.9) */}
+      <mesh position={[-27.0, 1.45, 45.0]} castShadow>
+        <cylinderGeometry args={[0.3, 0.4, 2.9, 12]} />
         <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
       </mesh>
 
-      {/* Pillars under Platform 2 (z: 42.0, h: 3.8) */}
+      {/* Pillars under Platform 2 (x: -18.0, z: 45.0, h: 4.0) */}
       {[
-        [-3.2, 39.5],
-        [3.2, 39.5],
-        [-3.2, 44.5],
-        [3.2, 44.5],
+        [-20.5, 42.5],
+        [-15.5, 42.5],
+        [-20.5, 47.5],
+        [-15.5, 47.5],
       ].map(([px, pz], i) => (
-        <mesh key={`p2-col-${i}`} position={[px, 1.9, pz]} castShadow>
-          <cylinderGeometry args={[0.26, 0.35, 3.8, 12]} />
+        <mesh key={`p2-col-${i}`} position={[px, 2.0, pz]} castShadow>
+          <cylinderGeometry args={[0.26, 0.35, 4.0, 12]} />
           <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
         </mesh>
       ))}
 
-      {/* Pillars under Sky Summit (z: 51.0, h: 5.5) */}
+      {/* Pillars under Sky Summit (x: -8.0, z: 45.0, h: 5.5) */}
       {[
-        [-3.8, 47.5],
-        [3.8, 47.5],
-        [-3.8, 54.5],
-        [3.8, 54.5],
-        [0, 51.0],
+        [-11.0, 42.0],
+        [-5.0, 42.0],
+        [-11.0, 48.0],
+        [-5.0, 48.0],
+        [-8.0, 45.0],
       ].map(([px, pz], i) => (
         <mesh key={`summit-col-${i}`} position={[px, 2.75, pz]} castShadow>
           <cylinderGeometry args={[0.35, 0.45, 5.5, 12]} />
@@ -1739,8 +1737,8 @@ export function CyberSkyParkour() {
         </mesh>
       ))}
 
-      {/* Holographic Apex Champion Trophy at the Sky Summit (x: 0, z: 51.0) */}
-      <group position={[0.0, 0.0, 51.0]}>
+      {/* Holographic Apex Champion Trophy at the Sky Summit (x: -8.0, z: 45.0) */}
+      <group position={[-8.0, 0.0, 45.0]}>
         {/* Pedestal Stand on Platform Floor */}
         <mesh position={[0, 5.85, 0]} castShadow>
           <cylinderGeometry args={[1.2, 1.5, 0.7, 8]} />
@@ -1779,16 +1777,16 @@ export function CyberSkyParkour() {
         </group>
 
         {/* Viewing Deck Balustrades / Glowing Handrails around Summit */}
-        <mesh position={[0, 6.1, 55.4]} rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+        <mesh position={[4.1, 6.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.2, 12]} />
           <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
         </mesh>
-        <mesh position={[-4.4, 6.1, 51.0]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+        <mesh position={[0, 6.1, 4.1]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.2, 12]} />
           <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
         </mesh>
-        <mesh position={[4.4, 6.1, 51.0]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+        <mesh position={[0, 6.1, -4.1]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.2, 12]} />
           <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
         </mesh>
       </group>
@@ -1882,10 +1880,10 @@ export function CyberSpeedwayAndPlazas() {
 
 export function CyberArenaPerimeter() {
   const corners = [
-    { x: 58.0, z: 58.0, color: "#38bdf8" },
-    { x: -58.0, z: 58.0, color: "#ec4899" },
-    { x: 58.0, z: -58.0, color: "#a855f7" },
-    { x: -58.0, z: -58.0, color: "#10b981" },
+    { x: -45.0, z: 45.0, color: "#38bdf8", name: "NW: Sky Parkour" },
+    { x: -45.0, z: -45.0, color: "#ef4444", name: "SW: Boxing Ring" },
+    { x: 45.0, z: -45.0, color: "#a855f7", name: "SE: Tech Citadel" },
+    { x: 45.0, z: 45.0, color: "#ec4899", name: "NE: DJ Synth" },
   ];
 
   return (
@@ -1996,6 +1994,497 @@ export function CyberArenaPerimeter() {
         <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
         <meshBasicMaterial color="#a855f7" />
       </mesh>
+    </group>
+  );
+}
+
+/* ============================================================
+   8. TATA LETAK & WAYFINDING: 4 GRAND HIGHWAYS & NEXUS SIGNPOSTS
+   - 4 Jalur Runway Terang (Cyan, Crimson, Emerald, Amber) menghubungkan Nexus ke 4 sektor
+   - 4 Holographic Wayfinder Signposts di tepi Welcome Disc
+   - Combat District Ceremonial Gateway Arch di pintu masuk ring tinju
+============================================================ */
+
+function createWayfinderTexture(
+  title: string,
+  badge: string,
+  icon: string,
+  color: string
+): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Dark cyber glass card
+  ctx.fillStyle = "rgba(7, 11, 24, 0.95)";
+  ctx.fillRect(0, 0, 512, 256);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 6;
+  ctx.strokeRect(8, 8, 496, 240);
+
+  // Top accent bar
+  ctx.fillStyle = color;
+  ctx.fillRect(12, 12, 488, 12);
+
+  // Text contents
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 32px sans-serif";
+  ctx.fillText(`${icon} ${title}`, 256, 95);
+
+  ctx.fillStyle = color;
+  ctx.font = "bold 23px monospace";
+  ctx.fillText(badge, 256, 155);
+
+  ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+  ctx.font = "15px monospace";
+  ctx.fillText("JALAN LURUS MENUJU SEKTOR →", 256, 205);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createReturnPortalTexture(color: string, label: string): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 160;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Dark glass background
+  ctx.fillStyle = "rgba(7, 11, 24, 0.95)";
+  ctx.fillRect(0, 0, 512, 160);
+
+  // Neon glowing border
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(6, 6, 500, 148);
+
+  // Top accent bar
+  ctx.fillStyle = color;
+  ctx.fillRect(10, 10, 492, 10);
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 36px system-ui, sans-serif";
+  ctx.fillText("↩️ SEKTOR UTAMA", 256, 68);
+
+  ctx.fillStyle = color;
+  ctx.font = "bold 20px monospace";
+  ctx.fillText(`WARP KE NEXUS • ${label}`, 256, 118);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+export function ReturnTeleportPortal({
+  position,
+  rotation = [0, 0, 0],
+  carState,
+  color = "#38bdf8",
+  label = "NEXUS RETURN",
+}: {
+  position: [number, number, number];
+  rotation?: [number, number, number];
+  carState?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  color?: string;
+  label?: string;
+}) {
+  const vortexRef = useRef<THREE.Group>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const lastTeleportRef = useRef(0);
+  const portalTex = useMemo(() => createReturnPortalTexture(color, label), [color, label]);
+
+  useFrame((state, delta) => {
+    if (vortexRef.current) {
+      vortexRef.current.rotation.z += delta * 2.2;
+    }
+    if (coreRef.current) {
+      const scale = 1.0 + Math.sin(state.clock.elapsedTime * 5) * 0.08;
+      coreRef.current.scale.set(scale, scale, 1);
+    }
+
+    if (carState) {
+      const p = carState.current.pos;
+      const dist = Math.hypot(p.x - position[0], p.z - position[2]);
+      if (dist < 1.35 && Math.abs(p.y - position[1]) < 2.2) {
+        const now = Date.now();
+        if (now - lastTeleportRef.current > 2200) {
+          lastTeleportRef.current = now;
+          playTeleportSound();
+          carState.current.pos.set(0.0, 0.2, 1.8);
+        }
+      }
+    }
+  });
+
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Heavy Ground Base Pedestal */}
+      <mesh position={[0, 0.08, 0]} castShadow>
+        <cylinderGeometry args={[1.5, 1.7, 0.16, 16]} />
+        <meshStandardMaterial color="#080d1a" metalness={0.92} roughness={0.2} />
+      </mesh>
+      <mesh position={[0, 0.08, 0]}>
+        <cylinderGeometry args={[1.52, 1.72, 0.17, 16]} />
+        <meshBasicMaterial color={color} wireframe />
+      </mesh>
+
+      {/* Ring Frame */}
+      <group position={[0, 1.8, 0]}>
+        <mesh castShadow>
+          <torusGeometry args={[1.5, 0.14, 16, 36]} />
+          <meshStandardMaterial color="#091122" metalness={0.92} roughness={0.15} />
+        </mesh>
+        <mesh>
+          <torusGeometry args={[1.53, 0.15, 16, 36]} />
+          <meshBasicMaterial color={color} wireframe />
+        </mesh>
+
+        {/* Outer Chevrons */}
+        {[0, 60, 120, 180, 240, 300].map((deg, i) => {
+          const rad = (deg * Math.PI) / 180;
+          const cx = Math.cos(rad) * 1.5;
+          const cy = Math.sin(rad) * 1.5;
+          return (
+            <mesh key={i} position={[cx, cy, 0]}>
+              <boxGeometry args={[0.18, 0.18, 0.22]} />
+              <meshStandardMaterial color={color} emissive={color} emissiveIntensity={3.5} />
+            </mesh>
+          );
+        })}
+
+        {/* Counter-Rotating Vortex Ring */}
+        <group ref={vortexRef}>
+          <mesh>
+            <ringGeometry args={[0.2, 1.35, 32]} />
+            <meshBasicMaterial color={color} transparent opacity={0.65} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
+
+        {/* Pulsing Core */}
+        <mesh ref={coreRef}>
+          <circleGeometry args={[1.32, 32]} />
+          <meshBasicMaterial color="#e0f2fe" transparent opacity={0.3} side={THREE.DoubleSide} />
+        </mesh>
+
+        {/* Top Header Sign */}
+        <group position={[0, 1.95, 0]}>
+          <mesh>
+            <planeGeometry args={[2.2, 0.7]} />
+            <meshBasicMaterial map={portalTex} toneMapped={false} />
+          </mesh>
+        </group>
+
+        {/* Illumination Point Light */}
+        <pointLight color={color} intensity={5.0} distance={6.0} position={[0, 0, 0.5]} />
+      </group>
+    </group>
+  );
+}
+
+export function CyberArenaWayfindingAndPathways({
+  carState,
+}: {
+  carState?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+}) {
+  const nwTex = useMemo(
+    () => createWayfinderTexture("SKY PARKOUR", "NW TOWER • 5.5M APEX", "🧗", "#38bdf8"),
+    []
+  );
+  const swTex = useMemo(
+    () => createWayfinderTexture("CYBER BOXING", "SW TOWER • SPARRING RING", "🥊", "#ef4444"),
+    []
+  );
+  const seTex = useMemo(
+    () => createWayfinderTexture("TECH CITADEL", "SE TOWER • SPIRE CITADEL", "🗼", "#a855f7"),
+    []
+  );
+  const neTex = useMemo(
+    () => createWayfinderTexture("DJ SYNTH PAD", "NE TOWER • AUDIO LOUNGE", "🎵", "#ec4899"),
+    []
+  );
+
+  const lastWarpRef = useRef(0);
+
+  // Central Nexus 4 Diagonal Warp Pads
+  useFrame(() => {
+    if (!carState) return;
+    const p = carState.current.pos;
+    const now = Date.now();
+    if (now - lastWarpRef.current < 2200) return;
+
+    // NW Pad: [-3.6, 3.6] -> NW Tower [-45.0, 1.15, 45.0]
+    if (Math.hypot(p.x - (-3.6), p.z - 3.6) < 1.25) {
+      lastWarpRef.current = now;
+      playTeleportSound();
+      carState.current.pos.set(-45.0, 1.15, 45.0);
+      return;
+    }
+    // SW Pad: [-3.6, -3.6] -> SW Tower [-45.0, 1.15, -45.0]
+    if (Math.hypot(p.x - (-3.6), p.z - (-3.6)) < 1.25) {
+      lastWarpRef.current = now;
+      playTeleportSound();
+      carState.current.pos.set(-45.0, 1.15, -45.0);
+      return;
+    }
+    // SE Pad: [3.6, -3.6] -> SE Tower [45.0, 1.25, -45.0]
+    if (Math.hypot(p.x - 3.6, p.z - (-3.6)) < 1.25) {
+      lastWarpRef.current = now;
+      playTeleportSound();
+      carState.current.pos.set(45.0, 1.25, -45.0);
+      return;
+    }
+    // NE Pad: [3.6, 3.6] -> NE Tower [45.0, 1.15, 45.0]
+    if (Math.hypot(p.x - 3.6, p.z - 3.6) < 1.25) {
+      lastWarpRef.current = now;
+      playTeleportSound();
+      carState.current.pos.set(45.0, 1.15, 45.0);
+      return;
+    }
+  });
+
+  return (
+    <group>
+      {/* ============================================================
+          1. FOUR RETURN TELEPORT STARGATE PORTALS AT 4 CORNER TOWERS
+      ============================================================ */}
+      {/* NW Tower (Sky Parkour) Return Portal */}
+      <ReturnTeleportPortal
+        position={[-45.0, 0.9, 48.2]}
+        rotation={[0, 0, 0]}
+        carState={carState}
+        color="#38bdf8"
+        label="SEKTOR 1 (NW)"
+      />
+
+      {/* SW Tower (Cyber Boxing) Return Portal */}
+      <ReturnTeleportPortal
+        position={[-45.0, 0.9, -48.2]}
+        rotation={[0, Math.PI, 0]}
+        carState={carState}
+        color="#ef4444"
+        label="SEKTOR 2 (SW)"
+      />
+
+      {/* SE Tower (Tech Citadel) Return Portal */}
+      <ReturnTeleportPortal
+        position={[45.0, 1.0, -48.2]}
+        rotation={[0, Math.PI, 0]}
+        carState={carState}
+        color="#a855f7"
+        label="SEKTOR 3 (SE)"
+      />
+
+      {/* NE Tower (DJ Synth Pad) Return Portal */}
+      <ReturnTeleportPortal
+        position={[45.0, 0.9, 48.2]}
+        rotation={[0, 0, 0]}
+        carState={carState}
+        color="#ec4899"
+        label="SEKTOR 4 (NE)"
+      />
+
+      {/* ============================================================
+          2. FOUR GRAND DIAGONAL HIGHWAYS (Central Nexus -> 4 Corner Towers)
+          - Symmetrical 45-degree cyber runways
+          - Double illuminated neon laser guard rails
+          - High-contrast sci-fi dark grid decking
+      ============================================================ */}
+      {/* NW Diagonal Highway (Nexus to NW Tower [-45, 45]) */}
+      <group position={[-22.63, 0.008, 22.63]} rotation={[0, -Math.PI / 4, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3.4, 52.0]} />
+          <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.8} />
+        </mesh>
+        <mesh position={[-1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+        <mesh position={[1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+      </group>
+
+      {/* SW Diagonal Highway (Nexus to SW Tower [-45, -45]) */}
+      <group position={[-22.63, 0.008, -22.63]} rotation={[0, -3 * Math.PI / 4, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3.4, 52.0]} />
+          <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.8} />
+        </mesh>
+        <mesh position={[-1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+        <mesh position={[1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+      </group>
+
+      {/* SE Diagonal Highway (Nexus to SE Tower [45, -45]) */}
+      <group position={[22.63, 0.008, -22.63]} rotation={[0, 3 * Math.PI / 4, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3.4, 52.0]} />
+          <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.8} />
+        </mesh>
+        <mesh position={[-1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#a855f7" />
+        </mesh>
+        <mesh position={[1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#a855f7" />
+        </mesh>
+      </group>
+
+      {/* NE Diagonal Highway (Nexus to NE Tower [45, 45]) */}
+      <group position={[22.63, 0.008, 22.63]} rotation={[0, Math.PI / 4, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[3.4, 52.0]} />
+          <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.8} />
+        </mesh>
+        <mesh position={[-1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#ec4899" />
+        </mesh>
+        <mesh position={[1.7, 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.025, 0.025, 52.0, 8]} />
+          <meshBasicMaterial color="#ec4899" />
+        </mesh>
+      </group>
+
+      {/* ============================================================
+          3. FOUR CENTRAL NEXUS TELEPORT GATE PADS (Direct Warp to 4 Corners)
+      ============================================================ */}
+      {/* NW Warp Pad (Cyan) */}
+      <group position={[-3.6, 0.03, 3.6]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.1, 24]} />
+          <meshStandardMaterial color="#0c1527" roughness={0.2} metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.95, 1.1, 24]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+        <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshBasicMaterial color="#38bdf8" />
+        </mesh>
+        <pointLight color="#38bdf8" intensity={4} distance={3.0} position={[0, 0.5, 0]} />
+      </group>
+
+      {/* SW Warp Pad (Crimson) */}
+      <group position={[-3.6, 0.03, -3.6]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.1, 24]} />
+          <meshStandardMaterial color="#0c1527" roughness={0.2} metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.95, 1.1, 24]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+        <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshBasicMaterial color="#ef4444" />
+        </mesh>
+        <pointLight color="#ef4444" intensity={4} distance={3.0} position={[0, 0.5, 0]} />
+      </group>
+
+      {/* SE Warp Pad (Purple) */}
+      <group position={[3.6, 0.03, -3.6]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.1, 24]} />
+          <meshStandardMaterial color="#0c1527" roughness={0.2} metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.95, 1.1, 24]} />
+          <meshBasicMaterial color="#a855f7" />
+        </mesh>
+        <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshBasicMaterial color="#a855f7" />
+        </mesh>
+        <pointLight color="#a855f7" intensity={4} distance={3.0} position={[0, 0.5, 0]} />
+      </group>
+
+      {/* NE Warp Pad (Pink) */}
+      <group position={[3.6, 0.03, 3.6]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.1, 24]} />
+          <meshStandardMaterial color="#0c1527" roughness={0.2} metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.95, 1.1, 24]} />
+          <meshBasicMaterial color="#ec4899" />
+        </mesh>
+        <mesh position={[0, 0.006, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshBasicMaterial color="#ec4899" />
+        </mesh>
+        <pointLight color="#ec4899" intensity={4} distance={3.0} position={[0, 0.5, 0]} />
+      </group>
+
+      {/* ============================================================
+          4. FOUR HOLOGRAPHIC WAYFINDER SIGNPOSTS (At Central Nexus Edge)
+      ============================================================ */}
+      {/* NW Sign: Menghadap ke Pusat Spawn dari sudut NW */}
+      <group position={[-3.2, 0, 3.2]} rotation={[0, 3 * Math.PI / 4, 0]}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.1, 0.9, 12]} />
+          <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, 1.15, 0]} rotation={[-0.2, 0, 0]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={nwTex} toneMapped={false} />
+        </mesh>
+        <pointLight color="#38bdf8" intensity={4} distance={3.5} position={[0, 1.1, -0.2]} />
+      </group>
+
+      {/* SW Sign: Menghadap ke Pusat Spawn dari sudut SW */}
+      <group position={[-3.2, 0, -3.2]} rotation={[0, Math.PI / 4, 0]}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.1, 0.9, 12]} />
+          <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, 1.15, 0]} rotation={[-0.2, 0, 0]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={swTex} toneMapped={false} />
+        </mesh>
+        <pointLight color="#ef4444" intensity={4} distance={3.5} position={[0, 1.1, -0.2]} />
+      </group>
+
+      {/* SE Sign: Menghadap ke Pusat Spawn dari sudut SE */}
+      <group position={[3.2, 0, -3.2]} rotation={[0, -Math.PI / 4, 0]}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.1, 0.9, 12]} />
+          <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, 1.15, 0]} rotation={[-0.2, 0, 0]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={seTex} toneMapped={false} />
+        </mesh>
+        <pointLight color="#a855f7" intensity={4} distance={3.5} position={[0, 1.1, -0.2]} />
+      </group>
+
+      {/* NE Sign: Menghadap ke Pusat Spawn dari sudut NE */}
+      <group position={[3.2, 0, 3.2]} rotation={[0, -3 * Math.PI / 4, 0]}>
+        <mesh position={[0, 0.45, 0]} castShadow>
+          <cylinderGeometry args={[0.07, 0.1, 0.9, 12]} />
+          <meshStandardMaterial color="#0e1726" metalness={0.9} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, 1.15, 0]} rotation={[-0.2, 0, 0]}>
+          <planeGeometry args={[1.3, 0.65]} />
+          <meshBasicMaterial map={neTex} toneMapped={false} />
+        </mesh>
+        <pointLight color="#ec4899" intensity={4} distance={3.5} position={[0, 1.1, -0.2]} />
+      </group>
     </group>
   );
 }

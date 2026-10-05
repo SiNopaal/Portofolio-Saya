@@ -28,6 +28,7 @@ import {
   CyberSkyParkour,
   CyberSpeedwayAndPlazas,
   CyberArenaPerimeter,
+  CyberArenaWayfindingAndPathways,
 } from "./ArenaZones";
 
 /* ============================================================
@@ -70,7 +71,7 @@ const landmarks: LandmarkData[] = [
     title: "Featured Works",
     description: "Commercial Laundry Suite, Patukrejomulyo E-Gov, and AI Bot Labs.",
     href: "#work",
-    position: [-8.5, 0, 8.5],
+    position: [-9.0, 0, 4.0],
     color: "#38bdf8",
     accent: "border-sky-500/40 bg-sky-600/10 text-sky-300",
   },
@@ -81,7 +82,7 @@ const landmarks: LandmarkData[] = [
     title: "Autonomous Console",
     description: "Interactive Python & Node.js AI worker execution terminal.",
     href: "#terminal",
-    position: [0, 0, 11.5],
+    position: [0.0, 0, 9.0],
     color: "#10b981",
     accent: "border-emerald-500/40 bg-emerald-600/10 text-emerald-300",
   },
@@ -92,7 +93,7 @@ const landmarks: LandmarkData[] = [
     title: "About Naufal",
     description: "S1 RPL Telkom Purwokerto & Frontend / UI-UX Architecture.",
     href: "#about",
-    position: [8.5, 0, 8.5],
+    position: [9.0, 0, 4.0],
     color: "#ec4899",
     accent: "border-pink-500/40 bg-pink-600/10 text-pink-300",
   },
@@ -103,7 +104,7 @@ const landmarks: LandmarkData[] = [
     title: "Tech Arsenal",
     description: "Next.js, React, TypeScript, Figma, Python Bot Scripting, & LLMs.",
     href: "#stack",
-    position: [-8.5, 0, -8.5],
+    position: [-9.0, 0, -4.0],
     color: "#a855f7",
     accent: "border-purple-500/40 bg-purple-600/10 text-purple-300",
   },
@@ -114,62 +115,53 @@ const landmarks: LandmarkData[] = [
     title: "Get in Touch",
     description: "WhatsApp, Email, LinkedIn, GitHub, & verified CV.",
     href: "#contact",
-    position: [8.5, 0, -8.5],
+    position: [9.0, 0, -4.0],
     color: "#f59e0b",
     accent: "border-amber-500/40 bg-amber-600/10 text-amber-300",
   },
 ];
 
 const JUMP_PADS = [
-  // Central Ring Launchers
-  { id: "pad-1", x: -4.5, z: 4.5, color: "#38bdf8" },
-  { id: "pad-2", x: 4.5, z: 4.5, color: "#ec4899" },
-  { id: "pad-3", x: -4.5, z: -4.5, color: "#a855f7" },
-  { id: "pad-4", x: 4.5, z: -4.5, color: "#f59e0b" },
+  // Central Ring Launchers (Mengarah ke 4 penjuru diagonal)
+  { id: "pad-nw-nexus", x: -5.5, z: 5.5, color: "#38bdf8" },
+  { id: "pad-ne-nexus", x: 5.5, z: 5.5, color: "#ec4899" },
+  { id: "pad-sw-nexus", x: -5.5, z: -5.5, color: "#ef4444" },
+  { id: "pad-se-nexus", x: 5.5, z: -5.5, color: "#a855f7" },
 
-  // Sektor Utara: Sky Parkour Launchers
-  { id: "pad-north-entry", x: 0.0, z: 23.0, color: "#38bdf8" },
-  { id: "pad-north-mid", x: 0.0, z: 42.0, color: "#a855f7" },
-  { id: "pad-north-summit", x: 0.0, z: 53.5, color: "#ec4899" },
+  // Sektor 1: NW Tower (Sky Parkour Launchers)
+  { id: "pad-nw-base", x: -45.0, z: 41.0, color: "#38bdf8" },
+  { id: "pad-nw-mid", x: -27.0, z: 45.0, color: "#38bdf8" },
+  { id: "pad-nw-apex", x: -8.0, z: 41.0, color: "#ec4899" },
 
-  // Sektor Selatan: Boxing Ring Launchers
-  { id: "pad-south-boxing", x: 0.0, z: -31.5, color: "#ef4444" },
-  { id: "pad-south-ring-exit", x: 0.0, z: -44.5, color: "#f43f5e" },
+  // Sektor 2: SW Tower (Cyber Boxing Launchers)
+  { id: "pad-sw-entry", x: -41.0, z: -45.0, color: "#ef4444" },
+  { id: "pad-sw-exit", x: -45.0, z: -41.0, color: "#f43f5e" },
 
-  // Sektor Barat: Agility & Speedway Launchers
-  { id: "pad-west-in", x: -26.0, z: 0.0, color: "#10b981" },
-  { id: "pad-west-north", x: -40.0, z: 14.0, color: "#34d399" },
-  { id: "pad-west-south", x: -40.0, z: -14.0, color: "#34d399" },
-  { id: "pad-west-out", x: -54.0, z: 0.0, color: "#10b981" },
+  // Sektor 3: SE Tower (Tech Citadel Launchers)
+  { id: "pad-se-entry", x: 41.0, z: -45.0, color: "#a855f7" },
+  { id: "pad-se-exit", x: 45.0, z: -41.0, color: "#c084fc" },
 
-  // Sektor Timur: Tech Plaza Launchers
-  { id: "pad-east-in", x: 26.0, z: 0.0, color: "#f59e0b" },
-  { id: "pad-east-north", x: 40.0, z: 14.0, color: "#fbbf24" },
-  { id: "pad-east-south", x: 40.0, z: -14.0, color: "#fbbf24" },
-  { id: "pad-east-out", x: 54.0, z: 0.0, color: "#f59e0b" },
+  // Sektor 4: NE Tower (DJ Synth Pad Launchers)
+  { id: "pad-ne-entry", x: 41.0, z: 45.0, color: "#ec4899" },
+  { id: "pad-ne-exit", x: 45.0, z: 41.0, color: "#f472b6" },
 ];
 
 const ELEVATED_PLATFORMS = [
-  // Existing Central Landmarks
-  { x: -14.0, z: 0.0, w: 6.5, d: 6.5, h: 0.75, color: "#0e1526", border: "#38bdf8" },
-  { x: 14.5, z: 0.0, w: 9.0, d: 8.0, h: 0.75, color: "#0e1526", border: "#ec4899" },
-  { x: 0.0, z: -15.0, w: 8.0, d: 5.5, h: 1.1, color: "#0e1526", border: "#a855f7" },
+  // Sektor 1: NW Tower (Sky Parkour Multi-Tier)
+  { x: -45.0, z: 45.0, w: 10.0, d: 10.0, h: 0.9, color: "#0c1527", border: "#38bdf8" },
+  { x: -36.0, z: 45.0, w: 7.0, d: 7.0, h: 1.8, color: "#0c1527", border: "#38bdf8" },
+  { x: -27.0, z: 45.0, w: 4.5, d: 4.5, h: 2.9, color: "#0c1527", border: "#06b6d4" },
+  { x: -18.0, z: 45.0, w: 7.0, d: 7.0, h: 4.0, color: "#0c1527", border: "#a855f7" },
+  { x: -8.0, z: 45.0, w: 8.5, d: 8.5, h: 5.5, color: "#0c1527", border: "#ec4899" },
 
-  // Sektor Selatan: Cyber Boxing Ring
-  { x: 0.0, z: -38.0, w: 10.0, d: 10.0, h: 0.9, color: "#0b101d", border: "#ef4444" },
+  // Sektor 2: SW Tower (Cyber Boxing Ring Platform)
+  { x: -45.0, z: -45.0, w: 10.0, d: 10.0, h: 0.9, color: "#0b101d", border: "#ef4444" },
 
-  // Sektor Utara: Cyber Sky Parkour Multi-Tier
-  { x: 0.0, z: 29.0, w: 8.0, d: 7.0, h: 1.6, color: "#0c1527", border: "#38bdf8" },
-  { x: 4.5, z: 35.5, w: 4.5, d: 4.5, h: 2.7, color: "#0c1527", border: "#06b6d4" },
-  { x: -4.5, z: 35.5, w: 4.5, d: 4.5, h: 2.7, color: "#0c1527", border: "#06b6d4" },
-  { x: 0.0, z: 42.0, w: 8.0, d: 7.0, h: 3.8, color: "#0c1527", border: "#a855f7" },
-  { x: 0.0, z: 51.0, w: 9.0, d: 9.0, h: 5.5, color: "#0c1527", border: "#ec4899" },
+  // Sektor 3: SE Tower (Tech Citadel Spire Deck)
+  { x: 45.0, z: -45.0, w: 10.0, d: 10.0, h: 1.0, color: "#0e1526", border: "#a855f7" },
 
-  // Sektor Barat: West Hyper Runway
-  { x: -40.0, z: 0.0, w: 10.0, d: 10.0, h: 1.0, color: "#0d1b2a", border: "#10b981" },
-
-  // Sektor Timur: East VIP Tech Plaza
-  { x: 40.0, z: 0.0, w: 10.0, d: 10.0, h: 1.0, color: "#1a132f", border: "#f59e0b" },
+  // Sektor 4: NE Tower (Cyber DJ Synth Pad Deck)
+  { x: 45.0, z: 45.0, w: 10.0, d: 10.0, h: 0.9, color: "#0e1526", border: "#ec4899" },
 ];
 
 const ARENA_BOUND = 70.0;
@@ -186,52 +178,38 @@ interface SolidObstacle {
 }
 
 const SOLID_OBSTACLES: SolidObstacle[] = [
-  // 1. Kotak Utama: Spire Tower Pillar
-  { x: 0.0, z: -15.0, r: 1.5, minY: 0.8, maxY: 12 },
+  // 1. Sci-Fi Monolith Pillars di Central Nexus (Projects, Terminal, About, Stack, Contact)
+  { x: 0.0, z: 9.0, r: 0.7, minY: 0.0, maxY: 5.0 },
+  { x: -9.0, z: 4.0, r: 0.7, minY: 0.0, maxY: 5.0 },
+  { x: 9.0, z: 4.0, r: 0.7, minY: 0.0, maxY: 5.0 },
+  { x: -9.0, z: -4.0, r: 0.7, minY: 0.0, maxY: 5.0 },
+  { x: 9.0, z: -4.0, r: 0.7, minY: 0.0, maxY: 5.0 },
 
-  // 2. Kotak Kiri: Teleport Station
-  // Stargate Side Support Struts
-  { x: -14.0, z: -1.75, r: 0.35, minY: 0.7, maxY: 4.5 },
-  { x: -14.0, z: 1.75, r: 0.35, minY: 0.7, maxY: 4.5 },
-  // Power Reactor Generator
-  { x: -13.9, z: -2.35, r: 0.65, minY: 0.7, maxY: 3.5 },
-  // Teleport Destination Kiosk
-  { x: -12.05, z: 2.4, r: 0.85, minY: 0.7, maxY: 3.5 },
+  // 2. Sektor 3: SE Tower Tech Citadel Central Spire Column
+  { x: 45.0, z: -45.0, r: 1.5, minY: 1.0, maxY: 14.0 },
 
-  // 3. Kotak Kanan: DJ Synth Pad
-  // DJ Console Box Table (at rear of platform)
-  { x: 18.0, z: 0.0, w: 0.8, d: 3.8, minY: 0.7, maxY: 3 },
-  // Dual Rear Subwoofer Towers
-  { x: 18.0, z: -3.2, w: 1.0, d: 1.0, minY: 0.7, maxY: 4 },
-  { x: 18.0, z: 3.2, w: 1.0, d: 1.0, minY: 0.7, maxY: 4 },
-  // Corner Lamp Towers on DJ platform
-  { x: 10.4, z: -3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 10.4, z: 3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 18.6, z: -3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 18.6, z: 3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  // Papan DJ Soundboard Kiosk (ground floor)
-  { x: 8.7, z: -3.4, r: 0.85, minY: 0.0, maxY: 3.0 },
+  // 3. Sektor 4: NE Tower DJ Synth Pad Console & Subwoofers
+  { x: 48.5, z: 45.0, w: 0.8, d: 3.8, minY: 0.9, maxY: 3.2 },
+  { x: 48.5, z: 41.8, w: 1.0, d: 1.0, minY: 0.9, maxY: 4.0 },
+  { x: 48.5, z: 48.2, w: 1.0, d: 1.0, minY: 0.9, maxY: 4.0 },
+  { x: 39.2, z: 41.5, r: 0.85, minY: 0.0, maxY: 3.0 },
 
-  // 4. Sci-Fi Monolith Pillars (Projects, Terminal, About, Stack, Contact)
-  { x: -8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
-  { x: 0.0, z: 11.5, r: 0.7, minY: 0.0, maxY: 5 },
-  { x: -8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
-  { x: 8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
-  { x: 8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
+  // 4. Sektor 2: SW Tower Cyber Boxing Posts & Dummies
+  { x: -49.4, z: -49.4, r: 0.25, minY: 0.9, maxY: 3.0 },
+  { x: -40.6, z: -49.4, r: 0.25, minY: 0.9, maxY: 3.0 },
+  { x: -49.4, z: -40.6, r: 0.25, minY: 0.9, maxY: 3.0 },
+  { x: -40.6, z: -40.6, r: 0.25, minY: 0.9, maxY: 3.0 },
+  { x: -47.2, z: -45.0, r: 0.45, minY: 0.9, maxY: 3.0 },
+  { x: -42.8, z: -45.0, r: 0.45, minY: 0.9, maxY: 3.0 },
 
-  // 5. Sektor Selatan: Cyber Boxing Ring Corner Posts & Sparring Dummies
-  { x: -4.4, z: -33.6, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: 4.4, z: -33.6, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: -4.4, z: -42.4, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: 4.4, z: -42.4, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: -2.2, z: -38.0, r: 0.45, minY: 0.8, maxY: 3.0 },
-  { x: 2.2, z: -38.0, r: 0.45, minY: 0.8, maxY: 3.0 },
+  // 5. Sektor 1: NW Tower Parkour Apex Summit Trophy Pedestal
+  { x: -8.0, z: 45.0, r: 0.5, minY: 5.5, maxY: 8.0 },
 
   // 6. Perimeter Corner Mega Sky Beacons
-  { x: 58.0, z: 58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: -58.0, z: 58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: 58.0, z: -58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: -58.0, z: -58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
+  { x: 60.0, z: 60.0, r: 2.5, minY: 0.0, maxY: 12.0 },
+  { x: -60.0, z: 60.0, r: 2.5, minY: 0.0, maxY: 12.0 },
+  { x: 60.0, z: -60.0, r: 2.5, minY: 0.0, maxY: 12.0 },
+  { x: -60.0, z: -60.0, r: 2.5, minY: 0.0, maxY: 12.0 },
 ];
 
 /* ============================================================
@@ -2358,8 +2336,8 @@ function World({
       {/* Kotak Kanan: Cyber Soundboard / DJ Synth Pad */}
       <CyberDJSynthPad carState={carState} />
 
-      {/* Kotak Kiri: Live Mini-Map / Teleport Station */}
-      <CyberTeleportStation carState={carState} />
+      {/* Kotak Kiri: Live Mini-Map / Teleport Station (Nexus Teleport Kiosk Hub) */}
+      <CyberTeleportStation carState={carState} position={[-5.8, 0.0, 0.0]} rotation={[0, Math.PI / 2, 0]} />
 
       {/* Kotak Utama: Quick Hire / Contact Beacon */}
       <CyberContactBeacon carState={carState} />
@@ -2381,6 +2359,9 @@ function World({
 
       {/* Perimeter Boundaries: 4 Mega Sky Beacons & Energy Forcefield */}
       <CyberArenaPerimeter />
+
+      {/* Tata Letak & Wayfinding: 4 Grand Highways & Central Nexus Signposts & 2-Way Teleport Portals */}
+      <CyberArenaWayfindingAndPathways carState={carState} />
 
       {landmarks.map((lm) => (
         <SciFiMonolith
