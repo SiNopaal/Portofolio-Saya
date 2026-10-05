@@ -128,7 +128,7 @@ const ELEVATED_PLATFORMS: {
   { x: 0.0, z: -14.5, w: 8.0, d: 5.5, h: 0.6, color: "#0e1526", border: "#38bdf8" },
 ];
 
-const ARENA_BOUND = 36.0;
+const ARENA_BOUND = 64.0;
 const AVATAR_R = 0.55;
 
 interface SolidObstacle {
@@ -380,7 +380,147 @@ function getBlobTexture(): THREE.CanvasTexture {
 }
 
 /* ============================================================
-   CYBER METAVERSE ARENA (Ground, Nexus, Platforms, Jump Pads)
+   CYBER PERIMETER FENCE (Pagar Pembatas Cyber Futuristik)
+   - 4 Pagar Panjang Membatasi Keliling Arena (size: 64.0 -> 128m x 128m)
+   - 4 Corner Pylon Sudut dengan Beacon Cap
+   - 3 Rel Horizontal Neon (Bawah, Tengah, Atas) di Setiap Sisi
+   - Panel Forcefield Transparan Wireframe Cyan
+   - Tiang Pylon Vertikal Setiap Interval 8 Meter
+============================================================ */
+function CyberPerimeterFence({ size = 64.0 }: { size?: number }) {
+  const pylonPositions = useMemo(() => {
+    const list: number[] = [];
+    const step = 8;
+    for (let pos = -size; pos <= size; pos += step) {
+      list.push(pos);
+    }
+    return list;
+  }, [size]);
+
+  const sideLength = size * 2;
+
+  return (
+    <group>
+      {/* 4 Corner Watch Towers */}
+      {[
+        [-size, size],
+        [size, size],
+        [-size, -size],
+        [size, -size],
+      ].map(([cx, cz], i) => (
+        <group key={`corner-${i}`} position={[cx, 0, cz]}>
+          <mesh position={[0, 1.9, 0]} castShadow>
+            <cylinderGeometry args={[0.65, 0.8, 3.8, 8]} />
+            <meshStandardMaterial color="#080e1c" roughness={0.2} metalness={0.9} />
+          </mesh>
+          <mesh position={[0, 1.9, 0]}>
+            <cylinderGeometry args={[0.68, 0.83, 3.82, 8]} />
+            <meshBasicMaterial color="#38bdf8" wireframe />
+          </mesh>
+          {/* Beacon Glowing Cap */}
+          <mesh position={[0, 4.0, 0]}>
+            <octahedronGeometry args={[0.4, 0]} />
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={3.5} />
+          </mesh>
+          <pointLight color="#38bdf8" intensity={5} distance={9} position={[0, 4.0, 0]} />
+        </group>
+      ))}
+
+      {/* Pagar Utara & Selatan (sejajar sumbu X di z = ±size) */}
+      {[-size, size].map((zPos, sIdx) => (
+        <group key={`north-south-${sIdx}`}>
+          {/* Rel Horizontal Bawah (y: 0.45) */}
+          <mesh position={[0, 0.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+          {/* Rel Horizontal Tengah (y: 1.45) */}
+          <mesh position={[0, 1.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+          {/* Rel Horizontal Atas (y: 2.45) */}
+          <mesh position={[0, 2.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.05, 0.05, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+
+          {/* Panel Forcefield Neon Kaca */}
+          <mesh position={[0, 1.35, zPos]}>
+            <boxGeometry args={[sideLength, 2.5, 0.06]} />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={0.14} wireframe />
+          </mesh>
+
+          {/* Tiang Pylon Vertikal Setiap 8m */}
+          {pylonPositions.map((px, pIdx) => (
+            <group key={`ns-pylon-${sIdx}-${pIdx}`} position={[px, 0, zPos]}>
+              <mesh position={[0, 1.35, 0]} castShadow>
+                <boxGeometry args={[0.26, 2.7, 0.26]} />
+                <meshStandardMaterial color="#090f1d" metalness={0.9} roughness={0.2} />
+              </mesh>
+              <mesh position={[0, 1.35, 0]}>
+                <boxGeometry args={[0.28, 2.72, 0.28]} />
+                <meshBasicMaterial color="#38bdf8" wireframe />
+              </mesh>
+              <mesh position={[0, 2.75, 0]}>
+                <cylinderGeometry args={[0.06, 0.06, 0.15, 8]} />
+                <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2.5} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+      ))}
+
+      {/* Pagar Barat & Timur (sejajar sumbu Z di x = ±size) */}
+      {[-size, size].map((xPos, sIdx) => (
+        <group key={`west-east-${sIdx}`}>
+          {/* Rel Horizontal Bawah (y: 0.45) */}
+          <mesh position={[xPos, 0.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+          {/* Rel Horizontal Tengah (y: 1.45) */}
+          <mesh position={[xPos, 1.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+          {/* Rel Horizontal Atas (y: 2.45) */}
+          <mesh position={[xPos, 2.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, sideLength, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
+          </mesh>
+
+          {/* Panel Forcefield Neon Kaca */}
+          <mesh position={[xPos, 1.35, 0]}>
+            <boxGeometry args={[0.06, 2.5, sideLength]} />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={0.14} wireframe />
+          </mesh>
+
+          {/* Tiang Pylon Vertikal Setiap 8m */}
+          {pylonPositions.map((pz, pIdx) => (
+            <group key={`we-pylon-${sIdx}-${pIdx}`} position={[xPos, 0, pz]}>
+              <mesh position={[0, 1.35, 0]} castShadow>
+                <boxGeometry args={[0.26, 2.7, 0.26]} />
+                <meshStandardMaterial color="#090f1d" metalness={0.9} roughness={0.2} />
+              </mesh>
+              <mesh position={[0, 1.35, 0]}>
+                <boxGeometry args={[0.28, 2.72, 0.28]} />
+                <meshBasicMaterial color="#38bdf8" wireframe />
+              </mesh>
+              <mesh position={[0, 2.75, 0]}>
+                <cylinderGeometry args={[0.06, 0.06, 0.15, 8]} />
+                <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2.5} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/* ============================================================
+   CYBER METAVERSE ARENA (Ground, Nexus, Platforms, Jump Pads, Fence)
 ============================================================ */
 function CyberMetaverseArena() {
   const floorTex = useMemo(() => getCyberFloorTexture(), []);
@@ -395,11 +535,14 @@ function CyberMetaverseArena() {
 
   return (
     <group>
-      {/* Endless Cyber Base Floor */}
+      {/* Endless Cyber Base Floor (Diperluas ke 180m x 180m) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[160, 160]} />
+        <planeGeometry args={[180, 180]} />
         <meshStandardMaterial map={floorTex} roughness={0.4} metalness={0.6} />
       </mesh>
+
+      {/* Pagar Pembatas Keliling Arena (128m x 128m) */}
+      <CyberPerimeterFence size={64.0} />
 
       {/* Central Nexus Teleport Disc */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
