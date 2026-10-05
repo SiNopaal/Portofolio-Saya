@@ -140,9 +140,33 @@ export function playPunchSound() {
 
 export const TELEPORT_DESTINATIONS = [
   {
+    id: "boxing",
+    name: "Cyber Boxing Ring",
+    badge: "Sparring & Punch Arena",
+    icon: "🥊",
+    pos: [0.0, 1.15, -38.0] as [number, number, number],
+    color: "#ef4444",
+  },
+  {
+    id: "parkour",
+    name: "Sky Parkour Summit",
+    badge: "5.5m Apex Viewing Deck",
+    icon: "🧗",
+    pos: [0.0, 5.75, 51.0] as [number, number, number],
+    color: "#ec4899",
+  },
+  {
+    id: "speedway",
+    name: "West Hyper Runway",
+    badge: "Speed Trampoline Circuit",
+    icon: "⚡",
+    pos: [-40.0, 1.25, 0.0] as [number, number, number],
+    color: "#10b981",
+  },
+  {
     id: "beacon",
     name: "Tech Citadel Tower",
-    badge: "Panggung Utama Stack Tower",
+    badge: "Main Tech Stack Tower",
     icon: "🗼",
     pos: [0.0, 1.25, -13.0] as [number, number, number],
     color: "#a855f7",
@@ -150,34 +174,18 @@ export const TELEPORT_DESTINATIONS = [
   {
     id: "djpad",
     name: "DJ Synth Pad",
-    badge: "16-Grid Neon Soundboard",
+    badge: "16-Grid Soundboard",
     icon: "🎵",
     pos: [12.8, 0.9, 0.0] as [number, number, number],
     color: "#ec4899",
   },
   {
-    id: "projects",
-    name: "Project Monoliths",
-    badge: "Patukrejomulyo & Laundry",
-    icon: "🌐",
-    pos: [0.0, 0.2, 5.5] as [number, number, number],
-    color: "#38bdf8",
-  },
-  {
-    id: "terminal",
-    name: "AI Bot Terminal",
-    badge: "Interactive Terminal Zone",
-    icon: "🤖",
-    pos: [-5.5, 0.2, -4.5] as [number, number, number],
-    color: "#34d399",
-  },
-  {
     id: "spawn",
-    name: "Center Arena Spawn",
+    name: "Center Nexus Spawn",
     badge: "Titik Pusat Metaverse",
     icon: "📍",
     pos: [0.0, 0.2, 1.8] as [number, number, number],
-    color: "#fbbf24",
+    color: "#38bdf8",
   },
 ];
 
@@ -199,41 +207,41 @@ function createKioskTexture(selectedId: string): THREE.CanvasTexture {
 
   // Header bar
   ctx.fillStyle = "#0e172a";
-  ctx.fillRect(12, 12, 488, 72);
+  ctx.fillRect(12, 12, 488, 64);
   ctx.fillStyle = "#38bdf8";
-  ctx.font = "bold 26px monospace";
-  ctx.fillText("⚡ TELEPORT KIOSK", 28, 54);
+  ctx.font = "bold 25px monospace";
+  ctx.fillText("⚡ TELEPORT KIOSK", 28, 50);
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = "14px monospace";
-  ctx.fillText("CLICK TO SELECT", 320, 54);
+  ctx.fillText("CLICK TO SELECT", 320, 50);
 
-  // 5 Destination buttons
+  // 6 Destination buttons
   TELEPORT_DESTINATIONS.forEach((d, idx) => {
-    const y = 96 + idx * 72;
+    const y = 82 + idx * 59;
     const isSel = d.id === selectedId;
 
-    ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.25)" : "rgba(15, 23, 42, 0.85)";
-    ctx.fillRect(24, y, 464, 62);
+    ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.32)" : "rgba(15, 23, 42, 0.85)";
+    ctx.fillRect(24, y, 464, 52);
 
     ctx.strokeStyle = isSel ? "#38bdf8" : "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = isSel ? 3 : 1;
-    ctx.strokeRect(24, y, 464, 62);
+    ctx.strokeRect(24, y, 464, 52);
 
     ctx.fillStyle = isSel ? "#ffffff" : "#cbd5e1";
-    ctx.font = "bold 21px sans-serif";
-    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 38);
+    ctx.font = "bold 19px sans-serif";
+    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 33);
 
     ctx.fillStyle = isSel ? "#38bdf8" : "#64748b";
-    ctx.font = "13px monospace";
-    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 260, y + 38);
+    ctx.font = "12px monospace";
+    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 256, y + 33);
   });
 
   // Footer status bar
   ctx.fillStyle = "#38bdf8";
-  ctx.font = "bold 16px monospace";
+  ctx.font = "bold 15px monospace";
   ctx.textAlign = "center";
-  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 486);
+  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 484);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
@@ -1239,11 +1247,9 @@ export function CyberTeleportStation({
             <meshBasicMaterial map={kioskTex} toneMapped={false} />
           </mesh>
 
-          {/* 5 Interactive Clickable Zones on the Screen */}
+          {/* 6 Interactive Clickable Zones on the Screen */}
           {TELEPORT_DESTINATIONS.map((dest, i) => {
-            // Y positions mapped to the 5 rows on the 512x512 canvas texture
-            // Row 0: y ~ 0.42, Row 1: y ~ 0.22, Row 2: y ~ 0.02, Row 3: y ~ -0.18, Row 4: y ~ -0.38
-            const btnY = 0.42 - i * 0.20;
+            const btnY = 0.393 - i * 0.1565;
             return (
               <mesh
                 key={dest.id}
@@ -1253,7 +1259,7 @@ export function CyberTeleportStation({
                   setSelectedDestId(dest.id);
                 }}
               >
-                <planeGeometry args={[1.44, 0.17]} />
+                <planeGeometry args={[1.44, 0.138]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             );
@@ -1273,8 +1279,731 @@ export function CyberTeleportStation({
 }
 
 /* ============================================================
+   4. SEKTOR SELATAN: CYBER BOXING & SPARRING RING (z: -38.0)
+   - Ukuran 10m x 10m, Elevasi panggung 0.9m
+   - 4 Steel Corner Posts (Merah, Biru, 2x Netral)
+   - 3 Neon Glowing Ropes melingkari ring
+   - Overhead suspended floodlight truss dengan 4 downward spotlights
+   - 2 Dynamic Sparring Dummies dengan spring recoil physics
+   - Interaksi pukulan (Punch [F] / Tombol HP) menghasilkan efek benturan komik
+============================================================ */
+
+function createBoxingMatTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new THREE.CanvasTexture(canvas);
+
+  // Dark canvas floor
+  ctx.fillStyle = "#0a0f1d";
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  // Outer border
+  ctx.strokeStyle = "#1e293b";
+  ctx.lineWidth = 12;
+  ctx.strokeRect(20, 20, 984, 984);
+
+  // Red corner (top right)
+  ctx.fillStyle = "rgba(239, 68, 68, 0.35)";
+  ctx.beginPath();
+  ctx.moveTo(1024, 0);
+  ctx.lineTo(600, 0);
+  ctx.lineTo(1024, 424);
+  ctx.closePath();
+  ctx.fill();
+
+  // Blue corner (bottom left)
+  ctx.fillStyle = "rgba(59, 130, 246, 0.35)";
+  ctx.beginPath();
+  ctx.moveTo(0, 1024);
+  ctx.lineTo(424, 1024);
+  ctx.lineTo(0, 600);
+  ctx.closePath();
+  ctx.fill();
+
+  // Octagon / Circles in center
+  ctx.save();
+  ctx.translate(512, 512);
+
+  ctx.strokeStyle = "rgba(239, 68, 68, 0.65)";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(0, 0, 310, 0, Math.PI * 2);
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(59, 130, 246, 0.65)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, 340, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Diagonal hash marks
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+  ctx.lineWidth = 2;
+  for (let a = -280; a <= 280; a += 40) {
+    ctx.beginPath();
+    ctx.moveTo(a, -280);
+    ctx.lineTo(a + 40, 280);
+    ctx.stroke();
+  }
+
+  // Ring Center Banner
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 68px system-ui, sans-serif";
+  ctx.fillText("🥊 CYBER COMBAT RING 🥊", 0, -45);
+
+  ctx.fillStyle = "#ef4444";
+  ctx.font = "bold 32px monospace";
+  ctx.fillText("STAND & PUNCH [F] TO SPAR", 0, 30);
+
+  ctx.fillStyle = "#38bdf8";
+  ctx.font = "600 22px monospace";
+  ctx.fillText("DYNAMIC SPRING DUMMIES • HIT REACTION", 0, 80);
+
+  ctx.restore();
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
+}
+
+export function CyberBoxingRing({
+  carState,
+  isPunching = false,
+  onPunchHit,
+}: {
+  carState: React.MutableRefObject<{ pos: THREE.Vector3; rot: number; speed: number }>;
+  isPunching?: boolean;
+  onPunchHit?: (
+    target: string,
+    pushDir: [number, number],
+    force: number,
+    sparkPos: [number, number, number]
+  ) => void;
+}) {
+  const matTex = useMemo(() => createBoxingMatTexture(), []);
+
+  // Sparring Dummy 1 (Blue side: x: -2.2, z: -38.0)
+  const dummy1Ref = useRef<THREE.Group>(null);
+  const dummy1Spring = useRef({ angleX: 0, angleZ: 0, velX: 0, velZ: 0 });
+
+  // Sparring Dummy 2 (Red side: x: 2.2, z: -38.0)
+  const dummy2Ref = useRef<THREE.Group>(null);
+  const dummy2Spring = useRef({ angleX: 0, angleZ: 0, velX: 0, velZ: 0 });
+
+  const dummyCooldownRef = useRef<{ [key: string]: number }>({});
+
+  useFrame((_, delta) => {
+    const dTime = Math.min(delta, 0.1);
+
+    // Damped harmonic spring physics for Dummy 1
+    const s1 = dummy1Spring.current;
+    s1.velX += (-s1.angleX * 42.0 - s1.velX * 7.5) * dTime;
+    s1.velZ += (-s1.angleZ * 42.0 - s1.velZ * 7.5) * dTime;
+    s1.angleX += s1.velX * dTime;
+    s1.angleZ += s1.velZ * dTime;
+    if (dummy1Ref.current) {
+      dummy1Ref.current.rotation.x = s1.angleX;
+      dummy1Ref.current.rotation.z = s1.angleZ;
+    }
+
+    // Damped harmonic spring physics for Dummy 2
+    const s2 = dummy2Spring.current;
+    s2.velX += (-s2.angleX * 42.0 - s2.velX * 7.5) * dTime;
+    s2.velZ += (-s2.angleZ * 42.0 - s2.velZ * 7.5) * dTime;
+    s2.angleX += s2.velX * dTime;
+    s2.angleZ += s2.velZ * dTime;
+    if (dummy2Ref.current) {
+      dummy2Ref.current.rotation.x = s2.angleX;
+      dummy2Ref.current.rotation.z = s2.angleZ;
+    }
+
+    // Punch hit check against dummies
+    if (isPunching) {
+      const now = Date.now();
+      const car = carState.current;
+      const pfx = Math.sin(car.rot);
+      const pfz = Math.cos(car.rot);
+      const fistX = car.pos.x + pfx * 1.15;
+      const fistZ = car.pos.z + pfz * 1.15;
+
+      // Check Dummy 1
+      const d1Dist = Math.hypot(fistX - (-2.2), fistZ - (-38.0));
+      if (d1Dist < 1.65 && (!dummyCooldownRef.current["d1"] || now - dummyCooldownRef.current["d1"] > 450)) {
+        dummyCooldownRef.current["d1"] = now;
+        s1.velX += pfz * 16.0;
+        s1.velZ -= pfx * 16.0;
+        playPunchSound();
+        onPunchHit?.("sparring-dummy-blue", [pfx, pfz], 6.0, [-2.2, 2.1, -38.0]);
+      }
+
+      // Check Dummy 2
+      const d2Dist = Math.hypot(fistX - 2.2, fistZ - (-38.0));
+      if (d2Dist < 1.65 && (!dummyCooldownRef.current["d2"] || now - dummyCooldownRef.current["d2"] > 450)) {
+        dummyCooldownRef.current["d2"] = now;
+        s2.velX += pfz * 16.0;
+        s2.velZ -= pfx * 16.0;
+        playPunchSound();
+        onPunchHit?.("sparring-dummy-red", [pfx, pfz], 6.0, [2.2, 2.1, -38.0]);
+      }
+    }
+  });
+
+  return (
+    <group position={[0.0, 0.0, -38.0]}>
+      {/* Ring Mat Surface Decal */}
+      <mesh position={[0, 0.905, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[9.7, 9.7]} />
+        <meshStandardMaterial map={matTex} roughness={0.35} metalness={0.65} />
+      </mesh>
+
+      {/* 4 Corner Steel Posts */}
+      {[
+        { x: -4.4, z: -4.4, color: "#3b82f6", name: "blue" }, // Blue corner
+        { x: 4.4, z: 4.4, color: "#ef4444", name: "red" },    // Red corner
+        { x: -4.4, z: 4.4, color: "#94a3b8", name: "white1" },
+        { x: 4.4, z: -4.4, color: "#94a3b8", name: "white2" },
+      ].map((post, idx) => (
+        <group key={`post-${idx}`} position={[post.x, 0.9, post.z]}>
+          {/* Vertical steel post column */}
+          <mesh position={[0, 0.75, 0]} castShadow>
+            <cylinderGeometry args={[0.12, 0.15, 1.5, 16]} />
+            <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.2} />
+          </mesh>
+          {/* Post glowing cap */}
+          <mesh position={[0, 1.55, 0]}>
+            <sphereGeometry args={[0.16, 16, 16]} />
+            <meshStandardMaterial color={post.color} emissive={post.color} emissiveIntensity={2.5} />
+          </mesh>
+          {/* Corner turnbuckle protective pad */}
+          <mesh position={[-Math.sign(post.x) * 0.15, 0.75, -Math.sign(post.z) * 0.15]} castShadow>
+            <boxGeometry args={[0.24, 1.4, 0.24]} />
+            <meshStandardMaterial color={post.color} roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* 3 Perimeter Neon Ropes */}
+      {[1.25, 1.55, 1.85].map((ropeY, rIdx) => {
+        const ropeColor = rIdx === 0 ? "#38bdf8" : rIdx === 1 ? "#ef4444" : "#ec4899";
+        return (
+          <group key={`rope-tier-${rIdx}`}>
+            {/* North rope (between X: -4.4 and +4.4 at Z: +4.4) */}
+            <mesh position={[0, ropeY, 4.4]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.025, 0.025, 8.8, 12]} />
+              <meshStandardMaterial color={ropeColor} emissive={ropeColor} emissiveIntensity={1.5} />
+            </mesh>
+            {/* South rope (between X: -4.4 and +4.4 at Z: -4.4) */}
+            <mesh position={[0, ropeY, -4.4]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.025, 0.025, 8.8, 12]} />
+              <meshStandardMaterial color={ropeColor} emissive={ropeColor} emissiveIntensity={1.5} />
+            </mesh>
+            {/* West rope (between Z: -4.4 and +4.4 at X: -4.4) */}
+            <mesh position={[-4.4, ropeY, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.025, 0.025, 8.8, 12]} />
+              <meshStandardMaterial color={ropeColor} emissive={ropeColor} emissiveIntensity={1.5} />
+            </mesh>
+            {/* East rope (between Z: -4.4 and +4.4 at X: +4.4) */}
+            <mesh position={[4.4, ropeY, 0]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.025, 0.025, 8.8, 12]} />
+              <meshStandardMaterial color={ropeColor} emissive={ropeColor} emissiveIntensity={1.5} />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Overhead Suspended Floodlight Truss Structure */}
+      <group position={[0, 6.2, 0]}>
+        {/* Aluminum square truss frame */}
+        <mesh>
+          <boxGeometry args={[7.5, 0.15, 0.15]} />
+          <meshStandardMaterial color="#334155" metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0, -3.75]}>
+          <boxGeometry args={[7.5, 0.15, 0.15]} />
+          <meshStandardMaterial color="#334155" metalness={0.9} />
+        </mesh>
+        <mesh position={[0, 0, 3.75]}>
+          <boxGeometry args={[7.5, 0.15, 0.15]} />
+          <meshStandardMaterial color="#334155" metalness={0.9} />
+        </mesh>
+        <mesh position={[-3.75, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <boxGeometry args={[7.5, 0.15, 0.15]} />
+          <meshStandardMaterial color="#334155" metalness={0.9} />
+        </mesh>
+        <mesh position={[3.75, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
+          <boxGeometry args={[7.5, 0.15, 0.15]} />
+          <meshStandardMaterial color="#334155" metalness={0.9} />
+        </mesh>
+
+        {/* 4 Downward Stadium Spotlights */}
+        <spotLight
+          position={[-2.5, -0.2, -2.5]}
+          target-position={[-1, -6.0, -1]}
+          intensity={22}
+          distance={14}
+          angle={0.7}
+          penumbra={0.6}
+          color="#fef08a"
+        />
+        <spotLight
+          position={[2.5, -0.2, -2.5]}
+          target-position={[1, -6.0, -1]}
+          intensity={22}
+          distance={14}
+          angle={0.7}
+          penumbra={0.6}
+          color="#fef08a"
+        />
+        <spotLight
+          position={[-2.5, -0.2, 2.5]}
+          target-position={[-1, -6.0, 1]}
+          intensity={22}
+          distance={14}
+          angle={0.7}
+          penumbra={0.6}
+          color="#fef08a"
+        />
+        <spotLight
+          position={[2.5, -0.2, 2.5]}
+          target-position={[1, -6.0, 1]}
+          intensity={22}
+          distance={14}
+          angle={0.7}
+          penumbra={0.6}
+          color="#fef08a"
+        />
+      </group>
+
+      {/* Sparring Dummy 1 (Blue Corner, x: -2.2) */}
+      <group position={[-2.2, 0.9, 0]}>
+        {/* Base Plate on floor */}
+        <mesh position={[0, 0.05, 0]} receiveShadow>
+          <cylinderGeometry args={[0.55, 0.65, 0.1, 24]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.05, 0]}>
+          <cylinderGeometry args={[0.56, 0.66, 0.11, 24]} />
+          <meshBasicMaterial color="#38bdf8" wireframe />
+        </mesh>
+        {/* Tilting Group from base anchor */}
+        <group ref={dummy1Ref} position={[0, 0.1, 0]}>
+          {/* Spring Coil stem */}
+          <mesh position={[0, 0.35, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.1, 0.6, 16]} />
+            <meshStandardMaterial color="#64748b" metalness={0.95} roughness={0.15} />
+          </mesh>
+          {/* Dummy Torso */}
+          <mesh position={[0, 1.0, 0]} castShadow>
+            <cylinderGeometry args={[0.34, 0.28, 0.85, 16]} />
+            <meshStandardMaterial color="#1e3a8a" roughness={0.3} metalness={0.7} />
+          </mesh>
+          {/* Dummy Chest Bullseye Target */}
+          <mesh position={[0, 1.05, 0.31]}>
+            <circleGeometry args={[0.18, 24]} />
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={1.8} />
+          </mesh>
+          {/* Dummy Head */}
+          <mesh position={[0, 1.6, 0]} castShadow>
+            <sphereGeometry args={[0.22, 16, 16]} />
+            <meshStandardMaterial color="#172554" roughness={0.2} metalness={0.8} />
+          </mesh>
+          {/* Glowing Visor */}
+          <mesh position={[0, 1.6, 0.18]}>
+            <boxGeometry args={[0.25, 0.08, 0.1]} />
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={3.0} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Sparring Dummy 2 (Red Corner, x: 2.2) */}
+      <group position={[2.2, 0.9, 0]}>
+        {/* Base Plate on floor */}
+        <mesh position={[0, 0.05, 0]} receiveShadow>
+          <cylinderGeometry args={[0.55, 0.65, 0.1, 24]} />
+          <meshStandardMaterial color="#1e293b" metalness={0.9} roughness={0.3} />
+        </mesh>
+        <mesh position={[0, 0.05, 0]}>
+          <cylinderGeometry args={[0.56, 0.66, 0.11, 24]} />
+          <meshBasicMaterial color="#ef4444" wireframe />
+        </mesh>
+        {/* Tilting Group from base anchor */}
+        <group ref={dummy2Ref} position={[0, 0.1, 0]}>
+          {/* Spring Coil stem */}
+          <mesh position={[0, 0.35, 0]} castShadow>
+            <cylinderGeometry args={[0.1, 0.1, 0.6, 16]} />
+            <meshStandardMaterial color="#64748b" metalness={0.95} roughness={0.15} />
+          </mesh>
+          {/* Dummy Torso */}
+          <mesh position={[0, 1.0, 0]} castShadow>
+            <cylinderGeometry args={[0.34, 0.28, 0.85, 16]} />
+            <meshStandardMaterial color="#881337" roughness={0.3} metalness={0.7} />
+          </mesh>
+          {/* Dummy Chest Bullseye Target */}
+          <mesh position={[0, 1.05, 0.31]}>
+            <circleGeometry args={[0.18, 24]} />
+            <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={1.8} />
+          </mesh>
+          {/* Dummy Head */}
+          <mesh position={[0, 1.6, 0]} castShadow>
+            <sphereGeometry args={[0.22, 16, 16]} />
+            <meshStandardMaterial color="#4c0519" roughness={0.2} metalness={0.8} />
+          </mesh>
+          {/* Glowing Visor */}
+          <mesh position={[0, 1.6, 0.18]}>
+            <boxGeometry args={[0.25, 0.08, 0.1]} />
+            <meshStandardMaterial color="#f43f5e" emissive="#f43f5e" emissiveIntensity={3.0} />
+          </mesh>
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/* ============================================================
+   5. SEKTOR UTARA: CYBER SKY PARKOUR & APEX SUMMIT (z: +25 to +55)
+   - Multi-tier elevated jumping platforms (Y = 1.6m, 2.7m, 3.8m, 5.5m)
+   - Holographic Champion Apex Trophy di Summit
+   - Panoramic viewing deck dengan neon balustrades
+   - Leap of Faith dive pad untuk salto 360°
+============================================================ */
+
+export function CyberSkyParkour() {
+  const trophyRef = useRef<THREE.Group>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (trophyRef.current) {
+      trophyRef.current.position.y = 7.2 + Math.sin(t * 2.2) * 0.15;
+      trophyRef.current.rotation.y += delta * 0.75;
+    }
+    if (ring1Ref.current) ring1Ref.current.rotation.x += delta * 1.2;
+    if (ring2Ref.current) ring2Ref.current.rotation.z += delta * 0.9;
+  });
+
+  return (
+    <group>
+      {/* Heavy Structural Support Pillars under Parkour Platforms */}
+      {/* Pillars under Platform 1 (z: 29.0, h: 1.6) */}
+      {[
+        [-3.2, 26.5],
+        [3.2, 26.5],
+        [-3.2, 31.5],
+        [3.2, 31.5],
+      ].map(([px, pz], i) => (
+        <mesh key={`p1-col-${i}`} position={[px, 0.8, pz]} castShadow>
+          <cylinderGeometry args={[0.22, 0.28, 1.6, 12]} />
+          <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Pillars under Stepping Stones (z: 35.5, h: 2.7) */}
+      <mesh position={[-4.5, 1.35, 35.5]} castShadow>
+        <cylinderGeometry args={[0.3, 0.4, 2.7, 12]} />
+        <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
+      </mesh>
+      <mesh position={[4.5, 1.35, 35.5]} castShadow>
+        <cylinderGeometry args={[0.3, 0.4, 2.7, 12]} />
+        <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
+      </mesh>
+
+      {/* Pillars under Platform 2 (z: 42.0, h: 3.8) */}
+      {[
+        [-3.2, 39.5],
+        [3.2, 39.5],
+        [-3.2, 44.5],
+        [3.2, 44.5],
+      ].map(([px, pz], i) => (
+        <mesh key={`p2-col-${i}`} position={[px, 1.9, pz]} castShadow>
+          <cylinderGeometry args={[0.26, 0.35, 3.8, 12]} />
+          <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Pillars under Sky Summit (z: 51.0, h: 5.5) */}
+      {[
+        [-3.8, 47.5],
+        [3.8, 47.5],
+        [-3.8, 54.5],
+        [3.8, 54.5],
+        [0, 51.0],
+      ].map(([px, pz], i) => (
+        <mesh key={`summit-col-${i}`} position={[px, 2.75, pz]} castShadow>
+          <cylinderGeometry args={[0.35, 0.45, 5.5, 12]} />
+          <meshStandardMaterial color="#0f172a" metalness={0.9} roughness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Holographic Apex Champion Trophy at the Sky Summit (x: 0, z: 51.0) */}
+      <group position={[0.0, 0.0, 51.0]}>
+        {/* Pedestal Stand on Platform Floor */}
+        <mesh position={[0, 5.85, 0]} castShadow>
+          <cylinderGeometry args={[1.2, 1.5, 0.7, 8]} />
+          <meshStandardMaterial color="#0b1120" metalness={0.92} roughness={0.2} />
+        </mesh>
+        <mesh position={[0, 5.85, 0]}>
+          <cylinderGeometry args={[1.22, 1.52, 0.72, 8]} />
+          <meshBasicMaterial color="#ec4899" wireframe />
+        </mesh>
+
+        {/* Floating Rotating Trophy */}
+        <group ref={trophyRef} position={[0, 7.2, 0]}>
+          {/* Central Gem Diamond */}
+          <mesh>
+            <octahedronGeometry args={[0.7, 0]} />
+            <meshStandardMaterial
+              color="#fbbf24"
+              emissive="#f59e0b"
+              emissiveIntensity={2.5}
+              metalness={0.8}
+              roughness={0.1}
+            />
+          </mesh>
+          {/* Inner Light Core */}
+          <pointLight color="#ec4899" intensity={15} distance={10} />
+          {/* Gyroscopic Ring 1 */}
+          <mesh ref={ring1Ref}>
+            <torusGeometry args={[1.1, 0.035, 16, 32]} />
+            <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2} />
+          </mesh>
+          {/* Gyroscopic Ring 2 */}
+          <mesh ref={ring2Ref} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[1.35, 0.035, 16, 32]} />
+            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2} />
+          </mesh>
+        </group>
+
+        {/* Viewing Deck Balustrades / Glowing Handrails around Summit */}
+        <mesh position={[0, 6.1, 55.4]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+          <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
+        </mesh>
+        <mesh position={[-4.4, 6.1, 51.0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+          <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
+        </mesh>
+        <mesh position={[4.4, 6.1, 51.0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.04, 0.04, 8.8, 12]} />
+          <meshStandardMaterial color="#ec4899" emissive="#ec4899" emissiveIntensity={2.0} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
+/* ============================================================
+   6. SEKTOR BARAT & TIMUR: SPEEDWAY ARCHES & TECH PLAZA
+============================================================ */
+
+export function CyberSpeedwayAndPlazas() {
+  const crystalRef = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (crystalRef.current) {
+      crystalRef.current.rotation.y += delta * 0.5;
+    }
+  });
+
+  return (
+    <group>
+      {/* SEKTOR BARAT: West Hyper Runway (x: -40.0, z: 0.0) */}
+      <group position={[-40.0, 0.0, 0.0]}>
+        {/* Speed Runway Neon Chevron Arches */}
+        {[-8.0, 0.0, 8.0].map((az, idx) => (
+          <group key={`arch-${idx}`} position={[0, 0, az]}>
+            {/* Left Arch Pillar */}
+            <mesh position={[-4.0, 2.2, 0]}>
+              <boxGeometry args={[0.3, 4.4, 0.3]} />
+              <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={1.5} />
+            </mesh>
+            {/* Right Arch Pillar */}
+            <mesh position={[4.0, 2.2, 0]}>
+              <boxGeometry args={[0.3, 4.4, 0.3]} />
+              <meshStandardMaterial color="#10b981" emissive="#10b981" emissiveIntensity={1.5} />
+            </mesh>
+            {/* Top Beam */}
+            <mesh position={[0, 4.4, 0]}>
+              <boxGeometry args={[8.3, 0.3, 0.3]} />
+              <meshStandardMaterial color="#34d399" emissive="#34d399" emissiveIntensity={2.0} />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
+      {/* SEKTOR TIMUR: East VIP Tech Pavilion (x: 40.0, z: 0.0) */}
+      <group position={[40.0, 1.0, 0.0]}>
+        {/* Floating Crystal Monoliths */}
+        <group ref={crystalRef} position={[0, 2.5, 0]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.6, 0.6, 2.2, 6]} />
+            <meshStandardMaterial
+              color="#f59e0b"
+              emissive="#f59e0b"
+              emissiveIntensity={2.0}
+              metalness={0.9}
+              roughness={0.1}
+            />
+          </mesh>
+          <mesh rotation={[0, Math.PI / 6, 0]}>
+            <cylinderGeometry args={[0.62, 0.62, 2.22, 6]} />
+            <meshBasicMaterial color="#ffffff" wireframe />
+          </mesh>
+          <pointLight color="#f59e0b" intensity={18} distance={12} />
+        </group>
+
+        {/* 4 Corner Tech Pylons */}
+        {[
+          [-3.8, -3.8],
+          [3.8, -3.8],
+          [-3.8, 3.8],
+          [3.8, 3.8],
+        ].map(([px, pz], idx) => (
+          <mesh key={`tech-pylon-${idx}`} position={[px, 1.2, pz]} castShadow>
+            <boxGeometry args={[0.35, 2.4, 0.35]} />
+            <meshStandardMaterial color="#d97706" emissive="#f59e0b" emissiveIntensity={1.2} />
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+}
+
+/* ============================================================
+   7. PERIMETER BOUNDARY: 4 MEGA SKY BEACONS & ENERGY FORCEFIELD
+   - 4 Tower Megah di Sudut Arena (x: ±58, z: ±58)
+   - Skyward laser beam menembus langit (Tinggi 65m)
+   - Forcefield barrier pagar energi di tepi arena (X = ±68, Z = ±68)
+============================================================ */
+
+export function CyberArenaPerimeter() {
+  const corners = [
+    { x: 58.0, z: 58.0, color: "#38bdf8" },
+    { x: -58.0, z: 58.0, color: "#ec4899" },
+    { x: 58.0, z: -58.0, color: "#a855f7" },
+    { x: -58.0, z: -58.0, color: "#10b981" },
+  ];
+
+  return (
+    <group>
+      {/* 4 Corner Mega Sky Beacons */}
+      {corners.map((corner, i) => (
+        <group key={`beacon-${i}`} position={[corner.x, 0, corner.z]}>
+          {/* Base Pedestal (8m tall sci-fi structure) */}
+          <mesh position={[0, 4.0, 0]} castShadow>
+            <cylinderGeometry args={[1.8, 2.8, 8.0, 8]} />
+            <meshStandardMaterial color="#0a0f1d" metalness={0.92} roughness={0.2} />
+          </mesh>
+          <mesh position={[0, 4.0, 0]}>
+            <cylinderGeometry args={[1.82, 2.82, 8.05, 8]} />
+            <meshBasicMaterial color={corner.color} wireframe />
+          </mesh>
+
+          {/* Glowing Energy Ring at Top */}
+          <mesh position={[0, 8.1, 0]}>
+            <torusGeometry args={[1.9, 0.12, 16, 32]} />
+            <meshStandardMaterial
+              color={corner.color}
+              emissive={corner.color}
+              emissiveIntensity={3.0}
+            />
+          </mesh>
+
+          {/* Vertical Skyward Laser Beam (Reaches 65m into sky) */}
+          <mesh position={[0, 38.0, 0]}>
+            <cylinderGeometry args={[0.55, 1.6, 60.0, 16, 1, true]} />
+            <meshBasicMaterial
+              color={corner.color}
+              transparent
+              opacity={0.35}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh position={[0, 38.0, 0]}>
+            <cylinderGeometry args={[0.18, 0.45, 60.0, 12, 1, true]} />
+            <meshBasicMaterial
+              color="#ffffff"
+              transparent
+              opacity={0.7}
+              side={THREE.DoubleSide}
+              depthWrite={false}
+            />
+          </mesh>
+
+          {/* Beacon Point Light */}
+          <pointLight color={corner.color} intensity={25} distance={28} position={[0, 9.0, 0]} />
+        </group>
+      ))}
+
+      {/* Forcefield Laser Boundary Ribbons along X = ±68 and Z = ±68 */}
+      {/* North Forcefield (Z = +68) */}
+      <mesh position={[0, 1.5, 68.0]}>
+        <boxGeometry args={[136.0, 3.0, 0.1]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.12} wireframe />
+      </mesh>
+      <mesh position={[0, 0.4, 68.0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#38bdf8" />
+      </mesh>
+      <mesh position={[0, 2.5, 68.0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#38bdf8" />
+      </mesh>
+
+      {/* South Forcefield (Z = -68) */}
+      <mesh position={[0, 1.5, -68.0]}>
+        <boxGeometry args={[136.0, 3.0, 0.1]} />
+        <meshBasicMaterial color="#ef4444" transparent opacity={0.12} wireframe />
+      </mesh>
+      <mesh position={[0, 0.4, -68.0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#ef4444" />
+      </mesh>
+      <mesh position={[0, 2.5, -68.0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#ef4444" />
+      </mesh>
+
+      {/* West Forcefield (X = -68) */}
+      <mesh position={[-68.0, 1.5, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <boxGeometry args={[136.0, 3.0, 0.1]} />
+        <meshBasicMaterial color="#10b981" transparent opacity={0.12} wireframe />
+      </mesh>
+      <mesh position={[-68.0, 0.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#10b981" />
+      </mesh>
+      <mesh position={[-68.0, 2.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#10b981" />
+      </mesh>
+
+      {/* East Forcefield (X = +68) */}
+      <mesh position={[68.0, 1.5, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <boxGeometry args={[136.0, 3.0, 0.1]} />
+        <meshBasicMaterial color="#a855f7" transparent opacity={0.12} wireframe />
+      </mesh>
+      <mesh position={[68.0, 0.4, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#a855f7" />
+      </mesh>
+      <mesh position={[68.0, 2.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 136.0, 8]} />
+        <meshBasicMaterial color="#a855f7" />
+      </mesh>
+    </group>
+  );
+}
+
+/* ============================================================
    BACKWARD COMPATIBILITY EXPORTS
 ============================================================ */
-export const CyberSparringRing = CyberDJSynthPad;
+export const CyberSparringRing = CyberBoxingRing;
 export const VisitorHallOfFame = CyberTeleportStation;
 export const CyberCommandCenter = CyberContactBeacon;
+
