@@ -1,10 +1,26 @@
+import http from "node:http";
 import { WebSocketServer, WebSocket } from "ws";
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
 const MAX_PLAYERS = 10;
-const wss = new WebSocketServer({ port: PORT });
 
-console.log(`[Multiplayer] WebSocket server listening on port ${PORT} (Max Players: ${MAX_PLAYERS})...`);
+// Lightweight HTTP server for Render health checks and status monitoring
+const server = http.createServer((req, res) => {
+  res.writeHead(200, {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  });
+  res.end(
+    JSON.stringify({
+      status: "online",
+      service: "Naufal Metaverse Multiplayer Relay",
+      onlinePlayers: wss.clients.size,
+      maxPlayers: MAX_PLAYERS,
+    })
+  );
+});
+
+const wss = new WebSocketServer({ server });
 
 wss.on("connection", (ws, req) => {
   const ip = req.socket.remoteAddress;
@@ -37,8 +53,13 @@ wss.on("connection", (ws, req) => {
   });
 });
 
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`[Multiplayer] HTTP & WebSocket server listening on port ${PORT} (Max Players: ${MAX_PLAYERS})...`);
+});
+
 process.on("SIGINT", () => {
   console.log("[Multiplayer] Shutting down WebSocket server...");
   wss.close();
+  server.close();
   process.exit(0);
 });
