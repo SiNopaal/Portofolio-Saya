@@ -1027,29 +1027,8 @@ function SciFiMonolith({
 }
 
 /* ============================================================
-   2.5D HIGH-DEFINITION ANIME CHARACTER (HD Sprite & 3D Kinematics)
+   3D CYBER EXOSKELETON 2.0 (High-Poly Smooth Cybernetics Rig)
 ============================================================ */
-
-const animeSpriteCache = new Map<string, THREE.Texture>();
-
-function getAnimeSpriteTexture(modelType: CharacterModelType): THREE.Texture {
-  const file =
-    modelType === "female_casual"
-      ? "/characters/female_casual.png"
-      : "/characters/male_hoodie.png";
-  let tex = animeSpriteCache.get(file);
-  if (!tex) {
-    const loader = new THREE.TextureLoader();
-    tex = loader.load(file);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.generateMipmaps = true;
-    tex.minFilter = THREE.LinearMipmapLinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    animeSpriteCache.set(file, tex);
-  }
-  return tex;
-}
-
 function CyberCharacter({
   carRef,
   steerRef,
@@ -1057,7 +1036,6 @@ function CyberCharacter({
   isDriftingRef,
   color = "#0284c7",
   accentColor = "#38bdf8",
-  modelType = "male_hoodie",
   name,
   emote,
   isRemote = false,
@@ -1082,23 +1060,40 @@ function CyberCharacter({
   isHit?: boolean;
 }) {
   const blobTex = useMemo(() => getBlobTexture(), []);
-  const spriteTex = useMemo(() => getAnimeSpriteTexture(modelType), [modelType]);
 
   const rootGroup = useRef<THREE.Group>(null);
+  const bodyGroup = useRef<THREE.Group>(null);
+  const headGroup = useRef<THREE.Group>(null);
+  const leftLegRef = useRef<THREE.Group>(null);
+  const rightLegRef = useRef<THREE.Group>(null);
+  const leftShinRef = useRef<THREE.Group>(null);
+  const rightShinRef = useRef<THREE.Group>(null);
+  const leftArmRef = useRef<THREE.Group>(null);
+  const rightArmRef = useRef<THREE.Group>(null);
+  const leftForearmRef = useRef<THREE.Group>(null);
+  const rightForearmRef = useRef<THREE.Group>(null);
+  const droneRef = useRef<THREE.Group>(null);
+  const jetFlameLRef = useRef<THREE.Mesh>(null);
+  const jetFlameRRef = useRef<THREE.Mesh>(null);
+  const auraRef = useRef<THREE.Mesh>(null);
   const flipPivotRef = useRef<THREE.Group>(null);
-  const billboardGroupRef = useRef<THREE.Group>(null);
-  const spriteMeshRef = useRef<THREE.Mesh>(null);
+  const flipProgressRef = useRef<number>(0);
+  const wasAirborneRef = useRef<boolean>(false);
   const somersaultRingRef = useRef<THREE.Mesh>(null);
 
   const walkPhaseRef = useRef<number>(0);
   const walkWeightRef = useRef<number>(0);
-  const flipProgressRef = useRef<number>(0);
-  const wasAirborneRef = useRef<boolean>(false);
-  const facingSignRef = useRef<number>(1);
 
-  const isFemale = modelType === "female_casual";
-  const planeWidth = isFemale ? 1.65 : 1.76;
-  const planeHeight = isFemale ? 1.92 : 1.95;
+  const spotRef = useRef<THREE.SpotLight>(null);
+  const spotTarget = useMemo(() => {
+    const o = new THREE.Object3D();
+    o.position.set(0, 0.4, 12);
+    return o;
+  }, []);
+
+  useEffect(() => {
+    if (spotRef.current) spotRef.current.target = spotTarget;
+  }, [spotTarget]);
 
   useFrame((state, delta) => {
     const player = carRef.current;
@@ -1174,89 +1169,174 @@ function CyberCharacter({
       }
     }
 
-    // Billboarding: Sprite smoothly faces the camera yaw (never looks paper-thin!)
-    if (billboardGroupRef.current && rootGroup.current) {
-      const cam = state.camera;
-      const rootPos = rootGroup.current.position;
-      const dx = cam.position.x - rootPos.x;
-      const dz = cam.position.z - rootPos.z;
-      const camAngle = Math.atan2(dx, dz);
-
-      // Rotate group on Y to match camera direction
-      billboardGroupRef.current.rotation.y = camAngle - rootGroup.current.rotation.y;
-
-      // Determine horizontal flip based on movement relative to camera
-      if (absSpeed > 0.25) {
-        let diff = player.rot - camAngle;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        // If moving right across camera view
-        if (diff > 0.15 && diff < Math.PI - 0.15) {
-          facingSignRef.current = 1;
-        } else if (diff < -0.15 && diff > -Math.PI + 0.15) {
-          facingSignRef.current = -1;
-        }
-      }
-    }
-
-    // Smooth walk weight
+    // Smoothly blend walking animation in & out
     const targetWalkWeight = isMoving && !isAirborne ? 1.0 : 0.0;
     walkWeightRef.current = THREE.MathUtils.damp(walkWeightRef.current, targetWalkWeight, 12, delta);
     const walkWeight = walkWeightRef.current;
 
-    // Advance walk cycle
-    const cycleFreq = isSprinting ? 13 : 9;
+    // Advance walk cycle only when moving
+    const cycleFreq = isSprinting ? 12 : 8.5;
     if (walkWeight > 0.01) {
       walkPhaseRef.current += delta * cycleFreq;
     }
     const phase = walkPhaseRef.current;
     const stride = Math.min(1.0, absSpeed / 2.6) * walkWeight;
 
-    // Dynamic 2.5D Animated Sprite Kinematics
-    if (spriteMeshRef.current) {
-      // Step bounce (up-down rhythmic footfalls)
-      const bounce = isAirborne ? 0 : Math.abs(Math.sin(phase)) * (isSprinting ? 0.075 : 0.04) * stride;
-      // Gentle breathing idle pulse
-      const breathing = isMoving || isAirborne ? 0 : Math.sin(state.clock.elapsedTime * 2.8) * 0.014;
-      // Foot strike squash & stretch
-      const squash = isAirborne ? 0 : Math.sin(phase * 2) * 0.03 * stride;
+    // Arm swing & punch kinematics with elbow flexion
+    if (leftArmRef.current && rightArmRef.current && leftForearmRef.current && rightForearmRef.current) {
+      if (isPunching) {
+        // Powerful cyber punch jab forward with right fist
+        rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -Math.PI / 1.75, 26, delta);
+        rightArmRef.current.position.z = THREE.MathUtils.damp(rightArmRef.current.position.z, 0.35, 26, delta);
+        rightForearmRef.current.rotation.x = THREE.MathUtils.damp(rightForearmRef.current.rotation.x, -0.15, 26, delta);
 
-      // Position adjustments
-      const punchZ = isPunching ? 0.32 : 0;
-      const hitShake = isHit ? Math.sin(state.clock.elapsedTime * 35) * 0.07 : 0;
-      const hitZ = isHit ? -0.15 : 0;
+        leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, 0.3, 20, delta);
+        leftForearmRef.current.rotation.x = THREE.MathUtils.damp(leftForearmRef.current.rotation.x, -0.7, 20, delta);
+      } else if (isHit) {
+        rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -0.75, 18, delta);
+        leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, -0.75, 18, delta);
+        rightForearmRef.current.rotation.x = -0.4;
+        leftForearmRef.current.rotation.x = -0.4;
+      } else if (isAirborne) {
+        if (tuck > 0.05) {
+          // Acrobatic front flip / salto depan arm tuck
+          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(-0.45, -1.35, tuck);
+          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(-0.45, -1.35, tuck);
+          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
+          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
+          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(0.1, 0.28, tuck);
+          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(-0.1, -0.28, tuck);
+        } else {
+          // Airborne jetpack flying arms
+          leftArmRef.current.rotation.x = THREE.MathUtils.damp(leftArmRef.current.rotation.x, -0.45, 10, delta);
+          rightArmRef.current.rotation.x = THREE.MathUtils.damp(rightArmRef.current.rotation.x, -0.45, 10, delta);
+          leftForearmRef.current.rotation.x = -0.2;
+          rightForearmRef.current.rotation.x = -0.2;
+        }
+      } else {
+        // Natural opposite arm swing
+        const armCycle = Math.sin(phase) * (isSprinting ? 0.8 : 0.5) * stride;
+        leftArmRef.current.rotation.x = armCycle;
+        rightArmRef.current.rotation.x = -armCycle;
+        rightArmRef.current.position.z = 0;
 
-      spriteMeshRef.current.position.y = planeHeight / 2 + bounce + breathing;
-      spriteMeshRef.current.position.z = THREE.MathUtils.damp(
-        spriteMeshRef.current.position.z,
-        punchZ + hitZ,
-        22,
+        // Natural elbow flexion
+        const leftElbow = -0.32 - (isSprinting ? 0.35 : 0.18) * Math.max(0, Math.sin(phase)) * stride;
+        const rightElbow = -0.32 - (isSprinting ? 0.35 : 0.18) * Math.max(0, -Math.sin(phase)) * stride;
+        leftForearmRef.current.rotation.x = leftElbow;
+        rightForearmRef.current.rotation.x = rightElbow;
+
+        leftArmRef.current.rotation.z = isSprinting ? 0.22 : 0.1;
+        rightArmRef.current.rotation.z = isSprinting ? -0.22 : -0.1;
+      }
+    }
+
+    // Leg stride kinematics with knee flexion
+    if (leftLegRef.current && rightLegRef.current && leftShinRef.current && rightShinRef.current) {
+      if (isAirborne) {
+        if (tuck > 0.05) {
+          // Front flip knee & shin tuck
+          leftLegRef.current.rotation.x = THREE.MathUtils.lerp(0.3, -1.15, tuck);
+          rightLegRef.current.rotation.x = THREE.MathUtils.lerp(-0.2, -1.15, tuck);
+          leftShinRef.current.rotation.x = THREE.MathUtils.lerp(0.45, 1.6, tuck);
+          rightShinRef.current.rotation.x = THREE.MathUtils.lerp(0.65, 1.6, tuck);
+        } else {
+          leftLegRef.current.rotation.x = THREE.MathUtils.damp(leftLegRef.current.rotation.x, 0.3, 10, delta);
+          rightLegRef.current.rotation.x = THREE.MathUtils.damp(rightLegRef.current.rotation.x, -0.2, 10, delta);
+          leftShinRef.current.rotation.x = THREE.MathUtils.damp(leftShinRef.current.rotation.x, 0.45, 10, delta);
+          rightShinRef.current.rotation.x = THREE.MathUtils.damp(rightShinRef.current.rotation.x, 0.65, 10, delta);
+        }
+      } else {
+        // Thigh swing
+        const legCycle = Math.sin(phase) * (isSprinting ? 0.9 : 0.62) * stride;
+        leftLegRef.current.rotation.x = -legCycle;
+        rightLegRef.current.rotation.x = legCycle;
+
+        // Knee bends backward only when foot swings back / lifts off
+        const leftKneeBend = Math.max(0, -Math.sin(phase)) * (isSprinting ? 1.15 : 0.78) * stride;
+        const rightKneeBend = Math.max(0, Math.sin(phase)) * (isSprinting ? 1.15 : 0.78) * stride;
+        leftShinRef.current.rotation.x = leftKneeBend;
+        rightShinRef.current.rotation.x = rightKneeBend;
+      }
+    }
+
+    // Torso counter-rotation, lateral hip sway & bounce
+    if (bodyGroup.current) {
+      if (isHit) {
+        bodyGroup.current.rotation.x = -0.42;
+        bodyGroup.current.position.z = -0.15;
+      } else if (isPunching) {
+        bodyGroup.current.rotation.y = -0.36;
+        bodyGroup.current.rotation.x = 0.15;
+        bodyGroup.current.position.z = 0.08;
+      } else {
+        // Rhythmic vertical step bounce (2 bounces per cycle)
+        const bounce = isAirborne ? 0 : Math.abs(Math.sin(phase)) * (isSprinting ? 0.055 : 0.028) * stride;
+        bodyGroup.current.position.y = bounce;
+        bodyGroup.current.position.z = 0;
+
+        // Spine counter-rotation (cross-body torsion)
+        const spineTwist = Math.sin(phase) * 0.075 * stride;
+        bodyGroup.current.rotation.y = THREE.MathUtils.damp(bodyGroup.current.rotation.y, spineTwist, 12, delta);
+
+        // Lateral hip sway (Z roll)
+        const hipSway = Math.sin(phase) * 0.035 * stride;
+        bodyGroup.current.rotation.z = THREE.MathUtils.damp(bodyGroup.current.rotation.z, hipSway + tiltRef.current.roll * 0.5, 10, delta);
+
+        // Dynamic forward lean
+        const forwardLean = THREE.MathUtils.clamp(speed * 0.024, -0.1, isSprinting ? 0.32 : 0.18);
+        bodyGroup.current.rotation.x = THREE.MathUtils.damp(bodyGroup.current.rotation.x, forwardLean, 10, delta);
+      }
+    }
+
+    // Head looks in steer direction
+    if (headGroup.current) {
+      headGroup.current.rotation.y = THREE.MathUtils.damp(
+        headGroup.current.rotation.y,
+        steerRef.current * 0.45,
+        10,
         delta
       );
-      spriteMeshRef.current.position.x = hitShake;
+      if (tuck > 0.05) {
+        headGroup.current.rotation.x = THREE.MathUtils.lerp(0, 0.35, tuck);
+      } else {
+        headGroup.current.rotation.x = 0;
+      }
+    }
 
-      // Dynamic squash & stretch + horizontal direction flip
-      const targetScaleX = facingSignRef.current * (1 - squash);
-      const targetScaleY = 1 + squash;
-      spriteMeshRef.current.scale.x = THREE.MathUtils.damp(spriteMeshRef.current.scale.x, targetScaleX, 20, delta);
-      spriteMeshRef.current.scale.y = targetScaleY;
+    // Jetpack thrusters
+    const thrusterActive = isSprinting || isAirborne || absSpeed > 1.2;
+    if (jetFlameLRef.current && jetFlameRRef.current) {
+      jetFlameLRef.current.visible = thrusterActive || absSpeed > 0.2;
+      jetFlameRRef.current.visible = thrusterActive || absSpeed > 0.2;
+      if (thrusterActive) {
+        const pulse = 0.9 + Math.sin(state.clock.elapsedTime * 35) * 0.35;
+        jetFlameLRef.current.scale.set(pulse, pulse * 2.0, pulse);
+        jetFlameRRef.current.scale.set(pulse, pulse * 2.0, pulse);
+      } else {
+        jetFlameLRef.current.scale.set(0.3, 0.4, 0.3);
+        jetFlameRRef.current.scale.set(0.3, 0.4, 0.3);
+      }
+    }
 
-      // Forward lean when running
-      const forwardLean = THREE.MathUtils.clamp(speed * 0.022, -0.06, isSprinting ? 0.24 : 0.12);
-      spriteMeshRef.current.rotation.x = THREE.MathUtils.damp(spriteMeshRef.current.rotation.x, forwardLean, 12, delta);
+    // Floating AI Companion Drone
+    if (droneRef.current) {
+      const t = state.clock.elapsedTime;
+      droneRef.current.position.y = 1.62 + Math.sin(t * 3.4) * 0.12;
+      droneRef.current.position.x = 0.58 + Math.cos(t * 1.8) * 0.08;
+      droneRef.current.position.z = -0.28 + Math.sin(t * 1.8) * 0.08;
+      droneRef.current.rotation.y += delta * 2.2;
+    }
 
-      // Lateral banking roll
-      const swayRoll = Math.sin(phase) * 0.035 * stride;
-      spriteMeshRef.current.rotation.z = THREE.MathUtils.damp(
-        spriteMeshRef.current.rotation.z,
-        swayRoll - steerRef.current * 0.08,
-        12,
-        delta
-      );
+    // Sprint aura pulse
+    if (auraRef.current) {
+      auraRef.current.visible = isSprinting;
+      if (isSprinting) {
+        const aScale = 1.0 + (Math.sin(state.clock.elapsedTime * 12) * 0.5 + 0.5) * 0.35;
+        auraRef.current.scale.set(aScale, aScale, aScale);
+      }
     }
   });
-
-  const avatarEmoji = isFemale ? "👧" : "👦";
 
   return (
     <group ref={rootGroup}>
@@ -1270,7 +1350,7 @@ function CyberCharacter({
                   className="text-[10px] uppercase font-bold tracking-wider block mb-0.5"
                   style={{ color: accentColor }}
                 >
-                  {avatarEmoji} {name}
+                  🤖 {name}
                 </span>
                 <span className="break-words text-slate-100">{emote}</span>
                 {/* Speech bubble arrow pointer */}
@@ -1285,7 +1365,7 @@ function CyberCharacter({
                 color: "#fff",
               }}
             >
-              <span className="text-[11px]">{avatarEmoji}</span>
+              <span className="text-[11px]">🤖</span>
               <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
               <span>{name}</span>
             </div>
@@ -1296,39 +1376,431 @@ function CyberCharacter({
       {/* 3D Somersault Pivot (Salto Depan - Center of mass at hips y = 0.85) */}
       <group ref={flipPivotRef} position={[0, 0.85, 0]}>
         <group position={[0, -0.85, 0]}>
-          {/* Billboard Group: Dynamically faces the camera */}
-          <group ref={billboardGroupRef}>
-            {/* 2.5D Animated HD Sprite Plane */}
-            <mesh ref={spriteMeshRef} position={[0, planeHeight / 2, 0]} castShadow>
-              <planeGeometry args={[planeWidth, planeHeight]} />
-              <meshStandardMaterial
-                map={spriteTex}
-                transparent
-                alphaTest={0.08}
-                depthWrite
-                side={THREE.DoubleSide}
-                roughness={0.65}
-                metalness={0.02}
-              />
+          {/* Upper Body + Head + Arms */}
+          <group ref={bodyGroup}>
+            {/* Tactical Smooth Pelvis & Core Chassis */}
+            <mesh position={[0, 0.95, 0]} castShadow>
+              <cylinderGeometry args={[0.2, 0.165, 0.15, 32]} />
+              <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+            </mesh>
+            {/* Neon Cyber Belt Trim (High-Poly Ribbon) */}
+            <mesh position={[0, 0.97, 0]}>
+              <cylinderGeometry args={[0.206, 0.192, 0.045, 32]} />
+              <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={2.8} />
+            </mesh>
+            {/* Contoured Buckle Unit */}
+            <mesh position={[0, 0.97, 0.165]}>
+              <cylinderGeometry args={[0.045, 0.045, 0.03, 20]} />
+              <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
+            </mesh>
+            {/* Hip Hydraulic Damper Cells */}
+            <mesh position={[-0.2, 0.95, 0]} rotation={[0, 0, 0.15]}>
+              <cylinderGeometry args={[0.035, 0.035, 0.11, 16]} />
+              <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.25} />
+            </mesh>
+            <mesh position={[0.2, 0.95, 0]} rotation={[0, 0, -0.15]}>
+              <cylinderGeometry args={[0.035, 0.035, 0.11, 16]} />
+              <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.25} />
             </mesh>
 
-            {/* Punch Action Kinetic Flash */}
-            {isPunching && (
-              <mesh position={[facingSignRef.current * 0.45, 1.25, 0.2]}>
-                <sphereGeometry args={[0.2, 12, 10]} />
-                <meshBasicMaterial color={accentColor} transparent opacity={0.7} />
-              </mesh>
-            )}
+            {/* Sculpted Smooth Abdominal Segments (Anatomical Curvature) */}
+            <mesh position={[0, 1.07, 0.05]} castShadow>
+              <cylinderGeometry args={[0.18, 0.2, 0.09, 32]} />
+              <meshStandardMaterial color="#0b0f19" metalness={0.88} roughness={0.22} />
+            </mesh>
+            <mesh position={[0, 1.17, 0.055]} castShadow>
+              <cylinderGeometry args={[0.21, 0.18, 0.1, 32]} />
+              <meshStandardMaterial color="#111827" metalness={0.88} roughness={0.22} />
+            </mesh>
+            {/* Abdominal Recessed Neon Pinstripes */}
+            <mesh position={[-0.12, 1.12, 0.095]} rotation={[0, 0, 0.1]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.14, 12]} />
+              <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.2} />
+            </mesh>
+            <mesh position={[0.12, 1.12, 0.095]} rotation={[0, 0, -0.1]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.14, 12]} />
+              <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.2} />
+            </mesh>
 
-            {/* Soft Warm Character Fill Light */}
-            {!isRemote && (
-              <pointLight
-                position={[0, 1.3, 0.5]}
-                intensity={1.6}
-                distance={5.5}
-                color="#fffbeb"
-              />
-            )}
+            {/* Aerodynamic V-Taper Torso Carapace */}
+            <mesh position={[0, 1.32, 0.02]} castShadow>
+              <cylinderGeometry args={[0.24, 0.2, 0.28, 32]} />
+              <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+            </mesh>
+
+            {/* Smooth Left Pectoral Armor Shell */}
+            <group position={[-0.12, 1.34, 0.12]} rotation={[0.08, 0.14, -0.06]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.11, 0.09, 0.19, 24]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.15} />
+              </mesh>
+            </group>
+            {/* Smooth Right Pectoral Armor Shell */}
+            <group position={[0.12, 1.34, 0.12]} rotation={[0.08, -0.14, 0.06]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.11, 0.09, 0.19, 24]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.15} />
+              </mesh>
+            </group>
+
+            {/* Central Arc-Reactor Singularity (Concentric Dual Rings) */}
+            <group position={[0, 1.34, 0.16]}>
+              {/* Inner Glowing Core */}
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.05, 0.05, 0.035, 32]} />
+                <meshStandardMaterial color="#ffffff" emissive={accentColor} emissiveIntensity={4.8} />
+              </mesh>
+              {/* Outer Containment Ring */}
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.078, 0.012, 16, 36]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.2} />
+              </mesh>
+            </group>
+
+            {/* Cyber Wingpack / Streamlined Jetpack */}
+            <group position={[0, 1.32, -0.16]}>
+              {/* Central Housing */}
+              <mesh castShadow>
+                <cylinderGeometry args={[0.14, 0.12, 0.32, 24]} />
+                <meshStandardMaterial color="#070a12" metalness={0.95} roughness={0.14} />
+              </mesh>
+              {/* Heat Sink Grill */}
+              <mesh position={[0, 0.04, -0.07]}>
+                <planeGeometry args={[0.18, 0.14]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={2.8} wireframe />
+              </mesh>
+
+              {/* Left Swept-back Aero-Wing */}
+              <group position={[-0.14, 0.06, 0]} rotation={[0, 0.25, 0.35]}>
+                <mesh castShadow>
+                  <boxGeometry args={[0.28, 0.07, 0.03]} />
+                  <meshStandardMaterial color={color} metalness={0.9} roughness={0.18} />
+                </mesh>
+                <mesh position={[0, 0.036, 0]}>
+                  <boxGeometry args={[0.28, 0.008, 0.035]} />
+                  <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+                </mesh>
+              </group>
+
+              {/* Right Swept-back Aero-Wing */}
+              <group position={[0.14, 0.06, 0]} rotation={[0, -0.25, -0.35]}>
+                <mesh castShadow>
+                  <boxGeometry args={[0.28, 0.07, 0.03]} />
+                  <meshStandardMaterial color={color} metalness={0.9} roughness={0.18} />
+                </mesh>
+                <mesh position={[0, 0.036, 0]}>
+                  <boxGeometry args={[0.28, 0.008, 0.035]} />
+                  <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+                </mesh>
+              </group>
+
+              {/* Dual Twin Thruster Nozzles */}
+              <mesh position={[-0.09, -0.18, 0]} rotation={[0.2, 0, 0]}>
+                <cylinderGeometry args={[0.042, 0.062, 0.12, 24]} />
+                <meshStandardMaterial color="#1e293b" metalness={0.92} roughness={0.18} />
+              </mesh>
+              <mesh position={[0.09, -0.18, 0]} rotation={[0.2, 0, 0]}>
+                <cylinderGeometry args={[0.042, 0.062, 0.12, 24]} />
+                <meshStandardMaterial color="#1e293b" metalness={0.92} roughness={0.18} />
+              </mesh>
+              {/* Animated Thruster Plasma Flames */}
+              <mesh ref={jetFlameLRef} position={[-0.09, -0.28, -0.02]} rotation={[Math.PI, 0, 0]}>
+                <coneGeometry args={[0.062, 0.28, 16]} />
+                <meshBasicMaterial color={accentColor} />
+              </mesh>
+              <mesh ref={jetFlameRRef} position={[0.09, -0.28, -0.02]} rotation={[Math.PI, 0, 0]}>
+                <coneGeometry args={[0.062, 0.28, 16]} />
+                <meshBasicMaterial color={accentColor} />
+              </mesh>
+            </group>
+
+            {/* Head & Aerodynamic Cyber Visor Helmet */}
+            <group ref={headGroup} position={[0, 1.62, 0]}>
+              {/* Neck Collar */}
+              <mesh position={[0, -0.1, 0]}>
+                <cylinderGeometry args={[0.08, 0.1, 0.08, 20]} />
+                <meshStandardMaterial color="#1e293b" metalness={0.82} roughness={0.28} />
+              </mesh>
+              {/* Helmet Cranial Dome (High-Poly Smooth Sphere) */}
+              <mesh castShadow position={[0, 0.02, -0.02]}>
+                <sphereGeometry args={[0.2, 36, 32]} />
+                <meshStandardMaterial color="#090d16" metalness={0.94} roughness={0.14} />
+              </mesh>
+              {/* Center Crown Ridge / Aerodynamic Fin */}
+              <mesh position={[0, 0.16, -0.02]} rotation={[0.3, 0, 0]}>
+                <boxGeometry args={[0.038, 0.07, 0.26]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+              </mesh>
+              <mesh position={[0, 0.19, -0.02]} rotation={[0.3, 0, 0]}>
+                <boxGeometry args={[0.015, 0.02, 0.24]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.5} />
+              </mesh>
+
+              {/* Aerodynamic Panoramic Curved Visor (Ultra-Smooth Liquid Crystal Glass) */}
+              <mesh position={[0, 0.02, 0.1]} rotation={[0.1, 0, 0]}>
+                <sphereGeometry args={[0.176, 36, 28, 0, Math.PI, 0, Math.PI / 1.7]} />
+                <meshStandardMaterial
+                  color="#020617"
+                  emissive={accentColor}
+                  emissiveIntensity={3.4}
+                  metalness={0.96}
+                  roughness={0.05}
+                />
+              </mesh>
+
+              {/* Angular Chin / Rebreather Guard */}
+              <mesh position={[0, -0.09, 0.08]} castShadow>
+                <cylinderGeometry args={[0.08, 0.07, 0.09, 20]} />
+                <meshStandardMaterial color="#0e1726" metalness={0.88} roughness={0.2} />
+              </mesh>
+              <mesh position={[0, -0.09, 0.14]}>
+                <boxGeometry args={[0.08, 0.025, 0.01]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={2.8} />
+              </mesh>
+
+              {/* Swept Cyber Ear Antenna Fins */}
+              <group position={[-0.2, 0.05, -0.02]} rotation={[0, 0, 0.35]}>
+                <boxGeometry args={[0.025, 0.16, 0.08]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+                <mesh position={[-0.01, 0.06, 0]}>
+                  <boxGeometry args={[0.01, 0.06, 0.02]} />
+                  <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+                </mesh>
+              </group>
+              <group position={[0.2, 0.05, -0.02]} rotation={[0, 0, -0.35]}>
+                <boxGeometry args={[0.025, 0.16, 0.08]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+                <mesh position={[0.01, 0.06, 0]}>
+                  <boxGeometry args={[0.01, 0.06, 0.02]} />
+                  <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+                </mesh>
+              </group>
+
+              {!isRemote && (
+                <>
+                  <spotLight
+                    ref={spotRef}
+                    position={[0, 0.05, 0.2]}
+                    angle={0.52}
+                    penumbra={0.6}
+                    intensity={22}
+                    distance={22}
+                    decay={1.3}
+                    color="#bae6fd"
+                  />
+                  <primitive object={spotTarget} />
+                </>
+              )}
+            </group>
+
+            {/* Left Arm with High-Poly Pauldron & Gauntlet */}
+            <group ref={leftArmRef} position={[-0.32, 1.4, 0]}>
+              {/* Smooth Spherical Shoulder Pauldron Guard */}
+              <mesh position={[-0.04, 0.05, 0]} castShadow>
+                <sphereGeometry args={[0.11, 24, 20]} />
+                <meshStandardMaterial color={color} metalness={0.9} roughness={0.16} />
+              </mesh>
+              <mesh position={[-0.12, 0.07, 0]}>
+                <boxGeometry args={[0.01, 0.08, 0.16]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.2} />
+              </mesh>
+              {/* Upper Arm Bicep */}
+              <mesh position={[-0.03, -0.11, 0]} castShadow>
+                <cylinderGeometry args={[0.052, 0.046, 0.16, 20]} />
+                <meshStandardMaterial color="#1e293b" metalness={0.82} roughness={0.28} />
+              </mesh>
+
+              {/* Forearm & Fist Hinge at Elbow */}
+              <group ref={leftForearmRef} position={[-0.03, -0.21, 0]}>
+                {/* Elbow Joint Cap */}
+                <mesh position={[0, 0, -0.02]}>
+                  <sphereGeometry args={[0.046, 16, 16]} />
+                  <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+                </mesh>
+                {/* Streamlined Forearm Gauntlet */}
+                <mesh position={[0, -0.12, 0.02]} castShadow>
+                  <cylinderGeometry args={[0.058, 0.05, 0.18, 20]} />
+                  <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.15} />
+                </mesh>
+                {/* Gauntlet Neon Conduit */}
+                <mesh position={[0, -0.12, 0.07]}>
+                  <cylinderGeometry args={[0.015, 0.015, 0.12, 12]} />
+                  <meshStandardMaterial color={accentColor} emissive={color} emissiveIntensity={3.0} />
+                </mesh>
+                {/* Cyber Fist */}
+                <mesh position={[0, -0.24, 0.02]} castShadow>
+                  <boxGeometry args={[0.08, 0.09, 0.09]} />
+                  <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+                </mesh>
+              </group>
+            </group>
+
+            {/* Right Arm with Cyber Power Gauntlet (Punch Arm) */}
+            <group ref={rightArmRef} position={[0.32, 1.4, 0]}>
+              {/* Smooth Spherical Shoulder Pauldron Guard */}
+              <mesh position={[0.04, 0.05, 0]} castShadow>
+                <sphereGeometry args={[0.11, 24, 20]} />
+                <meshStandardMaterial color={color} metalness={0.9} roughness={0.16} />
+              </mesh>
+              <mesh position={[0.12, 0.07, 0]}>
+                <boxGeometry args={[0.01, 0.08, 0.16]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.2} />
+              </mesh>
+              {/* Upper Arm Bicep */}
+              <mesh position={[0.03, -0.11, 0]} castShadow>
+                <cylinderGeometry args={[0.052, 0.046, 0.16, 20]} />
+                <meshStandardMaterial color="#1e293b" metalness={0.82} roughness={0.28} />
+              </mesh>
+
+              {/* Forearm & Fist Hinge at Elbow */}
+              <group ref={rightForearmRef} position={[0.03, -0.21, 0]}>
+                {/* Elbow Joint Cap */}
+                <mesh position={[0, 0, -0.02]}>
+                  <sphereGeometry args={[0.046, 16, 16]} />
+                  <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+                </mesh>
+                {/* Heavy Armored Forearm Gauntlet */}
+                <mesh position={[0, -0.12, 0.02]} castShadow>
+                  <cylinderGeometry args={[0.062, 0.052, 0.18, 20]} />
+                  <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.15} />
+                </mesh>
+                {/* Gauntlet Kinetic Overcharge Conduit */}
+                <mesh position={[0, -0.12, 0.075]}>
+                  <cylinderGeometry args={[0.018, 0.018, 0.13, 12]} />
+                  <meshStandardMaterial
+                    color={accentColor}
+                    emissive={accentColor}
+                    emissiveIntensity={isPunching ? 5.8 : 3.0}
+                  />
+                </mesh>
+                {/* Reinforced Cyber Punching Fist */}
+                <mesh position={[0, -0.24, 0.02]} castShadow>
+                  <boxGeometry args={[0.09, 0.095, 0.095]} />
+                  <meshStandardMaterial color={color} metalness={0.92} roughness={0.15} />
+                </mesh>
+                {/* Knuckle Strike Plate */}
+                <mesh position={[0, -0.25, 0.07]}>
+                  <boxGeometry args={[0.08, 0.03, 0.02]} />
+                  <meshStandardMaterial
+                    color="#ffffff"
+                    emissive={accentColor}
+                    emissiveIntensity={isPunching ? 6.5 : 3.2}
+                  />
+                </mesh>
+              </group>
+            </group>
+          </group>
+
+          {/* Left Leg & Kinetic Hover Boot */}
+          <group ref={leftLegRef} position={[-0.14, 0.9, 0]}>
+            {/* Sculpted Smooth Thigh Armor */}
+            <mesh position={[0, -0.16, 0]} castShadow>
+              <cylinderGeometry args={[0.076, 0.062, 0.3, 24]} />
+              <meshStandardMaterial color="#111827" metalness={0.84} roughness={0.24} />
+            </mesh>
+            <mesh position={[0, -0.14, 0.06]} castShadow>
+              <boxGeometry args={[0.11, 0.18, 0.05]} />
+              <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+            </mesh>
+
+            {/* Knee Hinge -> Shin & Boot Group */}
+            <group ref={leftShinRef} position={[0, -0.32, 0]}>
+              {/* Mechanical Knee Guard with Chevron */}
+              <mesh position={[0, 0, 0.05]} castShadow>
+                <cylinderGeometry args={[0.055, 0.045, 0.09, 16]} />
+                <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+              </mesh>
+              <mesh position={[0, 0, 0.09]}>
+                <boxGeometry args={[0.05, 0.05, 0.015]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.5} />
+              </mesh>
+
+              {/* Shin Guard & Calf Booster */}
+              <mesh position={[0, -0.18, 0]} castShadow>
+                <cylinderGeometry args={[0.065, 0.055, 0.28, 24]} />
+                <meshStandardMaterial color="#0e1726" metalness={0.88} roughness={0.22} />
+              </mesh>
+              <mesh position={[0, -0.18, 0.055]} castShadow>
+                <boxGeometry args={[0.08, 0.2, 0.04]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+              </mesh>
+
+              {/* High-Top Kinetic Cyber Sneaker / Hover Boot */}
+              <mesh position={[0, -0.42, 0.05]} castShadow>
+                <boxGeometry args={[0.11, 0.16, 0.24]} />
+                <meshStandardMaterial color="#070a12" metalness={0.94} roughness={0.14} />
+              </mesh>
+              {/* Boot Toe Guard */}
+              <mesh position={[0, -0.44, 0.16]} castShadow>
+                <cylinderGeometry args={[0.05, 0.05, 0.09, 16]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+              </mesh>
+              {/* Dual Neon Sole Traction Rails */}
+              <mesh position={[-0.04, -0.505, 0.05]}>
+                <boxGeometry args={[0.02, 0.015, 0.24]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+              </mesh>
+              <mesh position={[0.04, -0.505, 0.05]}>
+                <boxGeometry args={[0.02, 0.015, 0.24]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+              </mesh>
+            </group>
+          </group>
+
+          {/* Right Leg & Kinetic Hover Boot */}
+          <group ref={rightLegRef} position={[0.14, 0.9, 0]}>
+            {/* Sculpted Smooth Thigh Armor */}
+            <mesh position={[0, -0.16, 0]} castShadow>
+              <cylinderGeometry args={[0.076, 0.062, 0.3, 24]} />
+              <meshStandardMaterial color="#111827" metalness={0.84} roughness={0.24} />
+            </mesh>
+            <mesh position={[0, -0.14, 0.06]} castShadow>
+              <boxGeometry args={[0.11, 0.18, 0.05]} />
+              <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+            </mesh>
+
+            {/* Knee Hinge -> Shin & Boot Group */}
+            <group ref={rightShinRef} position={[0, -0.32, 0]}>
+              {/* Mechanical Knee Guard with Chevron */}
+              <mesh position={[0, 0, 0.05]} castShadow>
+                <cylinderGeometry args={[0.055, 0.045, 0.09, 16]} />
+                <meshStandardMaterial color="#090d16" metalness={0.92} roughness={0.18} />
+              </mesh>
+              <mesh position={[0, 0, 0.09]}>
+                <boxGeometry args={[0.05, 0.05, 0.015]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.5} />
+              </mesh>
+
+              {/* Shin Guard & Calf Booster */}
+              <mesh position={[0, -0.18, 0]} castShadow>
+                <cylinderGeometry args={[0.065, 0.055, 0.28, 24]} />
+                <meshStandardMaterial color="#0e1726" metalness={0.88} roughness={0.22} />
+              </mesh>
+              <mesh position={[0, -0.18, 0.055]} castShadow>
+                <boxGeometry args={[0.08, 0.2, 0.04]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+              </mesh>
+
+              {/* High-Top Kinetic Cyber Sneaker / Hover Boot */}
+              <mesh position={[0, -0.42, 0.05]} castShadow>
+                <boxGeometry args={[0.11, 0.16, 0.24]} />
+                <meshStandardMaterial color="#070a12" metalness={0.94} roughness={0.14} />
+              </mesh>
+              {/* Boot Toe Guard */}
+              <mesh position={[0, -0.44, 0.16]} castShadow>
+                <cylinderGeometry args={[0.05, 0.05, 0.09, 16]} />
+                <meshStandardMaterial color={color} metalness={0.88} roughness={0.18} />
+              </mesh>
+              {/* Dual Neon Sole Traction Rails */}
+              <mesh position={[-0.04, -0.505, 0.05]}>
+                <boxGeometry args={[0.02, 0.015, 0.24]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+              </mesh>
+              <mesh position={[0.04, -0.505, 0.05]}>
+                <boxGeometry args={[0.02, 0.015, 0.24]} />
+                <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
+              </mesh>
+            </group>
           </group>
 
           {/* Somersault Acrobatic Energy Spin Ring */}
@@ -1338,16 +1810,41 @@ function CyberCharacter({
             rotation={[0, Math.PI / 2, 0]}
             visible={false}
           >
-            <torusGeometry args={[0.82, 0.02, 10, 36]} />
+            <torusGeometry args={[0.82, 0.02, 16, 48]} />
             <meshBasicMaterial color={accentColor} transparent opacity={0.65} />
           </mesh>
         </group>
       </group>
 
-      {/* Soft Radial Contact Ground Shadow */}
+      {/* Floating Tactical AI Drone Companion (Gyroscopic Orb) */}
+      <group ref={droneRef} position={[0.55, 1.65, -0.25]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.09, 24, 20]} />
+          <meshStandardMaterial color="#090d16" metalness={0.94} roughness={0.14} />
+        </mesh>
+        {/* Forward Holographic Scanner Eye */}
+        <mesh position={[0, 0, 0.08]}>
+          <sphereGeometry args={[0.04, 20, 16]} />
+          <meshStandardMaterial color="#ffffff" emissive={accentColor} emissiveIntensity={4.5} />
+        </mesh>
+        {/* Gyroscopic Planetary Orbit Ring */}
+        <mesh rotation={[Math.PI / 3, 0, 0]}>
+          <torusGeometry args={[0.18, 0.012, 16, 36]} />
+          <meshStandardMaterial color={color} emissive={accentColor} emissiveIntensity={2.8} />
+        </mesh>
+        <pointLight color={accentColor} intensity={2.4} distance={4.5} />
+      </group>
+
+      {/* Sprint Aura */}
+      <mesh ref={auraRef} position={[0, 0.9, 0]} visible={false}>
+        <sphereGeometry args={[0.9, 20, 16]} />
+        <meshBasicMaterial color={accentColor} wireframe transparent opacity={0.32} />
+      </mesh>
+
+      {/* Radial Ground Shadow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
-        <planeGeometry args={[1.5, 1.5]} />
-        <meshBasicMaterial map={blobTex} transparent depthWrite={false} opacity={0.82} />
+        <planeGeometry args={[1.6, 1.6]} />
+        <meshBasicMaterial map={blobTex} transparent depthWrite={false} opacity={0.88} />
       </mesh>
     </group>
   );
@@ -2020,9 +2517,6 @@ function WorldHero() {
   const [inputName, setInputName] = useState(localPlayer.name);
   const [selectedColor, setSelectedColor] = useState(localPlayer.color);
   const [selectedAccent, setSelectedAccent] = useState(localPlayer.accentColor);
-  const [selectedModel, setSelectedModel] = useState<CharacterModelType>(
-    localPlayer.modelType || "male_hoodie"
-  );
 
   // Auto show pop-up on first arrival if custom name not yet chosen
   useEffect(() => {
@@ -2033,13 +2527,12 @@ function WorldHero() {
           setInputName(localPlayer.name);
           setSelectedColor(localPlayer.color);
           setSelectedAccent(localPlayer.accentColor);
-          setSelectedModel(localPlayer.modelType || "male_hoodie");
           setShowNameModal(true);
         }, 700);
         return () => clearTimeout(t);
       }
     }
-  }, [localPlayer.name, localPlayer.color, localPlayer.accentColor, localPlayer.modelType]);
+  }, [localPlayer.name, localPlayer.color, localPlayer.accentColor]);
 
   const handleSendChat = (text: string) => {
     const trimmed = text.trim();
@@ -2134,7 +2627,6 @@ function WorldHero() {
               setInputName(localPlayer.name);
               setSelectedColor(localPlayer.color);
               setSelectedAccent(localPlayer.accentColor);
-              setSelectedModel(localPlayer.modelType || "male_hoodie");
               setShowNameModal(true);
             }}
             className="mt-2 flex items-center gap-1.5 md:hidden pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
@@ -2147,7 +2639,7 @@ function WorldHero() {
               {totalOnline}/{maxPlayers || 10} Online
             </span>
             <span className="text-[10px] text-cyan-300 font-mono underline">
-              {localPlayer.modelType === "female_casual" ? "👧" : "👦"} {localPlayer.name} ✏️
+              🤖 {localPlayer.name} ✏️
             </span>
           </button>
         </div>
@@ -2160,10 +2652,9 @@ function WorldHero() {
                 setInputName(localPlayer.name);
                 setSelectedColor(localPlayer.color);
                 setSelectedAccent(localPlayer.accentColor);
-                setSelectedModel(localPlayer.modelType || "male_hoodie");
                 setShowNameModal(true);
               }}
-              title="Klik untuk ubah nama atau avatar karakter kamu"
+              title="Klik untuk ubah nama atau warna armor exoskeleton kamu"
               className="glass flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs text-neutral-300 transition-all hover:border-cyan-400/60 hover:bg-white/15 cursor-pointer shadow-lg"
             >
               <span className="relative flex h-2 w-2">
@@ -2175,7 +2666,7 @@ function WorldHero() {
               </span>
               <span className="text-neutral-500">•</span>
               <span className="text-[11px] font-mono text-neutral-300 flex items-center gap-1.5">
-                <span>{localPlayer.modelType === "female_casual" ? "👧" : "👦"}</span>
+                <span>🤖</span>
                 <span>You: <span style={{ color: localPlayer.accentColor }}>{localPlayer.name}</span></span>
                 <span className="text-[10px] text-cyan-400">✏️</span>
               </span>
@@ -2443,8 +2934,8 @@ function WorldHero() {
                   <User className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-white">Kustomisasi Karakter Avatar</h3>
-                  <p className="text-[11px] text-slate-400">Atur username &amp; armor kamu di Metaverse</p>
+                  <h3 className="text-base font-extrabold text-white">Kustomisasi Karakter Exoskeleton</h3>
+                  <p className="text-[11px] text-slate-400">Atur username &amp; warna armor exoskeleton kamu di Metaverse</p>
                 </div>
               </div>
             </div>
@@ -2454,65 +2945,13 @@ function WorldHero() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (inputName.trim()) {
-                  updateLocalPlayerProfile(inputName.trim(), selectedColor, selectedAccent, selectedModel);
+                  updateLocalPlayerProfile(inputName.trim(), selectedColor, selectedAccent);
                   sessionStorage.setItem("portfolio_name_set", "true");
                   setShowNameModal(false);
                 }
               }}
               className="mt-5 space-y-4"
             >
-              {/* Character Model Picker */}
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-2">
-                  Pilih Model Karakter Avatar:
-                </label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {/* Option 1: Cowok Hoodie Streetwear */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedModel("male_hoodie")}
-                    className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-all ${
-                      selectedModel === "male_hoodie"
-                        ? "border-cyan-400 bg-cyan-500/20 shadow-lg shadow-cyan-500/25 scale-[1.02]"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="text-3xl">👦</div>
-                    <div>
-                      <div className="text-xs font-bold text-white">Cowok Hoodie</div>
-                      <div className="text-[10px] text-slate-400">Streetwear B&amp;W &amp; Cargo</div>
-                    </div>
-                    {selectedModel === "male_hoodie" && (
-                      <span className="text-[10px] font-semibold text-cyan-400 flex items-center gap-1">
-                        <Check className="h-3 w-3" /> Dipilih
-                      </span>
-                    )}
-                  </button>
-
-                  {/* Option 2: Cewek Casual Denim */}
-                  <button
-                    type="button"
-                    onClick={() => setSelectedModel("female_casual")}
-                    className={`flex flex-col items-center gap-2 rounded-2xl border p-3 text-center transition-all ${
-                      selectedModel === "female_casual"
-                        ? "border-pink-400 bg-pink-500/20 shadow-lg shadow-pink-500/25 scale-[1.02]"
-                        : "border-white/10 bg-white/5 hover:border-white/20"
-                    }`}
-                  >
-                    <div className="text-3xl">👧</div>
-                    <div>
-                      <div className="text-xs font-bold text-white">Cewek Casual</div>
-                      <div className="text-[10px] text-slate-400">Casual Denim &amp; Open Hoodie</div>
-                    </div>
-                    {selectedModel === "female_casual" && (
-                      <span className="text-[10px] font-semibold text-pink-400 flex items-center gap-1">
-                        <Check className="h-3 w-3" /> Dipilih
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
                   Nama Karakter / Nickname:
@@ -2531,7 +2970,7 @@ function WorldHero() {
 
               <div>
                 <label className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-2">
-                  Pilih Warna Aksen Karakter:
+                  Pilih Warna Armor Exoskeleton:
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {PALETTES.map((p) => {
