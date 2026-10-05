@@ -20,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES } from "@/lib/multiplayer";
+import { CyberTeleportStation } from "./ArenaZones";
 
 
 /* ============================================================
@@ -89,20 +90,9 @@ const landmarks: LandmarkData[] = [
     accent: "border-pink-500/40 bg-pink-600/10 text-pink-300",
   },
   {
-    id: "stack",
-    label: "STACK",
-    index: "04",
-    title: "Tech Arsenal",
-    description: "Next.js, React, TypeScript, Figma, Python Bot Scripting, & LLMs.",
-    href: "#stack",
-    position: [-8.5, 0, -8.5],
-    color: "#a855f7",
-    accent: "border-purple-500/40 bg-purple-600/10 text-purple-300",
-  },
-  {
     id: "contact",
     label: "CONTACT",
-    index: "05",
+    index: "04",
     title: "Get in Touch",
     description: "WhatsApp, Email, LinkedIn, GitHub, & verified CV.",
     href: "#contact",
@@ -122,7 +112,10 @@ const ELEVATED_PLATFORMS: {
   h: number;
   color: string;
   border: string;
-}[] = [];
+}[] = [
+  // Platform Dek Teleport Station di Lokasi Bekas Tower (z: -14.5)
+  { x: 0.0, z: -14.5, w: 8.0, d: 5.5, h: 0.6, color: "#0e1526", border: "#38bdf8" },
+];
 
 const ARENA_BOUND = 36.0;
 const AVATAR_R = 0.55;
@@ -138,12 +131,20 @@ interface SolidObstacle {
 }
 
 const SOLID_OBSTACLES: SolidObstacle[] = [
-  // Sci-Fi Monolith Pillars (Projects, Terminal, About, Stack, Contact)
+  // 1. Sci-Fi Monolith Pillars (Projects, Terminal, About, Contact)
   { x: -8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 0.0, z: 11.5, r: 0.7, minY: 0.0, maxY: 5 },
-  { x: -8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
+
+  // 2. Teleport Station Stargate di Lokasi Bekas Tower (z: -14.5)
+  // Stargate Side Support Struts
+  { x: -1.7, z: -14.5, r: 0.35, minY: 0.5, maxY: 4.5 },
+  { x: 1.7, z: -14.5, r: 0.35, minY: 0.5, maxY: 4.5 },
+  // Power Reactor Generator
+  { x: 2.35, z: -14.4, r: 0.65, minY: 0.5, maxY: 3.5 },
+  // Teleport Destination Kiosk
+  { x: -2.4, z: -12.55, r: 0.85, minY: 0.5, maxY: 3.5 },
 ];
 
 /* ============================================================
@@ -2265,6 +2266,13 @@ function World({
       <primitive object={sunTarget} />
 
       <CyberMetaverseArena />
+
+      {/* Teleport Station di Lokasi Bekas Tower (z: -14.5) */}
+      <CyberTeleportStation
+        carState={carState}
+        position={[0.0, 0.6, -14.5]}
+        rotation={[0, 0, 0]}
+      />
 
       {/* Sci-Fi Monoliths di Sektor Utama */}
       {landmarks.map((lm) => (

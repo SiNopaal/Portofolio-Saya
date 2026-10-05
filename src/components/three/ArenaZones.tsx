@@ -140,44 +140,44 @@ export function playPunchSound() {
 
 export const TELEPORT_DESTINATIONS = [
   {
-    id: "beacon",
-    name: "Tech Citadel Tower",
-    badge: "Panggung Utama Stack Tower",
-    icon: "🗼",
-    pos: [0.0, 1.25, -13.0] as [number, number, number],
-    color: "#a855f7",
-  },
-  {
-    id: "djpad",
-    name: "DJ Synth Pad",
-    badge: "16-Grid Neon Soundboard",
-    icon: "🎵",
-    pos: [12.8, 0.9, 0.0] as [number, number, number],
-    color: "#ec4899",
-  },
-  {
     id: "projects",
-    name: "Project Monoliths",
-    badge: "Patukrejomulyo & Laundry",
+    name: "Featured Works",
+    badge: "01. Commercial & AI Labs",
     icon: "🌐",
-    pos: [0.0, 0.2, 5.5] as [number, number, number],
+    pos: [-8.5, 0.2, 8.5] as [number, number, number],
     color: "#38bdf8",
   },
   {
     id: "terminal",
     name: "AI Bot Terminal",
-    badge: "Interactive Terminal Zone",
+    badge: "02. Autonomous Console",
     icon: "🤖",
-    pos: [-5.5, 0.2, -4.5] as [number, number, number],
-    color: "#34d399",
+    pos: [0.0, 0.2, 11.5] as [number, number, number],
+    color: "#10b981",
+  },
+  {
+    id: "about",
+    name: "About Naufal",
+    badge: "03. UI/UX Architecture",
+    icon: "👤",
+    pos: [8.5, 0.2, 8.5] as [number, number, number],
+    color: "#ec4899",
+  },
+  {
+    id: "contact",
+    name: "Get in Touch",
+    badge: "04. WhatsApp & GitHub",
+    icon: "📱",
+    pos: [8.5, 0.2, -8.5] as [number, number, number],
+    color: "#f59e0b",
   },
   {
     id: "spawn",
-    name: "Center Arena Spawn",
+    name: "Center Nexus Spawn",
     badge: "Titik Pusat Metaverse",
     icon: "📍",
     pos: [0.0, 0.2, 1.8] as [number, number, number],
-    color: "#fbbf24",
+    color: "#06b6d4",
   },
 ];
 
@@ -1000,10 +1000,14 @@ export function CyberDJSynthPad({
 
 export function CyberTeleportStation({
   carState,
+  position = [0.0, 0.0, -14.5],
+  rotation = [0, 0, 0],
 }: {
   carState: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  position?: [number, number, number];
+  rotation?: [number, number, number];
 }) {
-  const [selectedDestId, setSelectedDestId] = useState("beacon");
+  const [selectedDestId, setSelectedDestId] = useState("projects");
   const [warpFlash, setWarpFlash] = useState(false);
   const lastTeleportRef = useRef(0);
 
@@ -1035,12 +1039,12 @@ export function CyberTeleportStation({
       energyFieldRef.current.scale.set(scale, scale, 1);
     }
 
-    // Portal center at: [-14.0, 1.8, 0.0]
+    // Portal center at dynamic position
     const p = carState.current.pos;
-    const distToPortal = Math.hypot(p.x - (-14.0), p.z - 0.0);
+    const distToPortal = Math.hypot(p.x - position[0], p.z - position[2]);
 
     // If player walks into the center of the vertical portal
-    if (distToPortal < 1.35 && p.y >= 0.65) {
+    if (distToPortal < 1.45 && Math.abs(p.y - position[1]) < 2.5) {
       const now = Date.now();
       if (now - lastTeleportRef.current > 2200) {
         lastTeleportRef.current = now;
@@ -1060,7 +1064,7 @@ export function CyberTeleportStation({
   });
 
   return (
-    <group position={[-14.0, 0.75, 0.0]} rotation={[0, Math.PI / 2, 0]}>
+    <group position={position} rotation={rotation}>
       {/* 3D Vertical Stargate Frame Structure */}
       <group position={[0, 1.9, 0]}>
         {/* Outer Heavy Industrial Metal Ring */}
