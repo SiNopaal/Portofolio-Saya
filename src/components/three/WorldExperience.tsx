@@ -157,6 +157,17 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: 2.35, z: -14.4, r: 0.65, minY: 0.5, maxY: 3.5 },
   // Teleport Destination Kiosk
   { x: -2.4, z: -12.55, r: 0.85, minY: 0.5, maxY: 3.5 },
+
+  // 3. Four Minimalist Corner Arenas (Pedestals, Monoliths, Parked Craft, Rock Cairns)
+  // Corner 1: Zen Gallery Center Sculpture Pedestal (NW: [-32, -32])
+  { x: -32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 2.5 },
+  // Corner 2: Stargazer Sky Platform Monolith (NE: [32, -32])
+  { x: 32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 4.0 },
+  // Corner 3: Aerospace Runway VTOL Parked Drone (SW: [-26.3, 26.3])
+  { x: -26.3, z: 26.3, r: 1.25, minY: 0.0, maxY: 2.5 },
+  // Corner 4: Zen Garden Natural Rock Formations (SE: [30, 30] & [35.5, 34.5])
+  { x: 30.0, z: 30.0, r: 0.95, minY: 0.0, maxY: 2.0 },
+  { x: 35.5, z: 34.5, r: 0.8, minY: 0.0, maxY: 2.0 },
 ];
 
 /* ============================================================
@@ -514,6 +525,493 @@ function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
 }
 
 /* ============================================================
+   FOUR MINIMALIST THEMED CORNER ARENAS
+   1. Zen Gallery / Apple-Style Digital Pavilion (North-West: [-32, 0, -32])
+   2. Floating Monolith Courtyard / Stargazer Sky Platform (North-East: [32, 0, -32])
+   3. Clean Aerospace Runway / Minimalist Hangar Apron (South-West: [-32, 0, 32])
+   4. Cyber Oasis / Japanese Zen Rock Garden (South-East: [32, 0, 32])
+============================================================ */
+
+/* --- Corner 1: Zen Minimalist Digital Gallery --- */
+function ZenGalleryCorner({ position }: { position: [number, number, number] }) {
+  const crystalRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (crystalRef.current) {
+      crystalRef.current.rotation.y += delta * 0.35;
+      crystalRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
+      crystalRef.current.position.y = 1.35 + Math.sin(state.clock.elapsedTime * 1.2) * 0.05;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Matte Slate Plaza Slab (16m x 16m x 0.08m) */}
+      <mesh position={[0, 0.04, 0]} receiveShadow>
+        <boxGeometry args={[16, 0.08, 16]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.65} metalness={0.25} />
+      </mesh>
+
+      {/* Plaza Perimeter Bevel Edge */}
+      <mesh position={[0, 0.015, 0]}>
+        <boxGeometry args={[16.4, 0.03, 16.4]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.6} />
+      </mesh>
+
+      {/* Paving Seam Lines (Subtle geometric tile grid) */}
+      {[-4, 0, 4].map((coord, i) => (
+        <group key={`gallery-seam-${i}`}>
+          <mesh position={[coord, 0.082, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.03, 15.6]} />
+            <meshBasicMaterial color="#334155" opacity={0.6} transparent />
+          </mesh>
+          <mesh position={[0, 0.082, coord]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[15.6, 0.03]} />
+            <meshBasicMaterial color="#334155" opacity={0.6} transparent />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Black Mirror Reflective Water Basin (5.6m x 5.6m) */}
+      <group position={[0, 0.082, 0]}>
+        {/* Basin Rim */}
+        <mesh position={[0, 0.005, 0]}>
+          <boxGeometry args={[5.8, 0.02, 5.8]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.8} />
+        </mesh>
+        {/* Pool Water Surface */}
+        <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[5.4, 5.4]} />
+          <meshStandardMaterial color="#060c18" roughness={0.04} metalness={0.96} />
+        </mesh>
+      </group>
+
+      {/* Center Basalt Sculpture Pedestal */}
+      <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.3, 0.5, 1.3]} />
+        <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+      </mesh>
+      {/* Pedestal Accent Trim */}
+      <mesh position={[0, 0.61, 0]}>
+        <boxGeometry args={[1.34, 0.02, 1.34]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.2} metalness={0.85} />
+      </mesh>
+
+      {/* Floating Pristine Crystal Geometry */}
+      <group ref={crystalRef} position={[0, 1.35, 0]}>
+        {/* Outer Faceted Prism */}
+        <mesh castShadow>
+          <octahedronGeometry args={[0.65, 0]} />
+          <meshStandardMaterial
+            color="#e2e8f0"
+            roughness={0.08}
+            metalness={0.9}
+            transparent
+            opacity={0.85}
+          />
+        </mesh>
+        {/* Inner Core Wireframe */}
+        <mesh>
+          <icosahedronGeometry args={[0.35, 0]} />
+          <meshStandardMaterial
+            color="#94a3b8"
+            roughness={0.15}
+            metalness={0.8}
+            wireframe
+          />
+        </mesh>
+      </group>
+
+      {/* Subtle Warm Recessed Downlight (3000K Warm White) */}
+      <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
+
+      {/* Minimalist Floating Cantilever Benches */}
+      {[-5.2, 5.2].map((zOffset, i) => (
+        <group key={`gallery-bench-${i}`} position={[0, 0.28, zOffset]}>
+          {/* Bench Slab */}
+          <mesh castShadow receiveShadow>
+            <boxGeometry args={[3.2, 0.12, 0.7]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.5} metalness={0.3} />
+          </mesh>
+          {/* Bench Dark Steel Supports */}
+          {[-1.1, 1.1].map((xOffset, j) => (
+            <mesh key={`gallery-leg-${j}`} position={[xOffset, -0.1, 0]}>
+              <boxGeometry args={[0.15, 0.22, 0.55]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
+            </mesh>
+          ))}
+          {/* Recessed Warm Underbench Glow */}
+          <pointLight position={[0, -0.1, 0]} color="#fed7aa" intensity={0.5} distance={2.5} />
+        </group>
+      ))}
+
+      {/* Discrete Corner Ground Studs */}
+      {[-7.2, 7.2].flatMap((x) =>
+        [-7.2, 7.2].map((z) => (
+          <mesh key={`stud-${x}-${z}`} position={[x, 0.085, z]} rotation={[-Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.12, 16]} />
+            <meshStandardMaterial color="#cbd5e1" roughness={0.2} metalness={0.9} />
+          </mesh>
+        ))
+      )}
+    </group>
+  );
+}
+
+/* --- Corner 2: Stargazer Sky Platform & Monolith Courtyard --- */
+function SkyPlatformCorner({ position }: { position: [number, number, number] }) {
+  const monolithRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (monolithRef.current) {
+      monolithRef.current.rotation.y += delta * 0.18;
+      monolithRef.current.position.y = 1.9 + Math.sin(state.clock.elapsedTime * 0.7) * 0.08;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.y -= delta * 0.12;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Circular Obsidian Marble Terrace (Radius 8.5m x Height 0.1m) */}
+      <mesh position={[0, 0.05, 0]} receiveShadow>
+        <cylinderGeometry args={[8.5, 8.8, 0.1, 48]} />
+        <meshStandardMaterial color="#0b0f19" roughness={0.35} metalness={0.7} />
+      </mesh>
+
+      {/* Terrace Outer Bronze/Titanium Bevel Rim */}
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[8.95, 9.2, 0.04, 48]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+      </mesh>
+
+      {/* Celestial Concentric Orbital Inlays */}
+      <group position={[0, 0.102, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[3.4, 3.44, 48]} />
+          <meshBasicMaterial color="#475569" opacity={0.8} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[5.6, 5.64, 48]} />
+          <meshBasicMaterial color="#334155" opacity={0.6} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[7.4, 7.43, 48]} />
+          <meshBasicMaterial color="#334155" opacity={0.4} transparent />
+        </mesh>
+      </group>
+
+      {/* Slowly Rotating Astronomical Dial Ring */}
+      <group ref={ringRef} position={[0, 0.105, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4].map((rad, idx) => (
+          <mesh key={`dial-${idx}`} position={[Math.cos(rad) * 4.5, Math.sin(rad) * 4.5, 0]} rotation={[0, 0, rad]}>
+            <planeGeometry args={[0.08, 0.35]} />
+            <meshBasicMaterial color="#94a3b8" />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Central Monolith Plinth Base */}
+      <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.5, 1.7, 0.24, 8]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
+      </mesh>
+
+      {/* Levitating Obsidian Obelisk Monolith */}
+      <group ref={monolithRef} position={[0, 1.9, 0]}>
+        {/* Main Obelisk Shaft */}
+        <mesh castShadow receiveShadow>
+          <cylinderGeometry args={[0.42, 0.65, 2.6, 4]} />
+          <meshStandardMaterial color="#090d16" roughness={0.2} metalness={0.85} />
+        </mesh>
+        {/* Pyramid Cap */}
+        <mesh position={[0, 1.55, 0]} castShadow>
+          <coneGeometry args={[0.42, 0.5, 4]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.15} metalness={0.9} />
+        </mesh>
+        {/* Subtle Warm Core Inset Line */}
+        <mesh position={[0, 0, 0]}>
+          <cylinderGeometry args={[0.44, 0.67, 0.05, 4]} />
+          <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.5} />
+        </mesh>
+      </group>
+
+      {/* Gentle Warm Uplight for the Monolith */}
+      <pointLight position={[0, 0.45, 0]} color="#fef3c7" intensity={1.4} distance={5} />
+
+      {/* Low-profile Perimeter Observatory Stanchions */}
+      {[0.3, 0.7, 1.1, 1.5, 1.9, 2.3].map((angleMult, idx) => {
+        const rad = angleMult * Math.PI;
+        const bx = Math.cos(rad) * 7.9;
+        const bz = Math.sin(rad) * 7.9;
+        return (
+          <group key={`stanchion-${idx}`} position={[bx, 0.1, bz]}>
+            <mesh position={[0, 0.25, 0]} castShadow>
+              <cylinderGeometry args={[0.07, 0.09, 0.5, 16]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+            </mesh>
+            {/* Soft Warm Amber Top Lens Dot */}
+            <mesh position={[0, 0.51, 0]}>
+              <cylinderGeometry args={[0.05, 0.05, 0.03, 16]} />
+              <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* --- Corner 3: Clean Aerospace Runway & Minimalist Hangar Apron --- */
+function AerospaceRunwayCorner({ position }: { position: [number, number, number] }) {
+  const craftRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (craftRef.current) {
+      craftRef.current.position.y = 0.52 + Math.sin(state.clock.elapsedTime * 1.5) * 0.015;
+    }
+  });
+
+  return (
+    <group position={position} rotation={[0, -Math.PI / 4, 0]}>
+      {/* Matte Industrial Runway Asphalt Strip (10m x 24m x 0.06m) */}
+      <mesh position={[0, 0.03, 0]} receiveShadow>
+        <boxGeometry args={[10, 0.06, 24]} />
+        <meshStandardMaterial color="#111827" roughness={0.85} metalness={0.15} />
+      </mesh>
+
+      {/* Runway Clean Concrete Border Trim */}
+      <mesh position={[0, 0.015, 0]}>
+        <boxGeometry args={[10.5, 0.03, 24.5]} />
+        <meshStandardMaterial color="#1f2937" roughness={0.6} metalness={0.4} />
+      </mesh>
+
+      {/* Threshold "Piano Key" Bars at Runway Entry (Z = 10m) */}
+      {[-3.6, -2.4, -1.2, 1.2, 2.4, 3.6].map((x, idx) => (
+        <mesh key={`thresh-${idx}`} position={[x, 0.062, 10]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.55, 2.6]} />
+          <meshStandardMaterial color="#e2e8f0" roughness={0.5} />
+        </mesh>
+      ))}
+
+      {/* Clean White Dashed Centerlines along Runway */}
+      {[-6, -2, 2, 6].map((z, idx) => (
+        <mesh key={`dash-${idx}`} position={[0, 0.062, z]} rotation={[-Math.PI / 2, 0, 0]}>
+          <planeGeometry args={[0.25, 2.2]} />
+          <meshStandardMaterial color="#f8fafc" roughness={0.4} />
+        </mesh>
+      ))}
+
+      {/* Runway Edge Inset Lighting Pucks */}
+      {[-9, -5, -1, 3, 7, 11].map((z, idx) => (
+        <group key={`edge-lights-${idx}`}>
+          {/* Left Puck */}
+          <mesh position={[-4.6, 0.063, z]}>
+            <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
+            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.65} />
+          </mesh>
+          {/* Right Puck */}
+          <mesh position={[4.6, 0.063, z]}>
+            <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
+            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.65} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Secondary VTOL Drone Apron Pad (At Z = -8m) */}
+      <group position={[0, 0.062, -8]}>
+        {/* Circular Target Ring */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[2.7, 2.85, 32]} />
+          <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
+        </mesh>
+        {/* Inner Amber Alert Ring */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.8, 1.9, 32]} />
+          <meshStandardMaterial color="#d97706" roughness={0.4} />
+        </mesh>
+        {/* Helipad 'H' Marking */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.6, 0, 0]}>
+          <planeGeometry args={[0.22, 1.8]} />
+          <meshStandardMaterial color="#f1f5f9" />
+        </mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.6, 0, 0]}>
+          <planeGeometry args={[0.22, 1.8]} />
+          <meshStandardMaterial color="#f1f5f9" />
+        </mesh>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+          <planeGeometry args={[1.2, 0.22]} />
+          <meshStandardMaterial color="#f1f5f9" />
+        </mesh>
+
+        {/* Minimalist Scout Drone Prototype Parked on Pad */}
+        <group ref={craftRef} position={[0, 0.52, 0]}>
+          {/* Fuselage (Stealth chiseled angular body) */}
+          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
+            <coneGeometry args={[0.8, 2.6, 4]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+          </mesh>
+          {/* Delta Wings */}
+          <mesh position={[0, -0.05, 0.2]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
+            <coneGeometry args={[1.7, 1.5, 3]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.7} />
+          </mesh>
+          {/* Cockpit / Sensor Array Visor */}
+          <mesh position={[0, 0.18, -0.4]}>
+            <boxGeometry args={[0.35, 0.15, 0.8]} />
+            <meshStandardMaterial color="#38bdf8" roughness={0.1} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.3} />
+          </mesh>
+          {/* Twin Subdued Thruster Nozzles */}
+          {[-0.35, 0.35].map((tx, ti) => (
+            <mesh key={`thruster-${ti}`} position={[tx, 0, 1.3]} rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.12, 0.16, 0.2, 16]} />
+              <meshStandardMaterial color="#334155" roughness={0.3} metalness={0.9} />
+            </mesh>
+          ))}
+          {/* Low-glow thruster exhaust halo */}
+          <pointLight position={[0, 0, 1.4]} color="#38bdf8" intensity={0.4} distance={2.5} />
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/* --- Corner 4: Cyber Oasis / Japanese Zen Rock Garden --- */
+function ZenGardenCorner({ position }: { position: [number, number, number] }) {
+  // Stepping stones coordinate path
+  const steppingStones: [number, number][] = [
+    [-5.5, -4.5],
+    [-4.0, -3.2],
+    [-2.6, -1.8],
+    [-1.2, -0.5],
+    [0.3, 0.8],
+    [1.8, 2.2],
+    [3.2, 3.6],
+    [4.8, 4.9],
+  ];
+
+  return (
+    <group position={position}>
+      {/* Dark Charcoal Gravel Sanctuary Bed (16m x 16m x 0.05m) */}
+      <mesh position={[0, 0.025, 0]} receiveShadow>
+        <boxGeometry args={[16, 0.05, 16]} />
+        <meshStandardMaterial color="#18181b" roughness={0.9} metalness={0.1} />
+      </mesh>
+
+      {/* Dark Basalt Timber Border Frame */}
+      <mesh position={[0, 0.035, 0]}>
+        <boxGeometry args={[16.5, 0.07, 16.5]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.6} metalness={0.2} />
+      </mesh>
+
+      {/* Concentric Raked Gravel Wave Ripples around Main Cairn at (-2, -2) */}
+      <group position={[-2, 0.052, -2]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[1.6, 2.4, 3.2, 4.0].map((radius, idx) => (
+          <mesh key={`ripple-${idx}`}>
+            <ringGeometry args={[radius, radius + 0.04, 36]} />
+            <meshBasicMaterial color="#27272a" opacity={0.7} transparent />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Concentric Raked Gravel Wave Ripples around Secondary Cairn at (3.5, 2.5) */}
+      <group position={[3.5, 0.052, 2.5]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[1.4, 2.1, 2.8].map((radius, idx) => (
+          <mesh key={`ripple2-${idx}`}>
+            <ringGeometry args={[radius, radius + 0.04, 36]} />
+            <meshBasicMaterial color="#27272a" opacity={0.7} transparent />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Primary Naturalistic Rock Cairn Formation at (-2, -2) */}
+      <group position={[-2, 0.05, -2]}>
+        {/* Main Center Boulder */}
+        <mesh position={[0, 0.65, 0]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.85, 1]} />
+          <meshStandardMaterial color="#262626" roughness={0.95} metalness={0.05} />
+        </mesh>
+        {/* Flanking Boulder 1 */}
+        <mesh position={[-0.7, 0.35, 0.4]} rotation={[0.4, 0.8, 0.2]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.5, 1]} />
+          <meshStandardMaterial color="#292524" roughness={0.9} metalness={0.05} />
+        </mesh>
+        {/* Flanking Boulder 2 */}
+        <mesh position={[0.65, 0.28, -0.3]} rotation={[-0.3, 0.5, 0.6]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.42, 1]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.9} metalness={0.05} />
+        </mesh>
+      </group>
+
+      {/* Secondary Stone Cluster at (3.5, 2.5) */}
+      <group position={[3.5, 0.05, 2.5]}>
+        <mesh position={[0, 0.45, 0]} rotation={[0.2, 1.1, -0.4]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.65, 1]} />
+          <meshStandardMaterial color="#27272a" roughness={0.95} metalness={0.05} />
+        </mesh>
+        <mesh position={[0.5, 0.22, 0.3]} rotation={[0.5, 0.2, 0.1]} castShadow receiveShadow>
+          <dodecahedronGeometry args={[0.35, 1]} />
+          <meshStandardMaterial color="#1f2937" roughness={0.9} metalness={0.05} />
+        </mesh>
+      </group>
+
+      {/* Organic Dark River Stone Stepping Path */}
+      {steppingStones.map(([sx, sz], idx) => (
+        <mesh
+          key={`step-${idx}`}
+          position={[sx, 0.055, sz]}
+          rotation={[-Math.PI / 2, 0, (idx * 0.7) % Math.PI]}
+          receiveShadow
+        >
+          <circleGeometry args={[0.42 + ((idx % 3) * 0.05), 16]} />
+          <meshStandardMaterial color="#27272a" roughness={0.8} metalness={0.15} />
+        </mesh>
+      ))}
+
+      {/* 4 Japanese-style Warm Cube Lanterns (Andon / Toro style, 2700K warm glow) */}
+      {[
+        [-6.5, -6.5],
+        [6.5, -6.5],
+        [-6.5, 6.5],
+        [6.5, 6.5],
+      ].map(([lx, lz], idx) => (
+        <group key={`lantern-${idx}`} position={[lx, 0.05, lz]}>
+          {/* Stone Plinth Footing */}
+          <mesh position={[0, 0.06, 0]} castShadow>
+            <boxGeometry args={[0.6, 0.12, 0.6]} />
+            <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.1} />
+          </mesh>
+          {/* Frosted Warm Paper / Glass Cube */}
+          <mesh position={[0, 0.38, 0]} castShadow>
+            <boxGeometry args={[0.4, 0.5, 0.4]} />
+            <meshStandardMaterial
+              color="#fef3c7"
+              emissive="#f59e0b"
+              emissiveIntensity={0.5}
+              roughness={0.3}
+            />
+          </mesh>
+          {/* Dark Timber Lattice Posts */}
+          <mesh position={[0, 0.38, 0]}>
+            <boxGeometry args={[0.44, 0.52, 0.44]} />
+            <meshBasicMaterial color="#1c1917" wireframe />
+          </mesh>
+          {/* Overhanging Pyramid Roof Cap */}
+          <mesh position={[0, 0.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
+            <coneGeometry args={[0.42, 0.22, 4]} />
+            <meshStandardMaterial color="#1c1917" roughness={0.7} metalness={0.2} />
+          </mesh>
+          {/* Soft 2700K Warm Ambient Radiance */}
+          <pointLight position={[0, 0.4, 0]} color="#fde68a" intensity={0.9} distance={4.5} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena() {
@@ -556,40 +1054,20 @@ function CyberMetaverseArena() {
         </mesh>
       </group>
 
-      {/* Super Jump Launch Pads (Trampolin) */}
-      {JUMP_PADS.map((pad) => (
-        <group key={pad.id} position={[pad.x, 0.02, pad.z]}>
-          {/* Pad Base */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <circleGeometry args={[1.35, 32]} />
-            <meshStandardMaterial color="#0b0f19" roughness={0.2} metalness={0.8} />
-          </mesh>
-          {/* Outer Glowing Ring */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
-            <ringGeometry args={[1.15, 1.35, 32]} />
-            <meshBasicMaterial color={pad.color} />
-          </mesh>
-          {/* Inner Concentric Energy Ring */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.008, 0]}>
-            <ringGeometry args={[0.5, 0.85, 24]} />
-            <meshBasicMaterial color={pad.color} transparent opacity={0.65} />
-          </mesh>
-          {/* Upward Chevron Arrows */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]}>
-            <coneGeometry args={[0.42, 0.75, 3]} />
-            <meshBasicMaterial color={pad.color} />
-          </mesh>
-          {/* Translucent Vertical Energy Launch Tube */}
-          <mesh position={[0, 0.7, 0]}>
-            <cylinderGeometry args={[0.95, 1.15, 1.4, 16, 1, true]} />
-            <meshBasicMaterial color={pad.color} transparent opacity={0.2} side={THREE.DoubleSide} />
-          </mesh>
-          {/* Pad Point Light */}
-          <pointLight color={pad.color} intensity={3.5} distance={5.5} position={[0, 0.6, 0]} />
-        </group>
-      ))}
+      {/* 3. Four Minimalist Themed Corner Arenas */}
+      {/* Corner 1: Minimalist Zen Gallery / Apple-Style Digital Pavilion (North-West) */}
+      <ZenGalleryCorner position={[-32, 0, -32]} />
 
-      {/* Elevated Stepping Terraces / Walkways */}
+      {/* Corner 2: Floating Monolith Courtyard / Stargazer Sky Platform (North-East) */}
+      <SkyPlatformCorner position={[32, 0, -32]} />
+
+      {/* Corner 3: Clean Aerospace Runway / Minimalist Hangar Apron (South-West) */}
+      <AerospaceRunwayCorner position={[-32, 0, 32]} />
+
+      {/* Corner 4: Cyber Oasis / Japanese Zen Rock Garden (South-East) */}
+      <ZenGardenCorner position={[32, 0, 32]} />
+
+      {/* Elevated Stepping Terraces / Walkways (Teleport Station Platform) */}
       {ELEVATED_PLATFORMS.map((plat, idx) => (
         <group key={`plat-${idx}`} position={[plat.x, plat.h / 2, plat.z]}>
           <mesh castShadow receiveShadow>
