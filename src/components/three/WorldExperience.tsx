@@ -512,6 +512,85 @@ export const QUANTUM_OBSERVATORY_NODES: QuantumObservatoryNode[] = [
   },
 ];
 
+/* ============================================================
+   DEVOPS LAUNCHPAD & CLOUD INFRASTRUCTURE DATA
+============================================================ */
+export interface DevOpsStationNode {
+  id: string;
+  name: string;
+  category: string;
+  badge: string;
+  color: string;
+  border: string;
+  formula: string;
+  concept: string;
+  realWorldUsage: string;
+  position: [number, number, number]; // local coordinate inside Aerospace corner
+}
+
+export const DEVOPS_LAUNCHPAD_NODES: DevOpsStationNode[] = [
+  {
+    id: "ci-pipeline",
+    name: "Automated CI Pipeline & Test Matrix",
+    category: "CONTINUOUS INTEGRATION",
+    badge: "CI/CD",
+    color: "#38bdf8",
+    border: "#60a5fa",
+    formula: "Git Push ➔ Lint ➔ Test ➔ Build",
+    concept: "Validasi otomatis setiap commit menggunakan runner paralel untuk mendeteksi regresi kode sebelum merge.",
+    realWorldUsage: "GitHub Actions, GitLab CI, Argo Workflows, & Tekton Pipelines.",
+    position: [-5.8, 0, -3.5],
+  },
+  {
+    id: "k8s-mesh",
+    name: "Containerization & Kubernetes Mesh",
+    category: "ORCHESTRATION",
+    badge: "K8S",
+    color: "#3b82f6",
+    border: "#60a5fa",
+    formula: "Desired State == Current State",
+    concept: "Isolasi proses via Linux cgroups/namespaces & manajemen cluster otomatis (self-healing, autoscaling, rolling update).",
+    realWorldUsage: "Kubernetes (k8s), Docker, containerd, & Helm Charts.",
+    position: [5.8, 0, -3.5],
+  },
+  {
+    id: "iac-gitops",
+    name: "Infrastructure as Code & GitOps",
+    category: "DECLARATIVE CLOUD",
+    badge: "IaC",
+    color: "#a855f7",
+    border: "#c084fc",
+    formula: "Declarative: Code == Cloud State",
+    concept: "Penyediaan server, VPC, database, dan DNS secara terprogram, reproducible, dan version-controlled tanpa konfigurasi manual.",
+    realWorldUsage: "Terraform, OpenTofu, AWS CloudFormation, Pulumi, & Ansible.",
+    position: [-5.8, 0, 4.5],
+  },
+  {
+    id: "sre-telemetry",
+    name: "Full-Stack Observability & SRE Radar",
+    category: "SITE RELIABILITY",
+    badge: "SRE",
+    color: "#10b981",
+    border: "#34d399",
+    formula: "MELT: Metrics, Events, Logs, Traces",
+    concept: "Monitoring kesehatan infrastruktur, deteksi anomali real-time, profiling latensi terdistribusi, dan penegakan SLO 99.99%.",
+    realWorldUsage: "Prometheus, Grafana, OpenTelemetry, Datadog, & Jaeger Tracing.",
+    position: [5.8, 0, 4.5],
+  },
+  {
+    id: "orbital-deploy",
+    name: "Zero-Downtime Release & Traffic Ingress",
+    category: "RELEASE STRATEGY",
+    badge: "DEPLOY",
+    color: "#f59e0b",
+    border: "#fbbf24",
+    formula: "Traffic: Blue (100% ➔ 0%) | Green (0% ➔ 100%)",
+    concept: "Teknik peluncuran sistem tanpa henti layanan (Blue/Green Deployment, Canary Release) melalui intelligent reverse proxy.",
+    realWorldUsage: "Envoy Proxy, Nginx Ingress, Istio Service Mesh, & Cloudflare Edge.",
+    position: [0, 0, -8.0],
+  },
+];
+
 function getTechBadgeTexture(item: TechPillarData): THREE.CanvasTexture {
   const key = `tech-badge-${item.id}`;
   const cached = textureCache.get(key);
@@ -2613,13 +2692,415 @@ function SkyPlatformCorner({
   );
 }
 
-/* --- Corner 3: Clean Aerospace Runway & Minimalist Hangar Apron --- */
-function AerospaceRunwayCorner({ position }: { position: [number, number, number] }) {
+/* ============================================================
+   CORNER 3: DEVOPS LAUNCHPAD & CLOUD INFRASTRUCTURE RUNWAY
+============================================================ */
+
+/* --- Floating DevOps & Cloud Infrastructure Runes Cloud --- */
+const DEVOPS_FORMULA_GLYPHS = [
+  { glyph: "docker build", color: "#38bdf8" },
+  { glyph: "kubectl apply", color: "#60a5fa" },
+  { glyph: "terraform plan", color: "#a855f7" },
+  { glyph: "git push -u", color: "#f97316" },
+  { glyph: "prom/ql rate()", color: "#f43f5e" },
+  { glyph: "helm upgrade", color: "#06b6d4" },
+  { glyph: "canary: 10%", color: "#f59e0b" },
+  { glyph: "SLO: 99.99%", color: "#10b981" },
+  { glyph: "otel::span", color: "#c084fc" },
+  { glyph: "nginx ingress", color: "#34d399" },
+  { glyph: "k8s::Pod/v1", color: "#38bdf8" },
+  { glyph: "CI: PASS (0s)", color: "#10b981" },
+  { glyph: "env: production", color: "#ec4899" },
+  { glyph: "cgroup memory", color: "#fbbf24" },
+];
+
+function FloatingDevOpsRunesCloud({ count = 28 }: { count?: number }) {
+  const runeItems = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const g = DEVOPS_FORMULA_GLYPHS[i % DEVOPS_FORMULA_GLYPHS.length];
+      const radius = 2.5 + Math.random() * 8.5;
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        id: i,
+        glyph: g.glyph,
+        color: g.color,
+        baseX: Math.cos(angle) * radius,
+        baseZ: Math.sin(angle) * radius,
+        y: 0.6 + Math.random() * 3.4,
+        speed: 0.2 + Math.random() * 0.25,
+        swaySpeed: 0.8 + Math.random() * 0.6,
+        swayAmp: 0.15 + Math.random() * 0.18,
+        rotSpeed: (Math.random() - 0.5) * 0.5,
+        seed: Math.random() * 10,
+        scale: 0.28 + Math.random() * 0.1,
+      };
+    });
+  }, [count]);
+
+  const refs = useRef<(THREE.Group | null)[]>([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < runeItems.length; i++) {
+      const item = runeItems[i];
+      const el = refs.current[i];
+      if (!el) continue;
+
+      item.y += delta * item.speed;
+      if (item.y > 4.2) {
+        item.y = 0.5;
+      }
+
+      el.position.y = item.y;
+      el.position.x = item.baseX + Math.sin(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.position.z = item.baseZ + Math.cos(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.rotation.y += delta * item.rotSpeed;
+    }
+  });
+
+  return (
+    <group>
+      {runeItems.map((item, i) => {
+        const tex = getCodeRuneTexture(item.glyph, item.color);
+        return (
+          <group
+            key={`devops-rune-${i}`}
+            ref={(r) => {
+              refs.current[i] = r;
+            }}
+            position={[item.baseX, item.y, item.baseZ]}
+          >
+            <mesh>
+              <planeGeometry args={[item.scale, item.scale]} />
+              <meshStandardMaterial
+                map={tex}
+                transparent
+                depthWrite={false}
+                roughness={0.2}
+                metalness={0.8}
+                emissive={item.color}
+                emissiveIntensity={0.4}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* --- Reusable Standardized Basalt Telemetry Pedestal --- */
+function StandardDevOpsPedestal({
+  accentColor,
+  children,
+}: {
+  accentColor: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <group>
+      {/* Octagonal Plinth */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.75, 0.88, 0.38, 8]} />
+        <meshStandardMaterial color="#0b0f19" roughness={0.35} metalness={0.7} />
+      </mesh>
+      {/* Outer Titanium Trim Ring */}
+      <mesh position={[0, 0.02, 0]}>
+        <cylinderGeometry args={[0.92, 0.96, 0.04, 8]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.25} metalness={0.85} />
+      </mesh>
+      {/* Floor Glowing Halo Ring */}
+      <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.05, 1.15, 32]} />
+        <meshBasicMaterial color={accentColor} transparent opacity={0.65} />
+      </mesh>
+      {/* Dual Vertical Telemetry Stanchions */}
+      {[-0.45, 0.45].map((sx, idx) => (
+        <group key={`pylon-${idx}`} position={[sx, 0.65, 0]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.035, 0.045, 0.65, 16]} />
+            <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.85} />
+          </mesh>
+          <mesh position={[0, 0.33, 0]}>
+            <sphereGeometry args={[0.05, 16, 16]} />
+            <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.8} />
+          </mesh>
+        </group>
+      ))}
+      {children}
+    </group>
+  );
+}
+
+/* --- Station 1: Automated CI Pipeline & Test Matrix --- */
+function CiCdPipelineStation({ position }: { position: [number, number, number] }) {
+  const ringRef = useRef<THREE.Group>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const laserRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (ringRef.current) ringRef.current.rotation.z += delta * 0.8;
+    if (coreRef.current) {
+      coreRef.current.rotation.y += delta * 0.6;
+      coreRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 1.5) * 0.15;
+    }
+    if (laserRef.current) {
+      laserRef.current.position.y = Math.sin(state.clock.elapsedTime * 3) * 0.2;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardDevOpsPedestal accentColor="#38bdf8">
+        <group position={[0, 1.35, 0]}>
+          {/* Rotating Laser Test Gantry Ring */}
+          <group ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
+            <mesh>
+              <torusGeometry args={[0.55, 0.018, 16, 36]} />
+              <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
+            </mesh>
+          </group>
+          {/* Inner Floating Test Prism Artifact */}
+          <mesh ref={coreRef} castShadow>
+            <octahedronGeometry args={[0.24, 0]} />
+            <meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={0.8} roughness={0.1} metalness={0.9} />
+          </mesh>
+          {/* Pulsing Vertical Test Scan Beam */}
+          <mesh ref={laserRef}>
+            <cylinderGeometry args={[0.01, 0.01, 0.5, 12]} />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={0.7} />
+          </mesh>
+        </group>
+      </StandardDevOpsPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#38bdf8" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 2: Containerization & Kubernetes Mesh --- */
+function K8sMeshStation({ position }: { position: [number, number, number] }) {
+  const meshGroupRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+
+  useFrame((_, delta) => {
+    if (meshGroupRef.current) meshGroupRef.current.rotation.y += delta * 0.6;
+    if (ringRef.current) ringRef.current.rotation.z -= delta * 0.5;
+  });
+
+  return (
+    <group position={position}>
+      <StandardDevOpsPedestal accentColor="#3b82f6">
+        <group position={[0, 1.35, 0]}>
+          {/* Master Control Plane Node Cube */}
+          <mesh castShadow>
+            <boxGeometry args={[0.26, 0.26, 0.26]} />
+            <meshStandardMaterial color="#bfdbfe" emissive="#3b82f6" emissiveIntensity={0.8} roughness={0.1} metalness={0.9} />
+          </mesh>
+          {/* Cluster Service Mesh Interconnect Ring */}
+          <mesh ref={ringRef} rotation={[Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[0.52, 0.014, 16, 32]} />
+            <meshStandardMaterial color="#60a5fa" roughness={0.2} metalness={0.9} emissive="#2563eb" emissiveIntensity={0.4} />
+          </mesh>
+          {/* Orbiting Worker Pod Nodes */}
+          <group ref={meshGroupRef}>
+            {[0, (2 * Math.PI) / 3, (4 * Math.PI) / 3].map((angle, idx) => (
+              <mesh key={`pod-${idx}`} position={[Math.cos(angle) * 0.44, Math.sin(angle * 2) * 0.1, Math.sin(angle) * 0.44]}>
+                <boxGeometry args={[0.11, 0.11, 0.11]} />
+                <meshStandardMaterial color="#93c5fd" emissive="#3b82f6" emissiveIntensity={0.9} roughness={0.2} metalness={0.8} />
+              </mesh>
+            ))}
+          </group>
+        </group>
+      </StandardDevOpsPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#3b82f6" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 3: Infrastructure as Code & GitOps --- */
+function IacGitopsStation({ position }: { position: [number, number, number] }) {
+  const cubeRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (cubeRef.current) {
+      cubeRef.current.rotation.y += delta * 0.45;
+      cubeRef.current.position.y = 1.35 + Math.sin(state.clock.elapsedTime * 2) * 0.04;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardDevOpsPedestal accentColor="#a855f7">
+        <group ref={cubeRef} position={[0, 1.35, 0]}>
+          {/* Declarative Cloud Blueprint Wireframe Cube */}
+          <mesh>
+            <boxGeometry args={[0.42, 0.42, 0.42]} />
+            <meshStandardMaterial color="#c084fc" wireframe emissive="#a855f7" emissiveIntensity={0.6} />
+          </mesh>
+          {/* Layered Infrastructure Stack Slabs */}
+          {[-0.14, 0, 0.14].map((ly, idx) => (
+            <mesh key={`iac-slab-${idx}`} position={[0, ly, 0]}>
+              <boxGeometry args={[0.34, 0.025, 0.34]} />
+              <meshStandardMaterial color="#e9d5ff" emissive="#a855f7" emissiveIntensity={0.8} roughness={0.2} metalness={0.85} />
+            </mesh>
+          ))}
+        </group>
+      </StandardDevOpsPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 4: Full-Stack Observability & SRE Radar --- */
+function SreTelemetryStation({ position }: { position: [number, number, number] }) {
+  const radarRef = useRef<THREE.Group>(null);
+  const beamRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (radarRef.current) radarRef.current.rotation.y += delta * 1.1;
+    if (beamRef.current) {
+      const s = 1 + Math.sin(state.clock.elapsedTime * 4) * 0.2;
+      beamRef.current.scale.set(s, s, s);
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardDevOpsPedestal accentColor="#10b981">
+        <group position={[0, 1.35, 0]}>
+          {/* Rotating Telemetry Radar Dish Assembly */}
+          <group ref={radarRef}>
+            {/* Parabolic Dish */}
+            <mesh rotation={[Math.PI / 4, 0, 0]} castShadow>
+              <cylinderGeometry args={[0.42, 0.1, 0.16, 24, 1, true]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
+            </mesh>
+            {/* Feedhorn Antenna */}
+            <mesh position={[0, 0.12, 0.18]} rotation={[Math.PI / 4, 0, 0]}>
+              <cylinderGeometry args={[0.02, 0.03, 0.28, 12]} />
+              <meshStandardMaterial color="#34d399" roughness={0.2} metalness={0.9} emissive="#10b981" emissiveIntensity={0.8} />
+            </mesh>
+          </group>
+          {/* Pulsing Telemetry Sensor Orb */}
+          <mesh ref={beamRef} position={[0, 0, 0]}>
+            <sphereGeometry args={[0.12, 16, 16]} />
+            <meshStandardMaterial color="#a7f3d0" emissive="#10b981" emissiveIntensity={0.9} roughness={0.1} metalness={0.9} />
+          </mesh>
+        </group>
+      </StandardDevOpsPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 5: Zero-Downtime Release & Traffic Ingress (VTOL Orbital Shuttle) --- */
+function OrbitalDeployShuttlePad({
+  position,
+  craftRef,
+}: {
+  position: [number, number, number];
+  craftRef: React.RefObject<THREE.Group | null>;
+}) {
+  return (
+    <group position={position}>
+      {/* Circular Target Launch Ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[2.7, 2.85, 32]} />
+        <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
+      </mesh>
+      {/* Inner Amber Alert Ring */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.8, 1.9, 32]} />
+        <meshStandardMaterial color="#d97706" roughness={0.4} />
+      </mesh>
+      {/* Helipad 'H' Marking */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.6, 0, 0]}>
+        <planeGeometry args={[0.22, 1.8]} />
+        <meshStandardMaterial color="#f1f5f9" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.6, 0, 0]}>
+        <planeGeometry args={[0.22, 1.8]} />
+        <meshStandardMaterial color="#f1f5f9" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[1.2, 0.22]} />
+        <meshStandardMaterial color="#f1f5f9" />
+      </mesh>
+
+      {/* Cyber Orbital VTOL Shuttle Parked on Pad */}
+      <group ref={craftRef} position={[0, 0.52, 0]}>
+        {/* Fuselage (Stealth chiseled angular body) */}
+        <mesh rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
+          <coneGeometry args={[0.8, 2.6, 4]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+        </mesh>
+        {/* Delta Wings */}
+        <mesh position={[0, -0.05, 0.2]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
+          <coneGeometry args={[1.7, 1.5, 3]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.7} />
+        </mesh>
+        {/* Cockpit / Sensor Array Visor */}
+        <mesh position={[0, 0.18, -0.4]}>
+          <boxGeometry args={[0.35, 0.15, 0.8]} />
+          <meshStandardMaterial color="#38bdf8" roughness={0.1} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
+        </mesh>
+        {/* Twin Subdued Thruster Nozzles */}
+        {[-0.35, 0.35].map((tx, ti) => (
+          <mesh key={`thruster-${ti}`} position={[tx, 0, 1.3]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.12, 0.16, 0.2, 16]} />
+            <meshStandardMaterial color="#334155" roughness={0.3} metalness={0.9} />
+          </mesh>
+        ))}
+        {/* Thruster exhaust halo */}
+        <pointLight position={[0, 0, 1.4]} color="#f59e0b" intensity={0.7} distance={3.0} />
+      </group>
+    </group>
+  );
+}
+
+/* --- Corner 3 Main Assembly: Aerospace Runway & DevOps Launchpad --- */
+function AerospaceRunwayCorner({
+  position,
+  carRef,
+  onNearbyNode,
+}: {
+  position: [number, number, number];
+  carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  onNearbyNode?: (node: DevOpsStationNode | null) => void;
+}) {
   const craftRef = useRef<THREE.Group>(null);
+  const currentNearbyRef = useRef<string | null>(null);
 
   useFrame((state) => {
     if (craftRef.current) {
-      craftRef.current.position.y = 0.52 + Math.sin(state.clock.elapsedTime * 1.5) * 0.015;
+      craftRef.current.position.y = 0.52 + Math.sin(state.clock.elapsedTime * 1.5) * 0.018;
+    }
+
+    if (carRef?.current && onNearbyNode) {
+      const carPos = carRef.current.pos;
+      let closest: DevOpsStationNode | null = null;
+      let minD = 3.0;
+
+      const tmpVec = new THREE.Vector3();
+      const originVec = new THREE.Vector3(position[0], 0, position[2]);
+      const upAxis = new THREE.Vector3(0, 1, 0);
+
+      for (const node of DEVOPS_LAUNCHPAD_NODES) {
+        tmpVec
+          .set(node.position[0], 0, node.position[2])
+          .applyAxisAngle(upAxis, -Math.PI / 4)
+          .add(originVec);
+        const d = Math.hypot(carPos.x - tmpVec.x, carPos.z - tmpVec.z);
+        if (d < minD) {
+          minD = d;
+          closest = node;
+        }
+      }
+
+      if ((closest?.id ?? null) !== currentNearbyRef.current) {
+        currentNearbyRef.current = closest?.id ?? null;
+        onNearbyNode(closest);
+      }
     }
   });
 
@@ -2628,13 +3109,13 @@ function AerospaceRunwayCorner({ position }: { position: [number, number, number
       {/* Matte Industrial Runway Asphalt Strip (10m x 24m x 0.06m) */}
       <mesh position={[0, 0.03, 0]} receiveShadow>
         <boxGeometry args={[10, 0.06, 24]} />
-        <meshStandardMaterial color="#111827" roughness={0.85} metalness={0.15} />
+        <meshStandardMaterial color="#0f172a" roughness={0.85} metalness={0.2} />
       </mesh>
 
       {/* Runway Clean Concrete Border Trim */}
       <mesh position={[0, 0.015, 0]}>
         <boxGeometry args={[10.5, 0.03, 24.5]} />
-        <meshStandardMaterial color="#1f2937" roughness={0.6} metalness={0.4} />
+        <meshStandardMaterial color="#1e293b" roughness={0.6} metalness={0.4} />
       </mesh>
 
       {/* Threshold "Piano Key" Bars at Runway Entry (Z = 10m) */}
@@ -2659,70 +3140,34 @@ function AerospaceRunwayCorner({ position }: { position: [number, number, number
           {/* Left Puck */}
           <mesh position={[-4.6, 0.063, z]}>
             <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
-            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.65} />
+            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.7} />
           </mesh>
           {/* Right Puck */}
           <mesh position={[4.6, 0.063, z]}>
             <cylinderGeometry args={[0.1, 0.1, 0.02, 16]} />
-            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.65} />
+            <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.7} />
           </mesh>
         </group>
       ))}
 
-      {/* Secondary VTOL Drone Apron Pad (At Z = -8m) */}
-      <group position={[0, 0.062, -8]}>
-        {/* Circular Target Ring */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[2.7, 2.85, 32]} />
-          <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
-        </mesh>
-        {/* Inner Amber Alert Ring */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 1.9, 32]} />
-          <meshStandardMaterial color="#d97706" roughness={0.4} />
-        </mesh>
-        {/* Helipad 'H' Marking */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.6, 0, 0]}>
-          <planeGeometry args={[0.22, 1.8]} />
-          <meshStandardMaterial color="#f1f5f9" />
-        </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.6, 0, 0]}>
-          <planeGeometry args={[0.22, 1.8]} />
-          <meshStandardMaterial color="#f1f5f9" />
-        </mesh>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-          <planeGeometry args={[1.2, 0.22]} />
-          <meshStandardMaterial color="#f1f5f9" />
-        </mesh>
+      {/* Symmetrical Left & Right Concrete Gantries for DevOps Stations */}
+      {/* Station 1: CI/CD Pipeline (Left Flank 1) */}
+      <CiCdPipelineStation position={[-5.8, 0, -3.5]} />
 
-        {/* Minimalist Scout Drone Prototype Parked on Pad */}
-        <group ref={craftRef} position={[0, 0.52, 0]}>
-          {/* Fuselage (Stealth chiseled angular body) */}
-          <mesh rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
-            <coneGeometry args={[0.8, 2.6, 4]} />
-            <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
-          </mesh>
-          {/* Delta Wings */}
-          <mesh position={[0, -0.05, 0.2]} rotation={[-Math.PI / 2, 0, 0]} castShadow>
-            <coneGeometry args={[1.7, 1.5, 3]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.7} />
-          </mesh>
-          {/* Cockpit / Sensor Array Visor */}
-          <mesh position={[0, 0.18, -0.4]}>
-            <boxGeometry args={[0.35, 0.15, 0.8]} />
-            <meshStandardMaterial color="#38bdf8" roughness={0.1} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.3} />
-          </mesh>
-          {/* Twin Subdued Thruster Nozzles */}
-          {[-0.35, 0.35].map((tx, ti) => (
-            <mesh key={`thruster-${ti}`} position={[tx, 0, 1.3]} rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.12, 0.16, 0.2, 16]} />
-              <meshStandardMaterial color="#334155" roughness={0.3} metalness={0.9} />
-            </mesh>
-          ))}
-          {/* Low-glow thruster exhaust halo */}
-          <pointLight position={[0, 0, 1.4]} color="#38bdf8" intensity={0.4} distance={2.5} />
-        </group>
-      </group>
+      {/* Station 2: Kubernetes Mesh (Right Flank 1) */}
+      <K8sMeshStation position={[5.8, 0, -3.5]} />
+
+      {/* Station 3: IaC & GitOps (Left Flank 2) */}
+      <IacGitopsStation position={[-5.8, 0, 4.5]} />
+
+      {/* Station 4: Full-Stack SRE Telemetry (Right Flank 2) */}
+      <SreTelemetryStation position={[5.8, 0, 4.5]} />
+
+      {/* Station 5: Orbital VTOL Shuttle Release Pad (Center End: Z = -8m) */}
+      <OrbitalDeployShuttlePad position={[0, 0.062, -8.0]} craftRef={craftRef} />
+
+      {/* Floating Cloud & DevOps Ecosystem Runes Cloud */}
+      <FloatingDevOpsRunesCloud count={28} />
     </group>
   );
 }
@@ -2868,12 +3313,14 @@ function CyberMetaverseArena({
   onNearbyArtwork,
   onNearbyTech,
   onNearbyQuantumNode,
+  onNearbyDevOpsNode,
   resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   onNearbyTech?: (tech: TechPillarData | null) => void;
   onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
+  onNearbyDevOpsNode?: (node: DevOpsStationNode | null) => void;
   resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
@@ -2932,8 +3379,12 @@ function CyberMetaverseArena({
         onNearbyNode={onNearbyQuantumNode}
       />
 
-      {/* Corner 3: Clean Aerospace Runway / Minimalist Hangar Apron (South-West) */}
-      <AerospaceRunwayCorner position={[-32, 0, 32]} />
+      {/* Corner 3: Aerospace Runway & DevOps Launchpad (South-West) */}
+      <AerospaceRunwayCorner
+        position={[-32, 0, 32]}
+        carRef={carRef}
+        onNearbyNode={onNearbyDevOpsNode}
+      />
 
       {/* Corner 4: Cyber Oasis / Japanese Zen Rock Garden (South-East) */}
       <ZenGardenCorner position={[32, 0, 32]} />
@@ -4290,6 +4741,7 @@ function World({
   onNearbyArtwork,
   onNearbyTech,
   onNearbyQuantumNode,
+  onNearbyDevOpsNode,
   resonancePulseKey = 0,
   mobileControls,
   localPlayer,
@@ -4307,6 +4759,7 @@ function World({
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   onNearbyTech?: (tech: TechPillarData | null) => void;
   onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
+  onNearbyDevOpsNode?: (node: DevOpsStationNode | null) => void;
   resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
@@ -4797,6 +5250,7 @@ function World({
         onNearbyArtwork={onNearbyArtwork}
         onNearbyTech={onNearbyTech}
         onNearbyQuantumNode={onNearbyQuantumNode}
+        onNearbyDevOpsNode={onNearbyDevOpsNode}
         resonancePulseKey={resonancePulseKey}
       />
 
@@ -4887,6 +5341,9 @@ function WorldHero() {
   // Stargazer Quantum AI Observatory State
   const [nearbyQuantumNode, setNearbyQuantumNode] = useState<QuantumObservatoryNode | null>(null);
 
+  // DevOps Launchpad & Cloud Infrastructure State
+  const [nearbyDevOpsNode, setNearbyDevOpsNode] = useState<DevOpsStationNode | null>(null);
+
   // Zen Gallery Kinetic Resonance Pulse State
   const [resonancePulseKey, setResonancePulseKey] = useState(0);
 
@@ -4974,6 +5431,7 @@ function WorldHero() {
           onActiveLandmark={setActiveLandmark}
           onNearbyTech={setNearbyTech}
           onNearbyQuantumNode={setNearbyQuantumNode}
+          onNearbyDevOpsNode={setNearbyDevOpsNode}
           resonancePulseKey={resonancePulseKey}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
@@ -5236,6 +5694,52 @@ function WorldHero() {
               </p>
               <p className="mt-1 text-[10px] text-neutral-400 truncate font-mono">
                 <span className="text-neutral-500">Real-World:</span> {nearbyQuantumNode.realWorldUsage}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DevOps Cloud & Aerospace Launchpad HUD Floating Pill */}
+      {nearbyDevOpsNode && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-24 sm:bottom-20 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-white/10 bg-neutral-950/90 p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border font-mono font-black text-xs tracking-wider shadow-inner text-center"
+              style={{
+                borderColor: `${nearbyDevOpsNode.color}55`,
+                backgroundColor: `${nearbyDevOpsNode.color}15`,
+                color: nearbyDevOpsNode.color,
+                boxShadow: `0 0 16px ${nearbyDevOpsNode.color}25`,
+              }}
+            >
+              {nearbyDevOpsNode.badge}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className="rounded-full px-2 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase border"
+                  style={{
+                    borderColor: `${nearbyDevOpsNode.color}40`,
+                    backgroundColor: `${nearbyDevOpsNode.color}10`,
+                    color: nearbyDevOpsNode.color,
+                  }}
+                >
+                  {nearbyDevOpsNode.category}
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono">DevOps Pad</span>
+              </div>
+              <h4 className="mt-0.5 text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
+                <span>{nearbyDevOpsNode.name}</span>
+              </h4>
+              <div className="mt-0.5 inline-block font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-amber-300">
+                {nearbyDevOpsNode.formula}
+              </div>
+              <p className="mt-1 text-[11px] text-neutral-300 line-clamp-2 leading-relaxed">
+                {nearbyDevOpsNode.concept}
+              </p>
+              <p className="mt-1 text-[10px] text-neutral-400 truncate font-mono">
+                <span className="text-neutral-500">Real-World:</span> {nearbyDevOpsNode.realWorldUsage}
               </p>
             </div>
           </div>
