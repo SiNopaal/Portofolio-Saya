@@ -9,11 +9,14 @@ export type HitSpark = {
   time: number;
 };
 
+export type CharacterModelType = "male_hoodie" | "female_casual";
+
 export type PlayerData = {
   id: string;
   name: string;
   color: string;
   accentColor: string;
+  modelType?: CharacterModelType;
   pos: [number, number, number];
   rot: number;
   speed: number;
@@ -38,9 +41,21 @@ export const PALETTES = [
 
 const COMIC_HITS = ["POW!", "BAM!", "WHAM!", "K.O!", "SMASH!"];
 
-function getOrCreateLocalPlayer(): { id: string; name: string; color: string; accentColor: string } {
+function getOrCreateLocalPlayer(): {
+  id: string;
+  name: string;
+  color: string;
+  accentColor: string;
+  modelType: CharacterModelType;
+} {
   if (typeof window === "undefined") {
-    return { id: "local", name: "Guest #01", color: "#06b6d4", accentColor: "#38bdf8" };
+    return {
+      id: "local",
+      name: "Guest #01",
+      color: "#06b6d4",
+      accentColor: "#38bdf8",
+      modelType: "male_hoodie",
+    };
   }
 
   // Use sessionStorage / localStorage
@@ -48,6 +63,9 @@ function getOrCreateLocalPlayer(): { id: string; name: string; color: string; ac
   let customName = localStorage.getItem("portfolio_custom_username");
   let sessionName = sessionStorage.getItem("portfolio_player_name");
   let paletteIdxStr = sessionStorage.getItem("portfolio_player_palette");
+  let savedModel = (localStorage.getItem("portfolio_character_model") ||
+    sessionStorage.getItem("portfolio_character_model")) as CharacterModelType;
+  let modelType: CharacterModelType = savedModel === "female_casual" ? "female_casual" : "male_hoodie";
 
   let paletteIdx = 0;
   if (!id) {
@@ -67,6 +85,7 @@ function getOrCreateLocalPlayer(): { id: string; name: string; color: string; ac
     name: finalName,
     color: PALETTES[paletteIdx].color,
     accentColor: PALETTES[paletteIdx].accent,
+    modelType,
   };
 }
 
@@ -379,6 +398,7 @@ export function useMultiplayer() {
         name: localPlayer.name,
         color: localPlayer.color,
         accentColor: localPlayer.accentColor,
+        modelType: localPlayer.modelType || "male_hoodie",
         pos,
         rot,
         speed,
@@ -404,7 +424,7 @@ export function useMultiplayer() {
   );
 
   const updateLocalPlayerProfile = useCallback(
-    (newName: string, newColor?: string, newAccent?: string) => {
+    (newName: string, newColor?: string, newAccent?: string, newModel?: CharacterModelType) => {
       setLocalPlayer((prev) => {
         const trimmedName = newName.trim();
         const updated = {
@@ -412,12 +432,17 @@ export function useMultiplayer() {
           name: trimmedName || prev.name,
           color: newColor || prev.color,
           accentColor: newAccent || prev.accentColor,
+          modelType: newModel || prev.modelType || "male_hoodie",
         };
         if (typeof window !== "undefined") {
           sessionStorage.setItem("portfolio_player_name", updated.name);
           localStorage.setItem("portfolio_custom_username", updated.name);
           if (newColor) sessionStorage.setItem("portfolio_player_color", newColor);
           if (newAccent) sessionStorage.setItem("portfolio_player_accent", newAccent);
+          if (newModel) {
+            localStorage.setItem("portfolio_character_model", newModel);
+            sessionStorage.setItem("portfolio_character_model", newModel);
+          }
         }
         return updated;
       });
