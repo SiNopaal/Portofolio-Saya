@@ -20,11 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES } from "@/lib/multiplayer";
-import {
-  CyberContactBeacon,
-  CyberDJSynthPad,
-  CyberTeleportStation,
-} from "./ArenaZones";
+
 
 /* ============================================================
    WEBGL DETECTION
@@ -116,18 +112,17 @@ const landmarks: LandmarkData[] = [
   },
 ];
 
-const JUMP_PADS = [
-  { id: "pad-1", x: -4.5, z: 4.5, color: "#38bdf8" },
-  { id: "pad-2", x: 4.5, z: 4.5, color: "#ec4899" },
-  { id: "pad-3", x: -4.5, z: -4.5, color: "#a855f7" },
-  { id: "pad-4", x: 4.5, z: -4.5, color: "#f59e0b" },
-];
+const JUMP_PADS: { id: string; x: number; z: number; color: string }[] = [];
 
-const ELEVATED_PLATFORMS = [
-  { x: -14.0, z: 0.0, w: 6.5, d: 6.5, h: 0.75, color: "#0e1526", border: "#38bdf8" },
-  { x: 14.5, z: 0.0, w: 9.0, d: 8.0, h: 0.75, color: "#0e1526", border: "#ec4899" },
-  { x: 0.0, z: -15.0, w: 8.0, d: 5.5, h: 1.1, color: "#0e1526", border: "#a855f7" },
-];
+const ELEVATED_PLATFORMS: {
+  x: number;
+  z: number;
+  w: number;
+  d: number;
+  h: number;
+  color: string;
+  border: string;
+}[] = [];
 
 const ARENA_BOUND = 36.0;
 const AVATAR_R = 0.55;
@@ -143,33 +138,7 @@ interface SolidObstacle {
 }
 
 const SOLID_OBSTACLES: SolidObstacle[] = [
-  // 1. Kotak Utama: Spire Tower Pillar
-  { x: 0.0, z: -15.0, r: 1.5, minY: 0.8, maxY: 12 },
-
-  // 2. Kotak Kiri: Teleport Station
-  // Stargate Side Support Struts
-  { x: -14.0, z: -1.75, r: 0.35, minY: 0.7, maxY: 4.5 },
-  { x: -14.0, z: 1.75, r: 0.35, minY: 0.7, maxY: 4.5 },
-  // Power Reactor Generator
-  { x: -13.9, z: -2.35, r: 0.65, minY: 0.7, maxY: 3.5 },
-  // Teleport Destination Kiosk
-  { x: -12.05, z: 2.4, r: 0.85, minY: 0.7, maxY: 3.5 },
-
-  // 3. Kotak Kanan: DJ Synth Pad
-  // DJ Console Box Table (at rear of platform)
-  { x: 18.0, z: 0.0, w: 0.8, d: 3.8, minY: 0.7, maxY: 3 },
-  // Dual Rear Subwoofer Towers
-  { x: 18.0, z: -3.2, w: 1.0, d: 1.0, minY: 0.7, maxY: 4 },
-  { x: 18.0, z: 3.2, w: 1.0, d: 1.0, minY: 0.7, maxY: 4 },
-  // Corner Lamp Towers on DJ platform
-  { x: 10.4, z: -3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 10.4, z: 3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 18.6, z: -3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  { x: 18.6, z: 3.6, r: 0.25, minY: 0.7, maxY: 3.5 },
-  // Papan DJ Soundboard Kiosk (ground floor)
-  { x: 8.7, z: -3.4, r: 0.85, minY: 0.0, maxY: 3.0 },
-
-  // 4. Sci-Fi Monolith Pillars (Projects, Terminal, About, Stack, Contact)
+  // Sci-Fi Monolith Pillars (Projects, Terminal, About, Stack, Contact)
   { x: -8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 0.0, z: 11.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: -8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
@@ -2297,15 +2266,7 @@ function World({
 
       <CyberMetaverseArena />
 
-      {/* Interactive Arena Zones */}
-      {/* Kotak Kanan: Cyber Soundboard / DJ Synth Pad */}
-      <CyberDJSynthPad carState={carState} />
-
-      {/* Kotak Kiri: Live Mini-Map / Teleport Station */}
-      <CyberTeleportStation carState={carState} />
-
-      {/* Kotak Utama: Quick Hire / Contact Beacon */}
-      <CyberContactBeacon carState={carState} />
+      {/* Sci-Fi Monoliths di Sektor Utama */}
       {landmarks.map((lm) => (
         <SciFiMonolith
           key={lm.id}
