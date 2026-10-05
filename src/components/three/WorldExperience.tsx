@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES } from "@/lib/multiplayer";
-import { CyberTeleportStation } from "./ArenaZones";
+import { CyberTeleportStation, playTeleportSound } from "./ArenaZones";
 
 
 /* ============================================================
@@ -128,7 +128,7 @@ const ELEVATED_PLATFORMS: {
   { x: 0.0, z: -14.5, w: 8.0, d: 5.5, h: 0.6, color: "#0e1526", border: "#38bdf8" },
 ];
 
-const ARENA_BOUND = 64.0;
+const ARENA_BOUND = 85.0;
 const AVATAR_R = 0.55;
 
 interface SolidObstacle {
@@ -380,150 +380,143 @@ function getBlobTexture(): THREE.CanvasTexture {
 }
 
 /* ============================================================
-   CYBER PERIMETER FENCE (Pagar Pembatas Cyber Futuristik)
-   - 4 Pagar Panjang Membatasi Keliling Arena (size: 64.0 -> 128m x 128m)
-   - 4 Corner Pylon Sudut dengan Beacon Cap
-   - 3 Rel Horizontal Neon (Bawah, Tengah, Atas) di Setiap Sisi
-   - Panel Forcefield Transparan Wireframe Cyan
-   - Tiang Pylon Vertikal Setiap Interval 8 Meter
+   1. FLOATING COSMIC STARDUST (Debu Bintang & Partikel Kosmis di Jurang Hampa)
 ============================================================ */
-function CyberPerimeterFence({ size = 64.0 }: { size?: number }) {
-  const pylonPositions = useMemo(() => {
-    const list: number[] = [];
-    const step = 8;
-    for (let pos = -size; pos <= size; pos += step) {
-      list.push(pos);
-    }
-    return list;
-  }, [size]);
+function FloatingCosmicStardust({ count = 140, radius = 90 }: { count?: number; radius?: number }) {
+  const pointsRef = useRef<THREE.Points>(null);
 
-  const sideLength = size * 2;
+  const [positions, colors] = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const col = new Float32Array(count * 3);
+    const colorChoices = [
+      new THREE.Color("#38bdf8"),
+      new THREE.Color("#818cf8"),
+      new THREE.Color("#c084fc"),
+      new THREE.Color("#ec4899"),
+      new THREE.Color("#34d399"),
+    ];
+
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const r = 58 + Math.random() * (radius - 58);
+      pos[i * 3] = Math.cos(angle) * r;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 45 - 6;
+      pos[i * 3 + 2] = Math.sin(angle) * r;
+
+      const c = colorChoices[Math.floor(Math.random() * colorChoices.length)];
+      col[i * 3] = c.r;
+      col[i * 3 + 1] = c.g;
+      col[i * 3 + 2] = c.b;
+    }
+    return [pos, col];
+  }, [count, radius]);
+
+  useFrame((_, delta) => {
+    if (pointsRef.current) {
+      pointsRef.current.rotation.y += delta * 0.025;
+    }
+  });
+
+  return (
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        <bufferAttribute attach="attributes-color" args={[colors, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.7}
+        vertexColors
+        transparent
+        opacity={0.8}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
+/* ============================================================
+   2. FLOATING DIGITAL ISLAND (Pulau Mengambang Futuristik di Ruang Angkasa)
+   - Deck Permukaan Cyber (110m x 110m)
+   - Bibir Tebing Pulau dengan Strip Laser Neon Cyan (#38bdf8)
+   - Titanium Beveled Hull di Sisi Samping Dek
+   - Pendaran Cahaya Kosmis di Bawah Lambung Pulau
+============================================================ */
+function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
+  const floorTex = useMemo(() => getCyberFloorTexture(), []);
+  const sideLen = size * 2;
 
   return (
     <group>
-      {/* 4 Corner Watch Towers */}
-      {[
-        [-size, size],
-        [size, size],
-        [-size, -size],
-        [size, -size],
-      ].map(([cx, cz], i) => (
-        <group key={`corner-${i}`} position={[cx, 0, cz]}>
-          <mesh position={[0, 1.9, 0]} castShadow>
-            <cylinderGeometry args={[0.65, 0.8, 3.8, 8]} />
-            <meshStandardMaterial color="#080e1c" roughness={0.2} metalness={0.9} />
+      {/* 1. Main Deck Surface Floor Plate */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+        <planeGeometry args={[sideLen, sideLen]} />
+        <meshStandardMaterial map={floorTex} roughness={0.4} metalness={0.6} />
+      </mesh>
+
+      {/* 2. Perimeter Cyber Laser Glow Trim (Bibir Tepi Pulau) */}
+      {/* Sisi Utara & Selatan (z = ±size) */}
+      {[-size, size].map((zPos, idx) => (
+        <group key={`edge-ns-${idx}`}>
+          {/* Top Neon Laser Edge Line */}
+          <mesh position={[0, 0.02, zPos]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.035, 0.035, sideLen, 8]} />
+            <meshBasicMaterial color="#38bdf8" />
           </mesh>
-          <mesh position={[0, 1.9, 0]}>
-            <cylinderGeometry args={[0.68, 0.83, 3.82, 8]} />
-            <meshBasicMaterial color="#38bdf8" wireframe />
+          {/* Beveled Hull Plate Drop */}
+          <mesh position={[0, -1.0, zPos]}>
+            <boxGeometry args={[sideLen, 2.0, 0.25]} />
+            <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.9} />
           </mesh>
-          {/* Beacon Glowing Cap */}
-          <mesh position={[0, 4.0, 0]}>
-            <octahedronGeometry args={[0.4, 0]} />
-            <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={3.5} />
+          {/* Bottom Neon Accent Rail */}
+          <mesh position={[0, -2.02, zPos]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, sideLen, 8]} />
+            <meshBasicMaterial color="#06b6d4" />
           </mesh>
-          <pointLight color="#38bdf8" intensity={5} distance={9} position={[0, 4.0, 0]} />
         </group>
       ))}
 
-      {/* Pagar Utara & Selatan (sejajar sumbu X di z = ±size) */}
-      {[-size, size].map((zPos, sIdx) => (
-        <group key={`north-south-${sIdx}`}>
-          {/* Rel Horizontal Bawah (y: 0.45) */}
-          <mesh position={[0, 0.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
+      {/* Sisi Barat & Timur (x = ±size) */}
+      {[-size, size].map((xPos, idx) => (
+        <group key={`edge-we-${idx}`}>
+          {/* Top Neon Laser Edge Line */}
+          <mesh position={[xPos, 0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.035, 0.035, sideLen, 8]} />
             <meshBasicMaterial color="#38bdf8" />
           </mesh>
-          {/* Rel Horizontal Tengah (y: 1.45) */}
-          <mesh position={[0, 1.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
-            <meshBasicMaterial color="#38bdf8" />
+          {/* Beveled Hull Plate Drop */}
+          <mesh position={[xPos, -1.0, 0]}>
+            <boxGeometry args={[0.25, 2.0, sideLen]} />
+            <meshStandardMaterial color="#080e1c" roughness={0.3} metalness={0.9} />
           </mesh>
-          {/* Rel Horizontal Atas (y: 2.45) */}
-          <mesh position={[0, 2.45, zPos]} rotation={[0, 0, Math.PI / 2]}>
-            <cylinderGeometry args={[0.05, 0.05, sideLength, 8]} />
-            <meshBasicMaterial color="#38bdf8" />
+          {/* Bottom Neon Accent Rail */}
+          <mesh position={[xPos, -2.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <cylinderGeometry args={[0.02, 0.02, sideLen, 8]} />
+            <meshBasicMaterial color="#06b6d4" />
           </mesh>
-
-          {/* Panel Forcefield Neon Kaca */}
-          <mesh position={[0, 1.35, zPos]}>
-            <boxGeometry args={[sideLength, 2.5, 0.06]} />
-            <meshBasicMaterial color="#38bdf8" transparent opacity={0.14} wireframe />
-          </mesh>
-
-          {/* Tiang Pylon Vertikal Setiap 8m */}
-          {pylonPositions.map((px, pIdx) => (
-            <group key={`ns-pylon-${sIdx}-${pIdx}`} position={[px, 0, zPos]}>
-              <mesh position={[0, 1.35, 0]} castShadow>
-                <boxGeometry args={[0.26, 2.7, 0.26]} />
-                <meshStandardMaterial color="#090f1d" metalness={0.9} roughness={0.2} />
-              </mesh>
-              <mesh position={[0, 1.35, 0]}>
-                <boxGeometry args={[0.28, 2.72, 0.28]} />
-                <meshBasicMaterial color="#38bdf8" wireframe />
-              </mesh>
-              <mesh position={[0, 2.75, 0]}>
-                <cylinderGeometry args={[0.06, 0.06, 0.15, 8]} />
-                <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2.5} />
-              </mesh>
-            </group>
-          ))}
         </group>
       ))}
 
-      {/* Pagar Barat & Timur (sejajar sumbu Z di x = ±size) */}
-      {[-size, size].map((xPos, sIdx) => (
-        <group key={`west-east-${sIdx}`}>
-          {/* Rel Horizontal Bawah (y: 0.45) */}
-          <mesh position={[xPos, 0.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
-          {/* Rel Horizontal Tengah (y: 1.45) */}
-          <mesh position={[xPos, 1.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.04, 0.04, sideLength, 8]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
-          {/* Rel Horizontal Atas (y: 2.45) */}
-          <mesh position={[xPos, 2.45, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.05, 0.05, sideLength, 8]} />
-            <meshBasicMaterial color="#38bdf8" />
-          </mesh>
+      {/* 3. Under-Deck Floating Tech Keel / Inverse Sub-hull */}
+      <mesh position={[0, -2.8, 0]}>
+        <boxGeometry args={[sideLen * 0.88, 1.4, sideLen * 0.88]} />
+        <meshStandardMaterial color="#050914" roughness={0.4} metalness={0.95} />
+      </mesh>
+      <mesh position={[0, -3.5, 0]}>
+        <boxGeometry args={[sideLen * 0.88 + 0.1, 0.04, sideLen * 0.88 + 0.1]} />
+        <meshBasicMaterial color="#38bdf8" wireframe />
+      </mesh>
 
-          {/* Panel Forcefield Neon Kaca */}
-          <mesh position={[xPos, 1.35, 0]}>
-            <boxGeometry args={[0.06, 2.5, sideLength]} />
-            <meshBasicMaterial color="#38bdf8" transparent opacity={0.14} wireframe />
-          </mesh>
-
-          {/* Tiang Pylon Vertikal Setiap 8m */}
-          {pylonPositions.map((pz, pIdx) => (
-            <group key={`we-pylon-${sIdx}-${pIdx}`} position={[xPos, 0, pz]}>
-              <mesh position={[0, 1.35, 0]} castShadow>
-                <boxGeometry args={[0.26, 2.7, 0.26]} />
-                <meshStandardMaterial color="#090f1d" metalness={0.9} roughness={0.2} />
-              </mesh>
-              <mesh position={[0, 1.35, 0]}>
-                <boxGeometry args={[0.28, 2.72, 0.28]} />
-                <meshBasicMaterial color="#38bdf8" wireframe />
-              </mesh>
-              <mesh position={[0, 2.75, 0]}>
-                <cylinderGeometry args={[0.06, 0.06, 0.15, 8]} />
-                <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={2.5} />
-              </mesh>
-            </group>
-          ))}
-        </group>
-      ))}
+      {/* 4. Soft Underside Void Ambient Glow */}
+      <pointLight color="#0284c7" intensity={8} distance={38} position={[0, -8, 0]} />
     </group>
   );
 }
 
 /* ============================================================
-   CYBER METAVERSE ARENA (Ground, Nexus, Platforms, Jump Pads, Fence)
+   CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena() {
-  const floorTex = useMemo(() => getCyberFloorTexture(), []);
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
   const haloRingsRef = useRef<THREE.Group>(null);
 
@@ -535,14 +528,11 @@ function CyberMetaverseArena() {
 
   return (
     <group>
-      {/* Endless Cyber Base Floor (Diperluas ke 180m x 180m) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[180, 180]} />
-        <meshStandardMaterial map={floorTex} roughness={0.4} metalness={0.6} />
-      </mesh>
+      {/* 1. Floating Digital Island (Ukuran 110m x 110m Tanpa Pagar Kaku) */}
+      <FloatingDigitalIsland size={55.0} />
 
-      {/* Pagar Pembatas Keliling Arena (128m x 128m) */}
-      <CyberPerimeterFence size={64.0} />
+      {/* 2. Cosmic Abyss Dust Particles (Melayang di Ruang Hampa Sekitar Pulau) */}
+      <FloatingCosmicStardust count={150} radius={95} />
 
       {/* Central Nexus Teleport Disc */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, 0]} receiveShadow>
@@ -2179,7 +2169,9 @@ function World({
     car.speed = hasMoveInput ? hSpeed : (hSpeed > 0.08 ? hSpeed : 0);
 
     /* ---- Vertical Physics, Ground Elevation & Platforms ---- */
-    let groundY = 0;
+    const ISLAND_SIZE = 55.0;
+    const onIsland = Math.abs(car.pos.x) <= ISLAND_SIZE && Math.abs(car.pos.z) <= ISLAND_SIZE;
+    let groundY = onIsland ? 0 : -999;
     for (const plat of ELEVATED_PLATFORMS) {
       const halfW = plat.w / 2;
       const halfD = plat.d / 2;
@@ -2278,7 +2270,16 @@ function World({
       }
     }
 
-    /* ---- Elastic Arena Bounds ---- */
+    /* ---- Void Fall Auto-Respawn (Jatuh Bebas ke Jurang Kosmis) ---- */
+    if (car.pos.y < -7.5) {
+      car.pos.set(0.0, 0.2, 1.8);
+      vel.current.x = 0;
+      vel.current.y = 0;
+      vel.current.z = 0;
+      playTeleportSound();
+    }
+
+    /* ---- Elastic Outer Cosmic Bounds ---- */
     if (Math.abs(car.pos.x) > ARENA_BOUND) {
       const n = Math.sign(car.pos.x);
       car.pos.x = n * ARENA_BOUND;
