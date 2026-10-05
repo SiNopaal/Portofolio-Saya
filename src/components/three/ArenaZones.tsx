@@ -164,9 +164,17 @@ export const TELEPORT_DESTINATIONS = [
     color: "#ec4899",
   },
   {
+    id: "stack",
+    name: "Tech Arsenal",
+    badge: "04. Next.js, TS & LLMs",
+    icon: "⚡",
+    pos: [-8.5, 0.2, -8.5] as [number, number, number],
+    color: "#a855f7",
+  },
+  {
     id: "contact",
     name: "Get in Touch",
-    badge: "04. WhatsApp & GitHub",
+    badge: "05. WhatsApp & GitHub",
     icon: "📱",
     pos: [8.5, 0.2, -8.5] as [number, number, number],
     color: "#f59e0b",
@@ -199,41 +207,41 @@ function createKioskTexture(selectedId: string): THREE.CanvasTexture {
 
   // Header bar
   ctx.fillStyle = "#0e172a";
-  ctx.fillRect(12, 12, 488, 72);
+  ctx.fillRect(12, 12, 488, 64);
   ctx.fillStyle = "#38bdf8";
-  ctx.font = "bold 26px monospace";
-  ctx.fillText("⚡ TELEPORT KIOSK", 28, 54);
+  ctx.font = "bold 25px monospace";
+  ctx.fillText("⚡ TELEPORT KIOSK", 28, 50);
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = "14px monospace";
-  ctx.fillText("CLICK TO SELECT", 320, 54);
+  ctx.fillText("CLICK TO SELECT", 320, 50);
 
-  // 5 Destination buttons
+  // 6 Destination buttons
   TELEPORT_DESTINATIONS.forEach((d, idx) => {
-    const y = 96 + idx * 72;
+    const y = 84 + idx * 64;
     const isSel = d.id === selectedId;
 
     ctx.fillStyle = isSel ? "rgba(56, 189, 248, 0.25)" : "rgba(15, 23, 42, 0.85)";
-    ctx.fillRect(24, y, 464, 62);
+    ctx.fillRect(24, y, 464, 56);
 
     ctx.strokeStyle = isSel ? "#38bdf8" : "rgba(255, 255, 255, 0.15)";
     ctx.lineWidth = isSel ? 3 : 1;
-    ctx.strokeRect(24, y, 464, 62);
+    ctx.strokeRect(24, y, 464, 56);
 
     ctx.fillStyle = isSel ? "#ffffff" : "#cbd5e1";
-    ctx.font = "bold 21px sans-serif";
-    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 38);
+    ctx.font = "bold 20px sans-serif";
+    ctx.fillText(`${d.icon}  ${d.name}`, 38, y + 35);
 
     ctx.fillStyle = isSel ? "#38bdf8" : "#64748b";
-    ctx.font = "13px monospace";
-    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 260, y + 38);
+    ctx.font = "12px monospace";
+    ctx.fillText(isSel ? "● ACTIVE TARGET" : d.badge, 260, y + 35);
   });
 
   // Footer status bar
   ctx.fillStyle = "#38bdf8";
-  ctx.font = "bold 16px monospace";
+  ctx.font = "bold 15px monospace";
   ctx.textAlign = "center";
-  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 486);
+  ctx.fillText(">>> WALK INTO PORTAL TO WARP <<<", 256, 484);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
@@ -1243,11 +1251,9 @@ export function CyberTeleportStation({
             <meshBasicMaterial map={kioskTex} toneMapped={false} />
           </mesh>
 
-          {/* 5 Interactive Clickable Zones on the Screen */}
+          {/* 6 Interactive Clickable Zones on the Screen */}
           {TELEPORT_DESTINATIONS.map((dest, i) => {
-            // Y positions mapped to the 5 rows on the 512x512 canvas texture
-            // Row 0: y ~ 0.42, Row 1: y ~ 0.22, Row 2: y ~ 0.02, Row 3: y ~ -0.18, Row 4: y ~ -0.38
-            const btnY = 0.42 - i * 0.20;
+            const btnY = 0.40 - i * 0.162;
             return (
               <mesh
                 key={dest.id}
@@ -1257,7 +1263,7 @@ export function CyberTeleportStation({
                   setSelectedDestId(dest.id);
                 }}
               >
-                <planeGeometry args={[1.44, 0.17]} />
+                <planeGeometry args={[1.44, 0.145]} />
                 <meshBasicMaterial transparent opacity={0} depthWrite={false} />
               </mesh>
             );

@@ -90,9 +90,20 @@ const landmarks: LandmarkData[] = [
     accent: "border-pink-500/40 bg-pink-600/10 text-pink-300",
   },
   {
+    id: "stack",
+    label: "STACK",
+    index: "04",
+    title: "Tech Arsenal",
+    description: "Next.js, React, TypeScript, Figma, Python Bot Scripting, & LLMs.",
+    href: "#stack",
+    position: [-8.5, 0, -8.5],
+    color: "#a855f7",
+    accent: "border-purple-500/40 bg-purple-600/10 text-purple-300",
+  },
+  {
     id: "contact",
     label: "CONTACT",
-    index: "04",
+    index: "05",
     title: "Get in Touch",
     description: "WhatsApp, Email, LinkedIn, GitHub, & verified CV.",
     href: "#contact",
@@ -131,10 +142,11 @@ interface SolidObstacle {
 }
 
 const SOLID_OBSTACLES: SolidObstacle[] = [
-  // 1. Sci-Fi Monolith Pillars (Projects, Terminal, About, Contact)
+  // 1. Sci-Fi Monolith Pillars (Projects, Terminal, About, Stack, Contact)
   { x: -8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 0.0, z: 11.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
+  { x: -8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
 
   // 2. Teleport Station Stargate di Lokasi Bekas Tower (z: -14.5)
