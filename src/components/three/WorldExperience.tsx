@@ -188,6 +188,16 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: -26.3, z: 26.3, r: 1.25, minY: 0.0, maxY: 2.5 },
   // Corner 4: Clean Architecture Hexagonal Core Altar (SE: [32, 32])
   { x: 32.0, z: 32.0, r: 1.4, minY: 0.0, maxY: 2.5 },
+
+  // 4. Four Cardinal Themed Lounges & Grand Trees
+  // South Edge: Grand Ancient Sakura Tree ([0, 0, 32] + local z: 3.4)
+  { x: 0.0, z: 35.4, r: 0.85, minY: 0.0, maxY: 5.0 },
+  // North Edge: Grand Silver Willow Tree ([0, 0, -32] - local z: 3.4)
+  { x: 0.0, z: -35.4, r: 0.85, minY: 0.0, maxY: 5.0 },
+  // West Edge: Grand Cyber Matsu Pine Tree ([-32, 0, 0] - local x: 3.4)
+  { x: -35.4, z: 0.0, r: 0.85, minY: 0.0, maxY: 5.0 },
+  // East Edge: Grand Aurora Wisteria Tree ([32, 0, 0] + local x: 3.4)
+  { x: 35.4, z: 0.0, r: 0.85, minY: 0.0, maxY: 5.0 },
 ];
 
 /* ============================================================
@@ -4608,6 +4618,1321 @@ function CyberFirepitChillLounge({ position = [0, 0, 32] }: { position?: [number
 }
 
 /* ============================================================
+   NORTH EDGE: CELESTIAL MOON SANCTUARY & GRAND SILVER WILLOW TREE [0, 0, -32]
+   - Center: Celestial Moon Pool with floating Astral Moon Orb & Gyro rings
+   - Perimeter: Midnight curved benches with cyan neon underglow
+   - Canopy: Grand Silver Willow Tree (Pohon Dedalu Perak Kosmik) with cascading weeping foliage & drifting starlight spores
+============================================================ */
+
+function CelestialMoonFountain() {
+  const moonOrbRef = useRef<THREE.Mesh>(null);
+  const gyroRing1Ref = useRef<THREE.Group>(null);
+  const gyroRing2Ref = useRef<THREE.Group>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  const stardustRef = useRef<THREE.Points>(null);
+
+  const stardustPositions = useMemo(() => {
+    const arr = new Float32Array(24 * 3);
+    for (let i = 0; i < 24; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 0.9;
+      arr[i * 3 + 1] = Math.random() * 2.0 + 0.1;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.9;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (moonOrbRef.current) {
+      moonOrbRef.current.rotation.y += delta * 0.5;
+      moonOrbRef.current.position.y = 0.52 + Math.sin(t * 1.8) * 0.05;
+    }
+    if (gyroRing1Ref.current) {
+      gyroRing1Ref.current.rotation.z += delta * 1.2;
+      gyroRing1Ref.current.rotation.x = Math.PI / 4 + Math.sin(t * 1.2) * 0.12;
+    }
+    if (gyroRing2Ref.current) {
+      gyroRing2Ref.current.rotation.y -= delta * 0.9;
+      gyroRing2Ref.current.rotation.z = Math.PI / 6 + Math.cos(t * 1.4) * 0.1;
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 2.0 + Math.sin(t * 2.2) * 0.3;
+    }
+    if (stardustRef.current) {
+      const geo = stardustRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 24; i++) {
+        pos[i * 3 + 1] += delta * (0.4 + (i % 4) * 0.1);
+        pos[i * 3] += Math.sin(t * 1.5 + i) * 0.003;
+        pos[i * 3 + 2] += Math.cos(t * 1.5 + i) * 0.003;
+        if (pos[i * 3 + 1] > 2.2) {
+          pos[i * 3 + 1] = 0.15;
+          pos[i * 3] = (Math.random() - 0.5) * 0.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 0.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Outer Polished Basalt Basin Lip */}
+      <mesh position={[0, 0.08, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.2, 1.3, 0.16, 28]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.7} metalness={0.3} />
+      </mesh>
+      {/* Inner Metallic Water Well */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[1.0, 1.0, 0.14, 28]} />
+        <meshStandardMaterial color="#090d16" roughness={0.3} metalness={0.8} />
+      </mesh>
+      {/* Mirror-finish Dark Cosmic Water Surface */}
+      <mesh position={[0, 0.14, 0]}>
+        <cylinderGeometry args={[0.88, 0.88, 0.03, 24]} />
+        <meshStandardMaterial color="#0284c7" roughness={0.1} metalness={0.9} emissive="#0369a1" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Floating Lunar Water Ripples */}
+      <mesh position={[0, 0.156, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.55, 0.58, 28]} />
+        <meshBasicMaterial color="#38bdf8" opacity={0.65} transparent />
+      </mesh>
+      <mesh position={[0, 0.156, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.28, 0.3, 24]} />
+        <meshBasicMaterial color="#7dd3fc" opacity={0.8} transparent />
+      </mesh>
+
+      {/* Central Floating Astral Moon Orb */}
+      <mesh ref={moonOrbRef} position={[0, 0.52, 0]} castShadow>
+        <sphereGeometry args={[0.32, 24, 24]} />
+        <meshStandardMaterial
+          color="#f0f9ff"
+          emissive="#38bdf8"
+          emissiveIntensity={1.3}
+          roughness={0.2}
+          metalness={0.1}
+        />
+      </mesh>
+
+      {/* Gyroscopic Orbital Astral Rings */}
+      <group ref={gyroRing1Ref} position={[0, 0.52, 0]}>
+        <mesh>
+          <torusGeometry args={[0.54, 0.014, 12, 36]} />
+          <meshBasicMaterial color="#7dd3fc" opacity={0.85} transparent />
+        </mesh>
+      </group>
+      <group ref={gyroRing2Ref} position={[0, 0.52, 0]}>
+        <mesh>
+          <torusGeometry args={[0.44, 0.012, 12, 36]} />
+          <meshBasicMaterial color="#38bdf8" opacity={0.65} transparent />
+        </mesh>
+      </group>
+
+      {/* Floating Stardust Points */}
+      <points ref={stardustRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[stardustPositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.06} color="#7dd3fc" transparent opacity={0.85} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Moonlight PointLight */}
+      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#38bdf8" intensity={2.2} distance={10} castShadow />
+    </group>
+  );
+}
+
+function CelestialCurvedBenches() {
+  const benchAngles = [
+    { angleMid: 50 },
+    { angleMid: 95 },
+    { angleMid: 140 },
+    { angleMid: 220 },
+    { angleMid: 265 },
+    { angleMid: 310 },
+  ];
+
+  return (
+    <group>
+      {benchAngles.map((b, idx) => {
+        const radMid = (b.angleMid * Math.PI) / 180;
+        const bx = Math.cos(radMid) * 2.75;
+        const bz = Math.sin(radMid) * 2.75;
+        const rotY = -radMid + Math.PI / 2;
+
+        return (
+          <group key={`celestial-bench-${idx}`} position={[bx, 0, bz]} rotation={[0, rotY, 0]}>
+            <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.4, 0.08, 0.55]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.6} metalness={0.3} />
+            </mesh>
+            <mesh position={[0, 0.38, 0.24]} castShadow>
+              <boxGeometry args={[1.36, 0.26, 0.08]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.7} />
+            </mesh>
+            {[-0.55, 0.55].map((lx, lIdx) => (
+              <mesh key={`c-leg-${lIdx}`} position={[lx, 0.1, 0]}>
+                <boxGeometry args={[0.08, 0.2, 0.45]} />
+                <meshStandardMaterial color="#0b0f19" metalness={0.9} roughness={0.2} />
+              </mesh>
+            ))}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[1.3, 0.02, 0.04]} />
+              <meshBasicMaterial color="#38bdf8" opacity={0.75} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Cyber Celestial Side Tables */}
+      {[-65, 65].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        const tx = Math.sin(rad) * 3.1;
+        const tz = Math.cos(rad) * 3.1;
+        return (
+          <group key={`c-table-${i}`} position={[tx, 0, tz]}>
+            <mesh position={[0, 0.15, 0]} castShadow>
+              <cylinderGeometry args={[0.3, 0.32, 0.3, 16]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.4} metalness={0.6} />
+            </mesh>
+            <mesh position={[0, 0.305, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.18, 0.22, 16]} />
+              <meshBasicMaterial color="#7dd3fc" opacity={0.75} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function GrandSilverWillowTree({ position = [0, 0, 3.4] }: { position?: [number, number, number] }) {
+  const foliageRef = useRef<THREE.Group>(null);
+  const stardustRef = useRef<THREE.Points>(null);
+  const crystalsRef = useRef<THREE.Group>(null);
+
+  const sporePositions = useMemo(() => {
+    const arr = new Float32Array(32 * 3);
+    for (let i = 0; i < 32; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 5.2;
+      arr[i * 3 + 1] = Math.random() * 4.5 + 1.0;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 5.2;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (foliageRef.current) {
+      foliageRef.current.rotation.y = Math.sin(t * 0.5) * 0.02;
+      foliageRef.current.rotation.z = Math.cos(t * 0.7) * 0.015;
+    }
+    if (crystalsRef.current) {
+      crystalsRef.current.rotation.z = Math.sin(t * 1.3) * 0.035;
+    }
+    if (stardustRef.current) {
+      const geo = stardustRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 32; i++) {
+        pos[i * 3 + 1] -= delta * (0.32 + (i % 4) * 0.08);
+        pos[i * 3] += Math.sin(t * 1.1 + i) * 0.004;
+        pos[i * 3 + 2] += Math.cos(t * 1.0 + i) * 0.004;
+        if (pos[i * 3 + 1] < 0.1) {
+          pos[i * 3 + 1] = 5.2;
+          pos[i * 3] = (Math.random() - 0.5) * 4.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 4.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Root Base Flare */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <coneGeometry args={[1.2, 0.55, 10]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.85} />
+      </mesh>
+
+      {/* Massive Silver-Weathered Willow Trunk */}
+      <mesh position={[0, 1.1, 0]} rotation={[-0.06, -0.2, 0.08]} castShadow>
+        <cylinderGeometry args={[0.58, 0.82, 1.6, 12]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
+      </mesh>
+      <mesh position={[0.1, 2.4, -0.1]} rotation={[0.1, -0.3, -0.08]} castShadow>
+        <cylinderGeometry args={[0.46, 0.58, 1.5, 12]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
+      </mesh>
+      <mesh position={[0.15, 3.6, 0.1]} rotation={[-0.12, -0.1, 0.12]} castShadow>
+        <cylinderGeometry args={[0.34, 0.46, 1.4, 10]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
+      </mesh>
+
+      {/* Arching High Willow Branches spreading outward and drooping */}
+      <mesh position={[0, 3.8, -1.2]} rotation={[-0.85, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.16, 0.28, 2.4, 8]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+      </mesh>
+      <mesh position={[-1.3, 3.9, 0.1]} rotation={[0.2, 0.3, 0.9]} castShadow>
+        <cylinderGeometry args={[0.15, 0.26, 2.3, 8]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+      </mesh>
+      <mesh position={[1.3, 3.8, 0.0]} rotation={[-0.15, -0.35, -0.88]} castShadow>
+        <cylinderGeometry args={[0.15, 0.26, 2.2, 8]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 4.2, 1.1]} rotation={[0.75, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.15, 0.25, 2.0, 8]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.8} />
+      </mesh>
+
+      {/* Weeping Willow Umbrella Crown & Cascading Drapery Curtains */}
+      <group ref={foliageRef}>
+        {/* Top Slender Umbrella Dome */}
+        <mesh position={[0, 5.2, -0.2]} castShadow>
+          <sphereGeometry args={[2.2, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.45]} />
+          <meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.3} roughness={0.65} side={THREE.DoubleSide} />
+        </mesh>
+        <mesh position={[0, 5.6, -0.2]} castShadow>
+          <sphereGeometry args={[1.5, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+          <meshStandardMaterial color="#bae6fd" emissive="#0369a1" emissiveIntensity={0.35} roughness={0.6} side={THREE.DoubleSide} />
+        </mesh>
+
+        {/* Outer Ring of Cascading Drooping Weeping Fronds (Curtains hanging down towards pool) */}
+        {[
+          [0.0, 3.6, -2.4, 2.6],
+          [-1.1, 3.7, -2.1, 2.4],
+          [1.1, 3.7, -2.1, 2.4],
+          [-2.0, 3.8, -1.0, 2.5],
+          [2.0, 3.8, -1.0, 2.5],
+          [-2.3, 3.9, 0.4, 2.3],
+          [2.3, 3.9, 0.4, 2.3],
+          [-1.4, 3.9, 1.6, 2.2],
+          [1.4, 3.9, 1.6, 2.2],
+          [0.0, 4.0, 1.9, 2.3],
+        ].map(([wx, wy, wz, h], idx) => (
+          <mesh key={`outer-willow-${idx}`} position={[wx, wy, wz]} rotation={[0.08, idx * 0.6, 0]}>
+            <coneGeometry args={[0.38, h, 8]} />
+            <meshStandardMaterial
+              color={idx % 2 === 0 ? "#7dd3fc" : "#38bdf8"}
+              emissive="#0284c7"
+              emissiveIntensity={0.32}
+              opacity={0.88}
+              transparent
+            />
+          </mesh>
+        ))}
+
+        {/* Inner Ring of Weeping Willow Tendrils (Closer to Trunk, Drooping Lower) */}
+        {[
+          [-0.6, 3.2, -1.5, 2.2],
+          [0.6, 3.2, -1.5, 2.2],
+          [-1.3, 3.3, -0.3, 2.1],
+          [1.3, 3.3, -0.3, 2.1],
+          [-0.7, 3.4, 0.9, 2.0],
+          [0.7, 3.4, 0.9, 2.0],
+          [0.0, 3.0, -1.9, 2.4],
+        ].map(([wx, wy, wz, h], idx) => (
+          <mesh key={`inner-willow-${idx}`} position={[wx, wy, wz]}>
+            <coneGeometry args={[0.28, h, 7]} />
+            <meshStandardMaterial
+              color="#bae6fd"
+              emissive="#0284c7"
+              emissiveIntensity={0.38}
+              opacity={0.92}
+              transparent
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Hanging Starlight Crystals dangling on delicate silver cords */}
+      <group ref={crystalsRef}>
+        {[
+          [-0.9, 2.3, -1.7],
+          [0.9, 2.3, -1.7],
+          [-1.7, 2.4, -0.6],
+          [1.7, 2.4, -0.6],
+          [0.0, 2.1, -2.3],
+        ].map(([lx, ly, lz], idx) => (
+          <group key={`hanging-crystal-${idx}`} position={[lx, ly, lz]}>
+            <mesh position={[0, 0.35, 0]}>
+              <cylinderGeometry args={[0.006, 0.006, 0.7, 6]} />
+              <meshBasicMaterial color="#94a3b8" />
+            </mesh>
+            <mesh position={[0, -0.05, 0]} castShadow>
+              <octahedronGeometry args={[0.15, 0]} />
+              <meshStandardMaterial color="#f0f9ff" emissive="#38bdf8" emissiveIntensity={1.2} roughness={0.15} metalness={0.8} />
+            </mesh>
+            <pointLight position={[0, -0.05, 0]} color="#7dd3fc" intensity={0.5} distance={3.0} />
+          </group>
+        ))}
+      </group>
+
+      {/* Drifting Lunar Spores */}
+      <points ref={stardustRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[sporePositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.075} color="#7dd3fc" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Tree Base Spotlight upward */}
+      <pointLight position={[0, 0.6, 0.8]} color="#38bdf8" intensity={1.2} distance={7} />
+    </group>
+  );
+}
+
+function CelestialMoonSanctuary({ position = [0, 0, -32] }: { position?: [number, number, number] }) {
+  return (
+    <group position={position} rotation={[0, Math.PI, 0]}>
+      {/* 1. Circular Obsidian Flagstone Terrace Patio */}
+      <mesh position={[0, 0.03, 0]} receiveShadow>
+        <cylinderGeometry args={[5.8, 6.1, 0.06, 36]} />
+        <meshStandardMaterial color="#090d16" roughness={0.85} metalness={0.15} />
+      </mesh>
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[6.15, 6.3, 0.03, 36]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.8} />
+      </mesh>
+
+      {/* Concentric Inlaid Glowing Paving Rings on the Patio */}
+      <group position={[0, 0.062, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[1.9, 1.93, 36]} />
+          <meshBasicMaterial color="#38bdf8" opacity={0.5} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[3.8, 3.83, 36]} />
+          <meshBasicMaterial color="#7dd3fc" opacity={0.4} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[5.4, 5.43, 36]} />
+          <meshBasicMaterial color="#0284c7" opacity={0.3} transparent />
+        </mesh>
+      </group>
+
+      {/* South Entrance Stepping Stones Pathway connecting from Promenade */}
+      {[-3.6, -4.3, -5.0].map((pz, i) => (
+        <mesh key={`c-stone-${i}`} position={[0, 0.065, pz]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <boxGeometry args={[1.5, 0.52, 0.01]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Twin Entrance Stanchions */}
+      <group position={[0, 0, -4.8]}>
+        {[-1.2, 1.2].map((sx, i) => (
+          <group key={`c-stanchion-${i}`} position={[sx, 0, 0]}>
+            <mesh position={[0, 0.45, 0]} castShadow>
+              <cylinderGeometry args={[0.04, 0.06, 0.9, 12]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.92, 0]}>
+              <sphereGeometry args={[0.05, 12, 12]} />
+              <meshStandardMaterial color="#e0f2fe" emissive="#38bdf8" emissiveIntensity={1.3} />
+            </mesh>
+            <pointLight position={[0, 0.92, 0]} color="#38bdf8" intensity={0.4} distance={2.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* 2. Central Celestial Moon Fountain */}
+      <CelestialMoonFountain />
+
+      {/* 3. Semicircular Curved Ergonomic Neon Benches */}
+      <CelestialCurvedBenches />
+
+      {/* 4. Pohon Besar: Majestic Grand Silver Willow Tree */}
+      <GrandSilverWillowTree position={[0, 0, 3.4]} />
+    </group>
+  );
+}
+
+/* ============================================================
+   WEST EDGE: CYBER ZEN TEA PAVILION & GRAND CYBER MATSU PINE TREE [-32, 0, 0]
+   - Center: Kinetic Cairn Tea Hearth with levitating smooth jade river stones
+   - Perimeter: Charred cedar & tatami benches with emerald neon underglow
+   - Canopy: Grand Cyber Matsu Pine Tree (Pohon Pinus Hitam Jepang / Giant Cloud-Pruned Niwaki Pine) with stepped cloud needle pads & golden-emerald spores
+============================================================ */
+
+function KineticCairnTeaTable() {
+  const rock1Ref = useRef<THREE.Mesh>(null);
+  const rock2Ref = useRef<THREE.Mesh>(null);
+  const rock3Ref = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Group>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  const mistRef = useRef<THREE.Points>(null);
+
+  const mistPositions = useMemo(() => {
+    const arr = new Float32Array(24 * 3);
+    for (let i = 0; i < 24; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 0.85;
+      arr[i * 3 + 1] = Math.random() * 1.8 + 0.1;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.85;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (rock1Ref.current) {
+      rock1Ref.current.rotation.y += delta * 0.7;
+      rock1Ref.current.position.y = 0.38 + Math.sin(t * 1.6) * 0.03;
+    }
+    if (rock2Ref.current) {
+      rock2Ref.current.rotation.y -= delta * 0.9;
+      rock2Ref.current.position.y = 0.54 + Math.sin(t * 2.0 + 1.0) * 0.04;
+    }
+    if (rock3Ref.current) {
+      rock3Ref.current.rotation.y += delta * 1.1;
+      rock3Ref.current.position.y = 0.68 + Math.cos(t * 1.8) * 0.03;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z += delta * 1.4;
+      ringRef.current.rotation.x = Math.PI / 4 + Math.sin(t * 1.1) * 0.15;
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 2.1 + Math.sin(t * 2.5) * 0.25;
+    }
+    if (mistRef.current) {
+      const geo = mistRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 24; i++) {
+        pos[i * 3 + 1] += delta * (0.35 + (i % 4) * 0.1);
+        pos[i * 3] += Math.sin(t * 1.4 + i) * 0.003;
+        pos[i * 3 + 2] += Math.cos(t * 1.4 + i) * 0.003;
+        if (pos[i * 3 + 1] > 2.0) {
+          pos[i * 3 + 1] = 0.15;
+          pos[i * 3] = (Math.random() - 0.5) * 0.75;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 0.75;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Hexagonal Slate Hearth Plinth */}
+      <mesh position={[0, 0.08, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.2, 1.3, 0.16, 6]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.2} />
+      </mesh>
+      {/* Inner Cedar Hearth Basin */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.95, 0.95, 0.14, 6]} />
+        <meshStandardMaterial color="#0c0a09" roughness={0.5} metalness={0.6} />
+      </mesh>
+      {/* Dark Jade Polished Water Inset */}
+      <mesh position={[0, 0.14, 0]}>
+        <cylinderGeometry args={[0.82, 0.82, 0.03, 16]} />
+        <meshStandardMaterial color="#064e3b" roughness={0.2} metalness={0.6} emissive="#059669" emissiveIntensity={0.4} />
+      </mesh>
+
+      {/* Orbiting Emerald Energy Ring */}
+      <group ref={ringRef} position={[0, 0.52, 0]}>
+        <mesh>
+          <torusGeometry args={[0.48, 0.014, 12, 32]} />
+          <meshBasicMaterial color="#34d399" opacity={0.75} transparent />
+        </mesh>
+      </group>
+
+      {/* Levitating Kinetic Jade Cairn Stones */}
+      {/* Stone 1: Broad flat river stone */}
+      <mesh ref={rock1Ref} position={[0, 0.38, 0]} castShadow>
+        <cylinderGeometry args={[0.28, 0.34, 0.1, 10]} />
+        <meshStandardMaterial color="#059669" emissive="#10b981" emissiveIntensity={0.6} roughness={0.3} metalness={0.4} />
+      </mesh>
+      {/* Stone 2: Smooth mid pebble */}
+      <mesh ref={rock2Ref} position={[0, 0.54, 0]} castShadow>
+        <dodecahedronGeometry args={[0.18]} />
+        <meshStandardMaterial color="#10b981" emissive="#059669" emissiveIntensity={0.7} roughness={0.3} metalness={0.3} />
+      </mesh>
+      {/* Stone 3: Crown droplet pebble */}
+      <mesh ref={rock3Ref} position={[0, 0.68, 0]} castShadow>
+        <octahedronGeometry args={[0.12, 0]} />
+        <meshStandardMaterial color="#6ee7b7" emissive="#34d399" emissiveIntensity={1.1} roughness={0.2} metalness={0.2} />
+      </mesh>
+
+      {/* Floating Emerald Tea Mist */}
+      <points ref={mistRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[mistPositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.065} color="#34d399" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Soothing Emerald Glow */}
+      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#10b981" intensity={2.2} distance={10} castShadow />
+    </group>
+  );
+}
+
+function ZenCedarBenches() {
+  const benchAngles = [
+    { angleMid: 50 },
+    { angleMid: 95 },
+    { angleMid: 140 },
+    { angleMid: 220 },
+    { angleMid: 265 },
+    { angleMid: 310 },
+  ];
+
+  return (
+    <group>
+      {benchAngles.map((b, idx) => {
+        const radMid = (b.angleMid * Math.PI) / 180;
+        const bx = Math.cos(radMid) * 2.75;
+        const bz = Math.sin(radMid) * 2.75;
+        const rotY = -radMid + Math.PI / 2;
+
+        return (
+          <group key={`zen-bench-${idx}`} position={[bx, 0, bz]} rotation={[0, rotY, 0]}>
+            <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.4, 0.08, 0.55]} />
+              <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.15} />
+            </mesh>
+            <mesh position={[0, 0.38, 0.24]} castShadow>
+              <boxGeometry args={[1.36, 0.26, 0.08]} />
+              <meshStandardMaterial color="#292524" roughness={0.85} />
+            </mesh>
+            {[-0.55, 0.55].map((lx, lIdx) => (
+              <mesh key={`z-leg-${lIdx}`} position={[lx, 0.1, 0]}>
+                <boxGeometry args={[0.08, 0.2, 0.45]} />
+                <meshStandardMaterial color="#0c0a09" metalness={0.85} roughness={0.3} />
+              </mesh>
+            ))}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[1.3, 0.02, 0.04]} />
+              <meshBasicMaterial color="#10b981" opacity={0.7} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Cyber Bamboo Drink Tables */}
+      {[-65, 65].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        const tx = Math.sin(rad) * 3.1;
+        const tz = Math.cos(rad) * 3.1;
+        return (
+          <group key={`z-table-${i}`} position={[tx, 0, tz]}>
+            <mesh position={[0, 0.15, 0]} castShadow>
+              <cylinderGeometry args={[0.3, 0.32, 0.3, 16]} />
+              <meshStandardMaterial color="#1c1917" roughness={0.5} metalness={0.5} />
+            </mesh>
+            <mesh position={[0, 0.305, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.18, 0.22, 16]} />
+              <meshBasicMaterial color="#34d399" opacity={0.75} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [number, number, number] }) {
+  const foliageRef = useRef<THREE.Group>(null);
+  const leafSporesRef = useRef<THREE.Points>(null);
+  const charmsRef = useRef<THREE.Group>(null);
+
+  const sporePositions = useMemo(() => {
+    const arr = new Float32Array(32 * 3);
+    for (let i = 0; i < 32; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 5.2;
+      arr[i * 3 + 1] = Math.random() * 4.5 + 1.0;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 5.2;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (foliageRef.current) {
+      foliageRef.current.rotation.y = Math.sin(t * 0.55) * 0.025;
+      foliageRef.current.rotation.x = Math.cos(t * 0.75) * 0.015;
+    }
+    if (charmsRef.current) {
+      charmsRef.current.rotation.z = Math.sin(t * 1.5) * 0.04;
+    }
+    if (leafSporesRef.current) {
+      const geo = leafSporesRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 32; i++) {
+        pos[i * 3 + 1] -= delta * (0.34 + (i % 4) * 0.09);
+        pos[i * 3] += Math.sin(t * 1.1 + i) * 0.005;
+        pos[i * 3 + 2] += Math.cos(t * 1.0 + i) * 0.005;
+        if (pos[i * 3 + 1] < 0.1) {
+          pos[i * 3 + 1] = 5.2;
+          pos[i * 3] = (Math.random() - 0.5) * 4.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 4.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Root Base Flare */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <coneGeometry args={[1.25, 0.55, 10]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.9} />
+      </mesh>
+
+      {/* Massive S-Curved Angular Japanese Pine Trunk (Muscular Niwaki silhouette) */}
+      <mesh position={[0, 0.9, 0]} rotation={[0.22, 0.1, -0.32]} castShadow>
+        <cylinderGeometry args={[0.58, 0.88, 1.4, 10]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
+      </mesh>
+      <mesh position={[-0.32, 2.0, 0.18]} rotation={[-0.28, 0.25, 0.35]} castShadow>
+        <cylinderGeometry args={[0.46, 0.58, 1.4, 10]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
+      </mesh>
+      <mesh position={[-0.05, 3.1, -0.1]} rotation={[0.3, -0.18, -0.22]} castShadow>
+        <cylinderGeometry args={[0.34, 0.46, 1.3, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
+      </mesh>
+      <mesh position={[0.18, 4.1, 0.05]} rotation={[-0.15, 0.2, 0.18]} castShadow>
+        <cylinderGeometry args={[0.24, 0.34, 1.2, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
+      </mesh>
+
+      {/* Muscular Stepped Horizontal Pine Branches */}
+      {/* 1. Low sweeping bough reaching over tea hearth */}
+      <mesh position={[0, 2.9, -1.2]} rotation={[-1.2, 0.2, 0]} castShadow>
+        <cylinderGeometry args={[0.16, 0.26, 2.2, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.9} />
+      </mesh>
+      {/* 2. Left cantilever bough */}
+      <mesh position={[-1.4, 3.4, 0.3]} rotation={[0.1, 0.2, 1.25]} castShadow>
+        <cylinderGeometry args={[0.15, 0.24, 2.1, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.9} />
+      </mesh>
+      {/* 3. Right stepped bough */}
+      <mesh position={[1.3, 3.6, -0.2]} rotation={[-0.1, -0.3, -1.2]} castShadow>
+        <cylinderGeometry args={[0.14, 0.22, 2.0, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.9} />
+      </mesh>
+
+      {/* Authentic Japanese Niwaki Cloud-Pruned Needle Pads (Tamabukuri flattened discs) */}
+      <group ref={foliageRef}>
+        {/* Tier 1: Low Front Cloud Pad (Sheltering over tea table) */}
+        <group position={[0, 3.3, -2.1]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[1.5, 1.7, 0.28, 16]} />
+            <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.35} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.16, 0]}>
+            <sphereGeometry args={[1.45, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+            <meshStandardMaterial color="#10b981" emissive="#059669" emissiveIntensity={0.38} roughness={0.7} />
+          </mesh>
+        </group>
+
+        {/* Tier 2: Left Stepped Cloud Pad */}
+        <group position={[-2.4, 3.8, 0.4]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[1.3, 1.5, 0.26, 16]} />
+            <meshStandardMaterial color="#047857" emissive="#065f46" emissiveIntensity={0.3} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.15, 0]}>
+            <sphereGeometry args={[1.25, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+            <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.35} roughness={0.7} />
+          </mesh>
+        </group>
+
+        {/* Tier 3: Right Stepped Cloud Pad */}
+        <group position={[2.3, 4.0, -0.3]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[1.4, 1.6, 0.26, 16]} />
+            <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.32} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.15, 0]}>
+            <sphereGeometry args={[1.35, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+            <meshStandardMaterial color="#10b981" emissive="#059669" emissiveIntensity={0.36} roughness={0.7} />
+          </mesh>
+        </group>
+
+        {/* Tier 4: Crown Zenith Cloud Pad (Top flattened plateau) */}
+        <group position={[0.2, 4.9, 0.1]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[1.6, 1.85, 0.3, 18]} />
+            <meshStandardMaterial color="#10b981" emissive="#059669" emissiveIntensity={0.4} roughness={0.75} />
+          </mesh>
+          <mesh position={[0, 0.18, 0]}>
+            <sphereGeometry args={[1.55, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+            <meshStandardMaterial color="#34d399" emissive="#10b981" emissiveIntensity={0.42} roughness={0.65} />
+          </mesh>
+        </group>
+
+        {/* Tier 5: High Rear Cloud Cushion */}
+        <group position={[-0.6, 4.4, 1.5]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[1.1, 1.3, 0.24, 14]} />
+            <meshStandardMaterial color="#047857" emissive="#065f46" emissiveIntensity={0.28} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.14, 0]}>
+            <sphereGeometry args={[1.05, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+            <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.32} roughness={0.7} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Hanging Sacred Shimenawa Charms & Bamboo Wind Chimes */}
+      <group ref={charmsRef}>
+        {[
+          [-1.1, 3.2, -1.3],
+          [1.1, 3.4, -1.1],
+          [-1.7, 3.3, 0.3],
+          [1.7, 3.5, 0.0],
+        ].map(([lx, ly, lz], idx) => (
+          <group key={`hanging-charm-${idx}`} position={[lx, ly, lz]}>
+            <mesh position={[0, 0.18, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.35, 6]} />
+              <meshBasicMaterial color="#78716c" />
+            </mesh>
+            <mesh position={[0, -0.1, 0]} castShadow>
+              <cylinderGeometry args={[0.05, 0.07, 0.28, 8]} />
+              <meshStandardMaterial color="#34d399" emissive="#059669" emissiveIntensity={0.85} roughness={0.3} />
+            </mesh>
+            <pointLight position={[0, -0.1, 0]} color="#6ee7b7" intensity={0.5} distance={3.0} />
+          </group>
+        ))}
+      </group>
+
+      {/* Drifting Golden-Green Spores */}
+      <points ref={leafSporesRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[sporePositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.075} color="#34d399" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Tree Base Spotlight upward */}
+      <pointLight position={[0, 0.6, 0.8]} color="#10b981" intensity={1.2} distance={7} />
+    </group>
+  );
+}
+
+function CyberZenTeaPavilion({ position = [-32, 0, 0] }: { position?: [number, number, number] }) {
+  return (
+    <group position={position} rotation={[0, -Math.PI / 2, 0]}>
+      {/* 1. Circular Flagstone Terrace Patio */}
+      <mesh position={[0, 0.03, 0]} receiveShadow>
+        <cylinderGeometry args={[5.8, 6.1, 0.06, 36]} />
+        <meshStandardMaterial color="#141a16" roughness={0.85} metalness={0.15} />
+      </mesh>
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[6.15, 6.3, 0.03, 36]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.8} />
+      </mesh>
+
+      {/* Concentric Inlaid Glowing Paving Rings on the Patio */}
+      <group position={[0, 0.062, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[1.9, 1.93, 36]} />
+          <meshBasicMaterial color="#10b981" opacity={0.5} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[3.8, 3.83, 36]} />
+          <meshBasicMaterial color="#34d399" opacity={0.4} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[5.4, 5.43, 36]} />
+          <meshBasicMaterial color="#059669" opacity={0.3} transparent />
+        </mesh>
+      </group>
+
+      {/* Entrance Stepping Stones */}
+      {[-3.6, -4.3, -5.0].map((pz, i) => (
+        <mesh key={`z-stone-${i}`} position={[0, 0.065, pz]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <boxGeometry args={[1.5, 0.52, 0.01]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Twin Entrance Stanchions */}
+      <group position={[0, 0, -4.8]}>
+        {[-1.2, 1.2].map((sx, i) => (
+          <group key={`z-stanchion-${i}`} position={[sx, 0, 0]}>
+            <mesh position={[0, 0.45, 0]} castShadow>
+              <cylinderGeometry args={[0.04, 0.06, 0.9, 12]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.92, 0]}>
+              <sphereGeometry args={[0.05, 12, 12]} />
+              <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={1.3} />
+            </mesh>
+            <pointLight position={[0, 0.92, 0]} color="#10b981" intensity={0.4} distance={2.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* 2. Central Kinetic Cairn Tea Hearth */}
+      <KineticCairnTeaTable />
+
+      {/* 3. Semicircular Curved Ergonomic Benches */}
+      <ZenCedarBenches />
+
+      {/* 4. Pohon Besar: Majestic Grand Cyber Matsu Pine Tree */}
+      <GrandCyberMatsuPineTree position={[0, 0, 3.4]} />
+    </group>
+  );
+}
+
+/* ============================================================
+   EAST EDGE: AURORA CRYSTAL GARDEN & GRAND AURORA WISTERIA TREE [32, 0, 0]
+   - Center: Levitating Amethyst Prism Monolith with orbiting crystal shards
+   - Perimeter: Basalt stone benches with violet neon underglow
+   - Canopy: Grand Aurora Wisteria Tree (Pohon Wisteria Violet Raksasa) with cascading weeping blooms & drifting purple pollen motes
+============================================================ */
+
+function AuroraPrismMonolith() {
+  const prismRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Group>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  const dustRef = useRef<THREE.Points>(null);
+  const orbitShard1Ref = useRef<THREE.Mesh>(null);
+  const orbitShard2Ref = useRef<THREE.Mesh>(null);
+
+  const dustPositions = useMemo(() => {
+    const arr = new Float32Array(24 * 3);
+    for (let i = 0; i < 24; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 0.85;
+      arr[i * 3 + 1] = Math.random() * 1.9 + 0.1;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.85;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (prismRef.current) {
+      prismRef.current.rotation.y += delta * 0.8;
+      prismRef.current.position.y = 0.52 + Math.sin(t * 1.7) * 0.04;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z -= delta * 1.3;
+      ringRef.current.rotation.x = Math.PI / 4 + Math.cos(t * 1.3) * 0.14;
+    }
+    if (orbitShard1Ref.current) {
+      const a = t * 1.2;
+      orbitShard1Ref.current.position.x = Math.cos(a) * 0.52;
+      orbitShard1Ref.current.position.z = Math.sin(a) * 0.52;
+      orbitShard1Ref.current.position.y = 0.48 + Math.sin(t * 2.4) * 0.05;
+      orbitShard1Ref.current.rotation.y += delta * 2.0;
+    }
+    if (orbitShard2Ref.current) {
+      const a = t * 1.2 + Math.PI;
+      orbitShard2Ref.current.position.x = Math.cos(a) * 0.44;
+      orbitShard2Ref.current.position.z = Math.sin(a) * 0.44;
+      orbitShard2Ref.current.position.y = 0.56 + Math.cos(t * 2.1) * 0.05;
+      orbitShard2Ref.current.rotation.y -= delta * 2.0;
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = 2.4 + Math.sin(t * 2.4) * 0.3;
+    }
+    if (dustRef.current) {
+      const geo = dustRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 24; i++) {
+        pos[i * 3 + 1] += delta * (0.38 + (i % 4) * 0.1);
+        pos[i * 3] += Math.sin(t * 1.3 + i) * 0.003;
+        pos[i * 3 + 2] += Math.cos(t * 1.3 + i) * 0.003;
+        if (pos[i * 3 + 1] > 2.2) {
+          pos[i * 3 + 1] = 0.15;
+          pos[i * 3] = (Math.random() - 0.5) * 0.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 0.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Outer Basalt Rock Hearth */}
+      <mesh position={[0, 0.08, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.2, 1.35, 0.16, 20]} />
+        <meshStandardMaterial color="#18181b" roughness={0.8} metalness={0.2} />
+      </mesh>
+      {/* Inner Obsidian Well */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.95, 0.95, 0.14, 20]} />
+        <meshStandardMaterial color="#09090b" roughness={0.3} metalness={0.7} />
+      </mesh>
+      {/* Violet Crystalline Bed */}
+      <mesh position={[0, 0.14, 0]}>
+        <cylinderGeometry args={[0.82, 0.82, 0.03, 16]} />
+        <meshStandardMaterial color="#4c1d95" roughness={0.2} metalness={0.8} emissive="#7c3aed" emissiveIntensity={0.6} />
+      </mesh>
+
+      {/* Orbiting Violet Resonance Ring */}
+      <group ref={ringRef} position={[0, 0.52, 0]}>
+        <mesh>
+          <torusGeometry args={[0.5, 0.014, 12, 32]} />
+          <meshBasicMaterial color="#c084fc" opacity={0.8} transparent />
+        </mesh>
+      </group>
+
+      {/* Levitating Hexagonal Amethyst Prism */}
+      <mesh ref={prismRef} position={[0, 0.52, 0]} castShadow>
+        <cylinderGeometry args={[0.2, 0.28, 0.65, 6]} />
+        <meshStandardMaterial
+          color="#f3e8ff"
+          emissive="#a855f7"
+          emissiveIntensity={1.8}
+          roughness={0.15}
+          metalness={0.2}
+        />
+      </mesh>
+
+      {/* Orbiting Satellite Shards */}
+      <mesh ref={orbitShard1Ref} position={[0.5, 0.48, 0]} castShadow>
+        <octahedronGeometry args={[0.1, 0]} />
+        <meshStandardMaterial color="#e9d5ff" emissive="#c084fc" emissiveIntensity={1.4} roughness={0.2} />
+      </mesh>
+      <mesh ref={orbitShard2Ref} position={[-0.44, 0.56, 0]} castShadow>
+        <octahedronGeometry args={[0.08, 0]} />
+        <meshStandardMaterial color="#e9d5ff" emissive="#c084fc" emissiveIntensity={1.4} roughness={0.2} />
+      </mesh>
+
+      {/* Floating Violet Dust Points */}
+      <points ref={dustRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[dustPositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.065} color="#c084fc" transparent opacity={0.85} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Violet Aurora Light */}
+      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#a855f7" intensity={2.4} distance={11} castShadow />
+    </group>
+  );
+}
+
+function AuroraBasaltBenches() {
+  const benchAngles = [
+    { angleMid: 50 },
+    { angleMid: 95 },
+    { angleMid: 140 },
+    { angleMid: 220 },
+    { angleMid: 265 },
+    { angleMid: 310 },
+  ];
+
+  return (
+    <group>
+      {benchAngles.map((b, idx) => {
+        const radMid = (b.angleMid * Math.PI) / 180;
+        const bx = Math.cos(radMid) * 2.75;
+        const bz = Math.sin(radMid) * 2.75;
+        const rotY = -radMid + Math.PI / 2;
+
+        return (
+          <group key={`aurora-bench-${idx}`} position={[bx, 0, bz]} rotation={[0, rotY, 0]}>
+            <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.4, 0.08, 0.55]} />
+              <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.25} />
+            </mesh>
+            <mesh position={[0, 0.38, 0.24]} castShadow>
+              <boxGeometry args={[1.36, 0.26, 0.08]} />
+              <meshStandardMaterial color="#27272a" roughness={0.8} />
+            </mesh>
+            {[-0.55, 0.55].map((lx, lIdx) => (
+              <mesh key={`a-leg-${lIdx}`} position={[lx, 0.1, 0]}>
+                <boxGeometry args={[0.08, 0.2, 0.45]} />
+                <meshStandardMaterial color="#09090b" metalness={0.9} roughness={0.2} />
+              </mesh>
+            ))}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[1.3, 0.02, 0.04]} />
+              <meshBasicMaterial color="#a855f7" opacity={0.75} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Cyber Amethyst Side Tables */}
+      {[-65, 65].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        const tx = Math.sin(rad) * 3.1;
+        const tz = Math.cos(rad) * 3.1;
+        return (
+          <group key={`a-table-${i}`} position={[tx, 0, tz]}>
+            <mesh position={[0, 0.15, 0]} castShadow>
+              <cylinderGeometry args={[0.3, 0.32, 0.3, 16]} />
+              <meshStandardMaterial color="#1e1b4b" roughness={0.4} metalness={0.6} />
+            </mesh>
+            <mesh position={[0, 0.305, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.18, 0.22, 16]} />
+              <meshBasicMaterial color="#c084fc" opacity={0.75} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function GrandAuroraWisteriaTree({ position = [0, 0, 3.4] }: { position?: [number, number, number] }) {
+  const foliageRef = useRef<THREE.Group>(null);
+  const pollenRef = useRef<THREE.Points>(null);
+  const orbsRef = useRef<THREE.Group>(null);
+
+  const sporePositions = useMemo(() => {
+    const arr = new Float32Array(32 * 3);
+    for (let i = 0; i < 32; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 5.2;
+      arr[i * 3 + 1] = Math.random() * 4.5 + 1.0;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 5.2;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (foliageRef.current) {
+      foliageRef.current.rotation.y = Math.sin(t * 0.6) * 0.025;
+      foliageRef.current.rotation.z = Math.cos(t * 0.8) * 0.015;
+    }
+    if (orbsRef.current) {
+      orbsRef.current.rotation.z = Math.sin(t * 1.4) * 0.04;
+    }
+    if (pollenRef.current) {
+      const geo = pollenRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 32; i++) {
+        pos[i * 3 + 1] -= delta * (0.35 + (i % 4) * 0.09);
+        pos[i * 3] += Math.sin(t * 1.2 + i) * 0.005;
+        pos[i * 3 + 2] += Math.cos(t * 1.0 + i) * 0.005;
+        if (pos[i * 3 + 1] < 0.1) {
+          pos[i * 3 + 1] = 5.2;
+          pos[i * 3] = (Math.random() - 0.5) * 4.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 4.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Root Base Flare */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <coneGeometry args={[1.2, 0.55, 10]} />
+        <meshStandardMaterial color="#18181b" roughness={0.9} />
+      </mesh>
+
+      {/* Massive Braided Multi-Stem Wisteria Vine Trunk (Spiraling twin vines) */}
+      <group position={[0, 0, 0]}>
+        {/* Vine Stem A (Spiraling left-to-right) */}
+        <mesh position={[-0.12, 1.1, 0.05]} rotation={[0.14, 0.4, -0.1]} castShadow>
+          <cylinderGeometry args={[0.38, 0.52, 1.6, 10]} />
+          <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
+        </mesh>
+        <mesh position={[0.08, 2.4, -0.06]} rotation={[-0.15, -0.3, 0.12]} castShadow>
+          <cylinderGeometry args={[0.32, 0.42, 1.5, 10]} />
+          <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
+        </mesh>
+        <mesh position={[-0.06, 3.6, 0.08]} rotation={[0.18, 0.25, -0.14]} castShadow>
+          <cylinderGeometry args={[0.26, 0.35, 1.4, 8]} />
+          <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
+        </mesh>
+
+        {/* Vine Stem B (Intertwined companion vine twisting counter-spiral) */}
+        <mesh position={[0.14, 1.05, -0.06]} rotation={[-0.12, -0.35, 0.15]} castShadow>
+          <cylinderGeometry args={[0.34, 0.48, 1.5, 10]} />
+          <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
+        </mesh>
+        <mesh position={[-0.1, 2.35, 0.08]} rotation={[0.16, 0.25, -0.14]} castShadow>
+          <cylinderGeometry args={[0.28, 0.38, 1.5, 10]} />
+          <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
+        </mesh>
+        <mesh position={[0.08, 3.55, -0.06]} rotation={[-0.15, -0.2, 0.12]} castShadow>
+          <cylinderGeometry args={[0.22, 0.3, 1.4, 8]} />
+          <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
+        </mesh>
+      </group>
+
+      {/* Overhead Spreading Arbor Boughs supporting the flower trellis */}
+      <mesh position={[0, 4.0, -1.2]} rotation={[-0.8, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.16, 0.24, 2.4, 8]} />
+        <meshStandardMaterial color="#262626" roughness={0.85} />
+      </mesh>
+      <mesh position={[-1.3, 4.1, 0.2]} rotation={[0.15, 0.2, 0.95]} castShadow>
+        <cylinderGeometry args={[0.15, 0.22, 2.3, 8]} />
+        <meshStandardMaterial color="#262626" roughness={0.85} />
+      </mesh>
+      <mesh position={[1.3, 4.0, -0.1]} rotation={[-0.12, -0.25, -0.92]} castShadow>
+        <cylinderGeometry args={[0.15, 0.22, 2.2, 8]} />
+        <meshStandardMaterial color="#262626" roughness={0.85} />
+      </mesh>
+      <mesh position={[0, 4.2, 1.1]} rotation={[0.78, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.14, 0.22, 2.1, 8]} />
+        <meshStandardMaterial color="#262626" roughness={0.85} />
+      </mesh>
+
+      {/* Overhead Wisteria Trellis Canopy & Cascading Floral Racemes */}
+      <group ref={foliageRef}>
+        {/* Overhead Horizontal Foliage Trellis Mat */}
+        <mesh position={[0, 4.8, -0.2]} castShadow>
+          <cylinderGeometry args={[2.5, 2.8, 0.35, 24]} />
+          <meshStandardMaterial color="#7e22ce" emissive="#581c87" emissiveIntensity={0.3} roughness={0.75} />
+        </mesh>
+        <mesh position={[0, 5.1, -0.2]}>
+          <cylinderGeometry args={[1.8, 2.2, 0.28, 20]} />
+          <meshStandardMaterial color="#a855f7" emissive="#7c3aed" emissiveIntensity={0.35} roughness={0.7} />
+        </mesh>
+        <mesh position={[0, 5.35, -0.2]}>
+          <sphereGeometry args={[1.2, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
+          <meshStandardMaterial color="#d8b4fe" emissive="#a855f7" emissiveIntensity={0.4} roughness={0.65} />
+        </mesh>
+
+        {/* Cascading Dangling Wisteria Flower Racemes (Long dripping clusters in purple ombre) */}
+        {(
+          [
+            // Outer curtain hanging down around perimeter
+            [0.0, 3.4, -2.4, 2.2, "#c084fc", "#a855f7"],
+            [-1.1, 3.5, -2.1, 2.0, "#a855f7", "#7c3aed"],
+            [1.1, 3.5, -2.1, 2.0, "#c084fc", "#a855f7"],
+            [-2.1, 3.6, -1.0, 2.1, "#d8b4fe", "#a855f7"],
+            [2.1, 3.6, -1.0, 2.1, "#a855f7", "#7c3aed"],
+            [-2.3, 3.7, 0.3, 1.9, "#c084fc", "#9333ea"],
+            [2.3, 3.7, 0.3, 1.9, "#e9d5ff", "#c084fc"],
+            [-1.4, 3.7, 1.5, 2.0, "#a855f7", "#7c3aed"],
+            [1.4, 3.7, 1.5, 2.0, "#c084fc", "#a855f7"],
+            [0.0, 3.8, 1.8, 2.1, "#d8b4fe", "#9333ea"],
+
+            // Inner curtain hanging closer to monolith
+            [-0.6, 3.1, -1.5, 2.3, "#e9d5ff", "#c084fc"],
+            [0.6, 3.1, -1.5, 2.3, "#c084fc", "#a855f7"],
+            [-1.2, 3.2, -0.3, 2.2, "#a855f7", "#7c3aed"],
+            [1.2, 3.2, -0.3, 2.2, "#d8b4fe", "#a855f7"],
+            [-0.6, 3.3, 0.8, 2.0, "#c084fc", "#9333ea"],
+            [0.6, 3.3, 0.8, 2.0, "#e9d5ff", "#c084fc"],
+          ] as [number, number, number, number, string, string][]
+        ).map(([wx, wy, wz, h, col, em], idx) => (
+          <mesh key={`wisteria-raceme-${idx}`} position={[wx, wy, wz]}>
+            <coneGeometry args={[0.32, h, 8]} />
+            <meshStandardMaterial
+              color={col}
+              emissive={em}
+              emissiveIntensity={0.35}
+              opacity={0.9}
+              transparent
+            />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Hanging Amethyst Rune Lanterns */}
+      <group ref={orbsRef}>
+        {[
+          [-1.2, 2.7, -1.2],
+          [1.2, 2.6, -1.2],
+          [-1.6, 2.8, 0.4],
+          [1.6, 2.7, 0.3],
+        ].map(([lx, ly, lz], idx) => (
+          <group key={`hanging-orb-${idx}`} position={[lx, ly, lz]}>
+            <mesh position={[0, 0.22, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.45, 6]} />
+              <meshBasicMaterial color="#64748b" />
+            </mesh>
+            <mesh position={[0, -0.14, 0]} castShadow>
+              <octahedronGeometry args={[0.15, 0]} />
+              <meshStandardMaterial color="#f3e8ff" emissive="#a855f7" emissiveIntensity={1.1} roughness={0.2} metalness={0.7} />
+            </mesh>
+            <pointLight position={[0, -0.14, 0]} color="#d8b4fe" intensity={0.55} distance={3.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* Drifting Violet Pollen Motes */}
+      <points ref={pollenRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[sporePositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial size={0.08} color="#c084fc" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
+      </points>
+
+      {/* Tree Base Spotlight upward */}
+      <pointLight position={[0, 0.6, 0.8]} color="#a855f7" intensity={1.2} distance={7} />
+    </group>
+  );
+}
+
+function AuroraCrystalGarden({ position = [32, 0, 0] }: { position?: [number, number, number] }) {
+  return (
+    <group position={position} rotation={[0, Math.PI / 2, 0]}>
+      {/* 1. Circular Flagstone Terrace Patio */}
+      <mesh position={[0, 0.03, 0]} receiveShadow>
+        <cylinderGeometry args={[5.8, 6.1, 0.06, 36]} />
+        <meshStandardMaterial color="#161224" roughness={0.85} metalness={0.15} />
+      </mesh>
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[6.15, 6.3, 0.03, 36]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.8} />
+      </mesh>
+
+      {/* Concentric Inlaid Glowing Paving Rings on the Patio */}
+      <group position={[0, 0.062, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[1.9, 1.93, 36]} />
+          <meshBasicMaterial color="#a855f7" opacity={0.5} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[3.8, 3.83, 36]} />
+          <meshBasicMaterial color="#c084fc" opacity={0.4} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[5.4, 5.43, 36]} />
+          <meshBasicMaterial color="#7c3aed" opacity={0.3} transparent />
+        </mesh>
+      </group>
+
+      {/* Entrance Stepping Stones */}
+      {[-3.6, -4.3, -5.0].map((pz, i) => (
+        <mesh key={`a-stone-${i}`} position={[0, 0.065, pz]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <boxGeometry args={[1.5, 0.52, 0.01]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Twin Entrance Stanchions */}
+      <group position={[0, 0, -4.8]}>
+        {[-1.2, 1.2].map((sx, i) => (
+          <group key={`a-stanchion-${i}`} position={[sx, 0, 0]}>
+            <mesh position={[0, 0.45, 0]} castShadow>
+              <cylinderGeometry args={[0.04, 0.06, 0.9, 12]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.92, 0]}>
+              <sphereGeometry args={[0.05, 12, 12]} />
+              <meshStandardMaterial color="#e9d5ff" emissive="#a855f7" emissiveIntensity={1.3} />
+            </mesh>
+            <pointLight position={[0, 0.92, 0]} color="#a855f7" intensity={0.4} distance={2.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* 2. Central Aurora Prism Monolith */}
+      <AuroraPrismMonolith />
+
+      {/* 3. Semicircular Curved Ergonomic Benches */}
+      <AuroraBasaltBenches />
+
+      {/* 4. Pohon Besar: Majestic Grand Aurora Wisteria Tree */}
+      <GrandAuroraWisteriaTree position={[0, 0, 3.4]} />
+    </group>
+  );
+}
+
+/* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena({
@@ -4699,6 +6024,15 @@ function CyberMetaverseArena({
 
       {/* South Edge: Cyber Firepit & Holographic Chill Lounge with Grand Ancient Sakura Tree */}
       <CyberFirepitChillLounge position={[0, 0, 32]} />
+
+      {/* North Edge: Celestial Moon Sanctuary & Astral Pool with Grand Silver Willow Tree */}
+      <CelestialMoonSanctuary position={[0, 0, -32]} />
+
+      {/* West Edge: Cyber Zen Tea Pavilion & Kinetic Stone Cairn with Grand Cyber Matsu Pine Tree */}
+      <CyberZenTeaPavilion position={[-32, 0, 0]} />
+
+      {/* East Edge: Aurora Crystal Garden & Levitating Amethyst Prism with Grand Aurora Wisteria Tree */}
+      <AuroraCrystalGarden position={[32, 0, 0]} />
 
       {/* 4. Zen-Minimalist Promenade Decorations (Floor Traces, Light Bollards & Solitary Trees) */}
       <FloorDataTraces />

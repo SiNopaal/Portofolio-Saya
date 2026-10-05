@@ -175,13 +175,16 @@ class MetaverseSpatialAmbientEngine {
 
     const t = this.ctx.currentTime;
 
-    // Distances to 4 corner zones and center
-    const dNW = Math.hypot(x - (-32), z - (-32)); // Programming & Tech
-    const dNE = Math.hypot(x - 32, z - (-32));   // Quantum AI
-    const dSW = Math.hypot(x - (-32), z - 32);    // DevOps Runway
-    const dSE = Math.hypot(x - 32, z - 32);      // Zen Sanctuary
-    const dLounge = Math.hypot(x - 0, z - 32);   // South Chill Firepit Lounge
-    const dCenter = Math.hypot(x, z);            // Plaza
+    // Distances to 4 corner zones, 4 cardinal lounges, and center
+    const dNW = Math.hypot(x - (-32), z - (-32));       // NW: Programming & Tech
+    const dNE = Math.hypot(x - 32, z - (-32));         // NE: Quantum AI
+    const dSW = Math.hypot(x - (-32), z - 32);          // SW: DevOps Runway
+    const dSE = Math.hypot(x - 32, z - 32);            // SE: Zen Sanctuary
+    const dSouthLounge = Math.hypot(x, z - 32);         // South: Cyber Firepit Lounge
+    const dNorthSanctuary = Math.hypot(x, z - (-32));   // North: Celestial Moon Sanctuary
+    const dWestPavilion = Math.hypot(x - (-32), z);     // West: Cyber Zen Tea Pavilion
+    const dEastGarden = Math.hypot(x - 32, z);          // East: Aurora Crystal Garden
+    const dCenter = Math.hypot(x, z);                  // Center Plaza
 
     let targetCutoff = 420;
     let targetSub = 0.0001;
@@ -206,11 +209,26 @@ class MetaverseSpatialAmbientEngine {
       const w = 1 - dSE / 24;
       targetCutoff = 460;
       targetShimmer = 0.0001 + w * 0.04;
-    } else if (dLounge < 16) {
+    } else if (dSouthLounge < 16) {
       // South Chill Lounge: Ultra-warm campfire pad with gentle ambient shimmer
-      const w = 1 - dLounge / 16;
+      const w = 1 - dSouthLounge / 16;
       targetCutoff = 380 + w * 60;
       targetShimmer = 0.0001 + w * 0.025;
+    } else if (dNorthSanctuary < 16) {
+      // North Moon Sanctuary: Crystalline nocturnal calm with celestial high overtone
+      const w = 1 - dNorthSanctuary / 16;
+      targetCutoff = 440 + w * 180;
+      targetShimmer = 0.0001 + w * 0.045;
+    } else if (dWestPavilion < 16) {
+      // West Tea Pavilion: Grounded zen organic tranquility
+      const w = 1 - dWestPavilion / 16;
+      targetCutoff = 410 + w * 90;
+      targetShimmer = 0.0001 + w * 0.02;
+    } else if (dEastGarden < 16) {
+      // East Crystal Garden: Mysterious shimmering violet harmony
+      const w = 1 - dEastGarden / 16;
+      targetCutoff = 450 + w * 160;
+      targetShimmer = 0.0001 + w * 0.048;
     } else if (dCenter < 18) {
       // Center Spawn: Serene warm ambient
       targetCutoff = 400;
