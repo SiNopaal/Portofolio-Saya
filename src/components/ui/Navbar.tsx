@@ -117,12 +117,12 @@ export function Navbar() {
             <span>Punch</span>
           </div>
 
-          {/* CV Button */}
+          {/* CV Button (Desktop & Tablet) */}
           <a
             href="/Resume-Naufal Maulana.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1.5 font-mono text-xs text-cyan-300 transition-all hover:border-cyan-400 hover:bg-cyan-500/20 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95"
+            className="group hidden sm:flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1.5 font-mono text-xs text-cyan-300 transition-all hover:border-cyan-400 hover:bg-cyan-500/20 hover:text-white hover:shadow-[0_0_12px_rgba(56,189,248,0.3)] active:scale-95"
           >
             <FileText className="h-3.5 w-3.5 text-cyan-400 transition-transform group-hover:-translate-y-0.5" />
             <span>CV</span>
@@ -133,7 +133,7 @@ export function Navbar() {
             href="#contact"
             className="relative overflow-hidden rounded-full bg-gradient-to-r from-cyan-500 via-indigo-600 to-purple-600 p-[1px] shadow-lg shadow-cyan-500/20 transition-all hover:shadow-cyan-500/40 active:scale-95"
           >
-            <span className="flex items-center gap-1.5 rounded-full bg-[#090d1a]/70 px-3.5 py-1.5 font-mono text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-transparent">
+            <span className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-[#090d1a]/70 px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-mono text-[11px] sm:text-xs font-semibold text-white backdrop-blur-sm transition-colors hover:bg-transparent">
               <span>Hire Me</span>
               <span className="text-cyan-400">&rarr;</span>
             </span>

@@ -22,19 +22,19 @@ export function Contact() {
         </p>
 
         {/* Quick Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3 sm:gap-4 pt-4">
           <a
             href="https://wa.me/6285770266735"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-95"
           >
             <MessageCircle className="h-4 w-4" />
             <span>WhatsApp Chat</span>
           </a>
           <a
             href="mailto:naufalmaulana806@gmail.com"
-            className="flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition-all hover:bg-cyan-400"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition-all hover:bg-cyan-400 active:scale-95"
           >
             <Mail className="h-4 w-4" />
             <span>naufalmaulana806@gmail.com</span>
@@ -43,7 +43,7 @@ export function Contact() {
             href="/Resume-Naufal Maulana.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#0f1118]/80 px-6 py-3 font-mono text-sm text-slate-200 shadow-md transition-all hover:bg-[#161a26]"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#0f1118]/80 px-6 py-3 font-mono text-sm text-slate-200 shadow-md transition-all hover:bg-[#161a26] active:scale-95"
           >
             <Download className="h-4 w-4 text-cyan-400" />
             <span>Download CV</span>

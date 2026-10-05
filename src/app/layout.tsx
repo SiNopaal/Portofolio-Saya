@@ -56,7 +56,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f8fafc",
+  themeColor: "#0b0e18",
   width: "device-width",
   initialScale: 1,
 };
@@ -68,7 +68,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${kanit.variable} h-full antialiased`}>
-      <body className="min-h-full bg-[#f8fafc] text-slate-900">
+      <body className="min-h-full bg-[#0b0e18] text-slate-100 overflow-x-hidden selection:bg-cyan-500 selection:text-black">
         {children}
         <div className="noise-overlay opacity-[0.015]" aria-hidden />
       </body>

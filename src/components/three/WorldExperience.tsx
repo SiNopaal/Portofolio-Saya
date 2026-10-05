@@ -17,6 +17,7 @@ import {
   MessageSquare,
   User,
   Check,
+  X,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES } from "@/lib/multiplayer";
 import {
@@ -2368,6 +2369,7 @@ function WorldHero() {
   } = useMultiplayer();
 
   const [chatText, setChatText] = useState("");
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [showNameModal, setShowNameModal] = useState(false);
   const [inputName, setInputName] = useState(localPlayer.name);
   const [selectedColor, setSelectedColor] = useState(localPlayer.color);
@@ -2464,17 +2466,17 @@ function WorldHero() {
         />
       </Canvas>
 
-      {/* Top HUD */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-between p-5 md:p-8">
-        <div className="max-w-[340px] text-white">
-          <p className="text-[10px] uppercase tracking-[0.45em] text-cyan-400">
+      {/* Top HUD (Safe area padding for fixed Navbar) */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-20 flex justify-between p-4 pt-16 sm:p-6 sm:pt-20 md:p-8 md:pt-8">
+        <div className="max-w-[280px] sm:max-w-[340px] text-white">
+          <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.35em] sm:tracking-[0.45em] text-cyan-400 font-mono">
             Interactive Metaverse Arena
           </p>
-          <h1 className="mt-2 text-2xl font-black leading-none tracking-[-0.03em] md:text-4xl">
+          <h1 className="mt-1 sm:mt-2 text-xl sm:text-2xl md:text-4xl font-black leading-tight tracking-[-0.03em]">
             NAUFAL MAULANA
           </h1>
-          <p className="mt-2 text-xs leading-relaxed text-neutral-400">
-            Drag mouse / swipe layar untuk arahkan kamera (atas, bawah, kiri, kanan), tekan F tinju, ketik chat di bawah.
+          <p className="mt-1 sm:mt-2 text-[11px] sm:text-xs leading-relaxed text-neutral-400 hidden xs:block">
+            Swipe layar arahkan kamera &bull; Kontrol karakter di bawah.
           </p>
           {/* Mobile Visitor Indicator */}
           <button
@@ -2484,13 +2486,13 @@ function WorldHero() {
               setSelectedAccent(localPlayer.accentColor);
               setShowNameModal(true);
             }}
-            className="mt-2.5 flex items-center gap-2 md:hidden pointer-events-auto bg-white/10 px-3 py-1 rounded-full border border-white/15"
+            className="mt-2 flex items-center gap-1.5 md:hidden pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-xs font-semibold text-emerald-400">
+            <span className="text-[11px] font-semibold text-emerald-400">
               {totalOnline}/{maxPlayers || 10} Online
             </span>
             <span className="text-[10px] text-cyan-300 font-mono underline">
@@ -2547,10 +2549,10 @@ function WorldHero() {
         </div>
       </div>
 
-      {/* Quick Action Bar: Punch & Interactive Live Typing Chat */}
-      <div className="pointer-events-auto absolute inset-x-4 bottom-24 z-20 flex flex-col items-center gap-2 md:bottom-8 md:inset-x-0">
+      {/* Desktop Quick Action Bar: Punch & Interactive Live Typing Chat (Hidden on Mobile) */}
+      <div className="hidden md:flex pointer-events-auto absolute inset-x-0 bottom-8 z-20 flex-col items-center gap-2">
         {/* Quick chat chip presets */}
-        <div className="hidden sm:flex items-center gap-1.5 pb-1">
+        <div className="flex items-center gap-1.5 pb-1">
           {[
             "Halo bro! 👋",
             "Ayo spar 🥊",
@@ -2576,7 +2578,7 @@ function WorldHero() {
             title="Press F or Click Screen to Punch"
           >
             <span className="text-base">🥊</span>
-            <span className="hidden sm:inline">PUNCH (F)</span>
+            <span>PUNCH (F)</span>
           </button>
 
           {/* Live Visitor Typing Chat Form */}
@@ -2602,7 +2604,7 @@ function WorldHero() {
               className="flex flex-shrink-0 items-center gap-1 rounded-full bg-cyan-500 px-3 py-1.5 text-xs font-bold text-black transition-all hover:bg-cyan-400 active:scale-95 disabled:opacity-40"
             >
               <Send className="h-3 w-3" />
-              <span className="hidden sm:inline">Kirim</span>
+              <span>Kirim</span>
             </button>
           </form>
         </div>
@@ -2610,19 +2612,19 @@ function WorldHero() {
 
       {/* Proximity Zone Modal */}
       {activeLandmark && (
-        <div className="absolute inset-x-4 bottom-28 z-30 mx-auto max-w-sm rounded-3xl border border-white/15 bg-neutral-950/85 p-5 shadow-2xl backdrop-blur-xl md:bottom-24 md:max-w-md">
+        <div className="absolute inset-x-3 bottom-32 sm:bottom-28 z-30 mx-auto max-w-sm rounded-3xl border border-white/15 bg-neutral-950/90 p-4 sm:p-5 shadow-2xl backdrop-blur-xl md:bottom-24 md:max-w-md">
           <span
             className={`inline-block rounded-full border px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider ${activeLandmark.accent}`}
           >
             Nearby Zone {activeLandmark.index}
           </span>
-          <h3 className="mt-2 text-lg font-bold text-white">{activeLandmark.title}</h3>
+          <h3 className="mt-2 text-base sm:text-lg font-bold text-white">{activeLandmark.title}</h3>
           <p className="mt-1 text-xs leading-relaxed text-neutral-400">
             {activeLandmark.description}
           </p>
           <a
             href={activeLandmark.href}
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+            className="mt-3 sm:mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-2 sm:py-2.5 text-xs font-bold uppercase tracking-wider text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
           >
             <span>Jump to Section</span>
             <span aria-hidden="true">&rarr;</span>
@@ -2630,77 +2632,157 @@ function WorldHero() {
         </div>
       )}
 
-      {/* Mobile Touch Controls */}
-      <div className="absolute inset-x-4 bottom-4 z-20 flex justify-between md:hidden">
-        {/* D-Pad */}
-        <div className="grid grid-cols-3 gap-1 w-36">
+      {/* Mobile Ergonomic Touch HUD & Controls */}
+      <div className="pointer-events-auto absolute inset-x-3 bottom-3 z-20 flex items-end justify-between md:hidden">
+        {/* Left: Compact Cyber D-Pad */}
+        <div className="grid grid-cols-3 gap-1 w-28 sm:w-32">
           <div />
           <button
             onPointerDown={() => handleTouch("forward", true)}
             onPointerUp={() => handleTouch("forward", false)}
             onPointerLeave={() => handleTouch("forward", false)}
-            className="glass flex h-12 w-12 items-center justify-center rounded-xl active:bg-cyan-500/30"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-white/15 bg-black/50 backdrop-blur-md active:bg-cyan-500/40 active:border-cyan-400 transition-colors shadow-lg"
             aria-label="Forward"
           >
-            <ArrowUp className="h-5 w-5 text-white" />
+            <ArrowUp className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </button>
           <div />
           <button
             onPointerDown={() => handleTouch("left", true)}
             onPointerUp={() => handleTouch("left", false)}
             onPointerLeave={() => handleTouch("left", false)}
-            className="glass flex h-12 w-12 items-center justify-center rounded-xl active:bg-cyan-500/30"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-white/15 bg-black/50 backdrop-blur-md active:bg-cyan-500/40 active:border-cyan-400 transition-colors shadow-lg"
             aria-label="Left"
           >
-            <ArrowLeft className="h-5 w-5 text-white" />
+            <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </button>
           <button
             onPointerDown={() => handleTouch("backward", true)}
             onPointerUp={() => handleTouch("backward", false)}
             onPointerLeave={() => handleTouch("backward", false)}
-            className="glass flex h-12 w-12 items-center justify-center rounded-xl active:bg-cyan-500/30"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-white/15 bg-black/50 backdrop-blur-md active:bg-cyan-500/40 active:border-cyan-400 transition-colors shadow-lg"
             aria-label="Backward"
           >
-            <ArrowDown className="h-5 w-5 text-white" />
+            <ArrowDown className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </button>
           <button
             onPointerDown={() => handleTouch("right", true)}
             onPointerUp={() => handleTouch("right", false)}
             onPointerLeave={() => handleTouch("right", false)}
-            className="glass flex h-12 w-12 items-center justify-center rounded-xl active:bg-cyan-500/30"
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl border border-white/15 bg-black/50 backdrop-blur-md active:bg-cyan-500/40 active:border-cyan-400 transition-colors shadow-lg"
             aria-label="Right"
           >
-            <ArrowRight className="h-5 w-5 text-white" />
+            <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </button>
         </div>
 
-        {/* Action Controls: Punch, Jump, Sprint */}
-        <div className="flex items-center gap-2">
+        {/* Center: Explore & Mobile Chat Trigger */}
+        <div className="flex flex-col items-center gap-1.5 pb-0.5">
+          <button
+            type="button"
+            onClick={() => setMobileChatOpen((v) => !v)}
+            className="flex items-center gap-1 rounded-full border border-cyan-400/40 bg-[#090e1c]/90 px-2.5 py-1 font-mono text-[10px] sm:text-[11px] font-semibold text-cyan-300 backdrop-blur-md shadow-lg active:scale-95 transition-all"
+          >
+            <MessageSquare className="h-3 w-3 text-cyan-400" />
+            <span>Chat / Emote</span>
+          </button>
+          <a
+            href="#about"
+            className="flex items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[10px] text-slate-300 backdrop-blur-md shadow-md active:scale-95 transition-all hover:text-white"
+          >
+            <span>Explore &darr;</span>
+          </a>
+        </div>
+
+        {/* Right: Action Buttons (Punch & Jump) */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onPointerDown={triggerPunch}
-            className="glass flex h-14 w-14 items-center justify-center rounded-2xl border-red-500/50 bg-red-600/40 active:bg-red-600 shadow-lg"
+            className="flex h-11 w-11 sm:h-13 sm:w-13 items-center justify-center rounded-2xl border border-rose-500/50 bg-gradient-to-br from-rose-600 to-amber-600 text-white shadow-xl shadow-rose-950/50 active:scale-90 transition-transform"
             aria-label="Punch"
             title="Punch"
           >
-            <span className="text-2xl">🥊</span>
+            <span className="text-lg sm:text-xl">🥊</span>
           </button>
           <button
             onPointerDown={() => handleTouch("jump", true)}
             onPointerUp={() => handleTouch("jump", false)}
             onPointerLeave={() => handleTouch("jump", false)}
-            className="glass flex h-14 w-14 items-center justify-center rounded-2xl border-cyan-500/40 bg-cyan-600/30 active:bg-cyan-600 shadow-lg"
-            aria-label="Jump"
-            title="Jump"
+            className="flex h-11 w-11 sm:h-13 sm:w-13 items-center justify-center rounded-2xl border border-cyan-400/50 bg-gradient-to-br from-cyan-600 to-indigo-600 text-white shadow-xl shadow-cyan-950/50 active:scale-90 transition-transform"
+            aria-label="Jump / Salto"
+            title="Jump / Salto"
           >
-            <Rocket className="h-6 w-6 text-cyan-200" />
+            <Rocket className="h-4 w-4 sm:h-5 sm:w-5 text-cyan-200" />
           </button>
         </div>
       </div>
 
+      {/* Mobile Chat & Emotes Drawer */}
+      {mobileChatOpen && (
+        <div className="fixed inset-x-3 bottom-24 z-40 mx-auto max-w-sm rounded-2xl border border-cyan-500/40 bg-[#090d1a]/95 p-3.5 shadow-2xl backdrop-blur-2xl md:hidden animate-in fade-in duration-200">
+          <div className="mb-2 flex items-center justify-between pb-1.5 border-b border-white/10">
+            <span className="font-mono text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5 text-cyan-400" />
+              Visitor Chat &amp; Emotes
+            </span>
+            <button
+              onClick={() => setMobileChatOpen(false)}
+              className="text-slate-400 hover:text-white p-1"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Quick Chips */}
+          <div className="flex flex-wrap gap-1.5 mb-2.5">
+            {["Halo bro! 👋", "Ayo spar 🥊", "Keren portofolionya! ✨", "Gas mabar 🚀", "Salto! 🤸"].map((msg) => (
+              <button
+                key={msg}
+                onClick={() => {
+                  handleSendChat(msg);
+                  setMobileChatOpen(false);
+                }}
+                className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-slate-300 hover:bg-cyan-500/20 active:scale-95"
+              >
+                {msg}
+              </button>
+            ))}
+          </div>
+
+          {/* Text Input */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (chatText.trim()) {
+                handleSendChat(chatText);
+                setMobileChatOpen(false);
+              }
+            }}
+            className="flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-black/60 p-1 pl-3"
+          >
+            <input
+              type="text"
+              value={chatText}
+              onChange={(e) => setChatText(e.target.value)}
+              placeholder="Ketik chat..."
+              maxLength={80}
+              className="w-full bg-transparent text-xs text-white placeholder-slate-500 outline-none font-sans"
+            />
+            <button
+              type="submit"
+              disabled={!chatText.trim()}
+              className="rounded-full bg-cyan-400 px-3 py-1 text-xs font-bold text-black disabled:opacity-40"
+            >
+              Kirim
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* Pop-up Modal: Character Customization & Username Input */}
       {showNameModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-cyan-500/40 bg-[#0a0e1c] p-6 shadow-2xl shadow-cyan-950/60 font-sans">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-4 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md max-h-[92vh] overflow-y-auto rounded-3xl border border-cyan-500/40 bg-[#0a0e1c] p-5 sm:p-6 shadow-2xl shadow-cyan-950/60 font-sans">
             {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">

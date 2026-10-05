@@ -296,51 +296,55 @@ export function Projects() {
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> LIVE DB
                       </span>
                     </div>
-                    <div className="space-y-4 p-5 font-sans text-xs">
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                          <div className="font-mono text-[10px] text-slate-400">MONTHLY REVENUE</div>
-                          <div className="mt-1 text-base font-bold text-white">Rp 48.500.000</div>
-                          <div className="mt-0.5 text-[10px] text-emerald-400">&uarr; 18.4% vs last month</div>
+                    <div className="space-y-4 p-3.5 sm:p-5 font-sans text-xs">
+                      <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+                        <div className="rounded-xl border border-white/5 bg-white/5 p-2 sm:p-3">
+                          <div className="font-mono text-[8px] sm:text-[10px] text-slate-400">MONTHLY REVENUE</div>
+                          <div className="mt-0.5 sm:mt-1 text-xs sm:text-base font-bold text-white">Rp 48.5M</div>
+                          <div className="mt-0.5 text-[8px] sm:text-[10px] text-emerald-400">&uarr; 18.4%</div>
                         </div>
-                        <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                          <div className="font-mono text-[10px] text-slate-400">ACTIVE ORDERS</div>
-                          <div className="mt-1 text-base font-bold text-cyan-400">142 Orders</div>
-                          <div className="mt-0.5 text-[10px] text-slate-400">8 Washing &bull; 12 Drying</div>
+                        <div className="rounded-xl border border-white/5 bg-white/5 p-2 sm:p-3">
+                          <div className="font-mono text-[8px] sm:text-[10px] text-slate-400">ACTIVE ORDERS</div>
+                          <div className="mt-0.5 sm:mt-1 text-xs sm:text-base font-bold text-cyan-400">142 Orders</div>
+                          <div className="mt-0.5 text-[8px] sm:text-[10px] text-slate-400">8 Wash &bull; 12 Dry</div>
                         </div>
-                        <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                          <div className="font-mono text-[10px] text-slate-400">SYSTEM HEALTH</div>
-                          <div className="mt-1 text-base font-bold text-emerald-400">99.8% Uptime</div>
-                          <div className="mt-0.5 text-[10px] text-slate-400">Next.js App Router</div>
-                        </div>
-                      </div>
-                      <div className="space-y-2 rounded-xl border border-white/5 bg-black/40 p-3 font-mono text-[11px]">
-                        <div className="flex items-center justify-between border-b border-white/5 pb-2 font-semibold text-slate-400">
-                          <span>ORDER ID</span>
-                          <span>CUSTOMER / SERVICE</span>
-                          <span>AMOUNT</span>
-                          <span>STATUS</span>
-                        </div>
-                        <div className="flex items-center justify-between text-slate-200">
-                          <span className="text-cyan-400">#ORD-9821</span>
-                          <span>Hotel Santika (Bedding 45kg)</span>
-                          <span className="font-semibold text-white">Rp 450.000</span>
-                          <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300">COMPLETED</span>
-                        </div>
-                        <div className="flex items-center justify-between text-slate-200">
-                          <span className="text-cyan-400">#ORD-9822</span>
-                          <span>Anisa Rahma (Express Wash 6kg)</span>
-                          <span className="font-semibold text-white">Rp 54.000</span>
-                          <span className="rounded bg-cyan-500/20 px-2 py-0.5 text-[10px] text-cyan-300">WASHING</span>
-                        </div>
-                        <div className="flex items-center justify-between text-slate-200">
-                          <span className="text-cyan-400">#ORD-9823</span>
-                          <span>Dian S. (Curtain Dry Clean)</span>
-                          <span className="font-semibold text-white">Rp 120.000</span>
-                          <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] text-amber-300">IRONING</span>
+                        <div className="rounded-xl border border-white/5 bg-white/5 p-2 sm:p-3">
+                          <div className="font-mono text-[8px] sm:text-[10px] text-slate-400">SYSTEM HEALTH</div>
+                          <div className="mt-0.5 sm:mt-1 text-xs sm:text-base font-bold text-emerald-400">99.8%</div>
+                          <div className="mt-0.5 text-[8px] sm:text-[10px] text-slate-400">App Router</div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2.5 text-[11px] text-cyan-300">
+
+                      <div className="overflow-x-auto no-scrollbar">
+                        <div className="min-w-[360px] space-y-2 rounded-xl border border-white/5 bg-black/40 p-3 font-mono text-[11px]">
+                          <div className="flex items-center justify-between border-b border-white/5 pb-2 font-semibold text-slate-400">
+                            <span>ORDER ID</span>
+                            <span>CUSTOMER / SERVICE</span>
+                            <span>AMOUNT</span>
+                            <span>STATUS</span>
+                          </div>
+                          <div className="flex items-center justify-between text-slate-200">
+                            <span className="text-cyan-400">#ORD-9821</span>
+                            <span>Hotel Santika (Bedding 45kg)</span>
+                            <span className="font-semibold text-white">Rp 450.000</span>
+                            <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300">COMPLETED</span>
+                          </div>
+                          <div className="flex items-center justify-between text-slate-200">
+                            <span className="text-cyan-400">#ORD-9822</span>
+                            <span>Anisa Rahma (Express Wash 6kg)</span>
+                            <span className="font-semibold text-white">Rp 54.000</span>
+                            <span className="rounded bg-cyan-500/20 px-2 py-0.5 text-[10px] text-cyan-300">WASHING</span>
+                          </div>
+                          <div className="flex items-center justify-between text-slate-200">
+                            <span className="text-cyan-400">#ORD-9823</span>
+                            <span>Dian S. (Curtain Dry Clean)</span>
+                            <span className="font-semibold text-white">Rp 120.000</span>
+                            <span className="rounded bg-amber-500/20 px-2 py-0.5 text-[10px] text-amber-300">IRONING</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1 rounded-lg border border-cyan-500/20 bg-cyan-500/10 p-2.5 text-[10px] sm:text-[11px] text-cyan-300">
                         <span className="flex items-center gap-1.5">
                           <ShieldCheck className="h-3.5 w-3.5" />
                           <span>Strict Role-Based Access: Admin, Cashier, Owner</span>
@@ -433,13 +437,13 @@ export function Projects() {
                             <div className="h-2.5 w-2.5 rounded-full bg-cyan-400" />
                           </div>
                         </div>
-                        <div className="absolute left-6 top-6 flex items-center gap-1.5 rounded-lg border border-rose-500/60 bg-[#0f1424]/90 p-2 font-mono text-[10px] shadow-lg">
-                          <span className="h-2 w-2 animate-ping rounded-full bg-rose-500" />
-                          <span className="font-bold text-rose-300">[HIGH]</span> Jembatan RW 02 Rusak
+                        <div className="absolute left-2.5 top-2.5 sm:left-6 sm:top-6 flex items-center gap-1 sm:gap-1.5 rounded-lg border border-rose-500/60 bg-[#0f1424]/90 p-1.5 sm:p-2 font-mono text-[9px] sm:text-[10px] shadow-lg">
+                          <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 animate-ping rounded-full bg-rose-500" />
+                          <span className="font-bold text-rose-300">[HIGH]</span> Jembatan RW 02
                         </div>
-                        <div className="absolute bottom-6 right-6 flex items-center gap-1.5 rounded-lg border border-amber-500/60 bg-[#0f1424]/90 p-2 font-mono text-[10px] shadow-lg">
-                          <span className="h-2 w-2 rounded-full bg-amber-500" />
-                          <span className="text-amber-300">[IN PROGRESS]</span> Lampu Jalan RT 01
+                        <div className="absolute bottom-2.5 right-2.5 sm:bottom-6 sm:right-6 flex items-center gap-1 sm:gap-1.5 rounded-lg border border-amber-500/60 bg-[#0f1424]/90 p-1.5 sm:p-2 font-mono text-[9px] sm:text-[10px] shadow-lg">
+                          <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-amber-500" />
+                          <span className="text-amber-300">[PROGRESS]</span> Lampu Jalan RT 01
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-3 font-mono text-[11px]">
@@ -542,9 +546,9 @@ export function Projects() {
                         &gt;&gt; Response generated in 182ms &bull; Payload valid
                       </div>
                       <div className="pl-4 text-cyan-300">&gt;&gt; Webhook trigger sent &rarr; 200 OK</div>
-                      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3 text-[11px] text-slate-400">
-                        <span>MEM USAGE: <strong className="text-emerald-400">128 MB</strong></span>
-                        <span>TASK SUCCESS: <strong className="text-emerald-400">99.9%</strong></span>
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-3 text-[10px] sm:text-[11px] text-slate-400">
+                        <span>MEM: <strong className="text-emerald-400">128 MB</strong></span>
+                        <span>SUCCESS: <strong className="text-emerald-400">99.9%</strong></span>
                         <span>QUEUE: <strong className="text-cyan-400">0 IDLE</strong></span>
                       </div>
                     </div>
@@ -622,24 +626,24 @@ export function Projects() {
                       <span className="text-[11px] font-bold text-pink-400">13+ FRAMES</span>
                     </div>
                     <div className="space-y-4 p-5 font-mono text-xs">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-xl border border-pink-500/20 bg-pink-500/10 p-3">
-                          <div className="text-[10px] text-pink-300 font-bold uppercase">TITIK VISUAL CMS</div>
-                          <div className="mt-1 text-sm font-bold text-white">Full Landing Architecture</div>
-                          <div className="mt-0.5 text-[10px] text-slate-400">Hero, Features, Pricing, Form</div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                        <div className="rounded-xl border border-pink-500/20 bg-pink-500/10 p-2.5 sm:p-3">
+                          <div className="text-[9px] sm:text-[10px] text-pink-300 font-bold uppercase">TITIK VISUAL CMS</div>
+                          <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm font-bold text-white">Full Landing Architecture</div>
+                          <div className="mt-0.5 text-[9px] sm:text-[10px] text-slate-400">Hero, Features, Pricing, Form</div>
                         </div>
-                        <div className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-3">
-                          <div className="text-[10px] text-violet-300 font-bold uppercase">NEBENG APP</div>
-                          <div className="mt-1 text-sm font-bold text-white">Ride-Sharing Matrix</div>
-                          <div className="mt-0.5 text-[10px] text-slate-400">Driver, Passenger, Fleet, Admin</div>
+                        <div className="rounded-xl border border-violet-500/20 bg-violet-500/10 p-2.5 sm:p-3">
+                          <div className="text-[9px] sm:text-[10px] text-violet-300 font-bold uppercase">NEBENG APP</div>
+                          <div className="mt-0.5 sm:mt-1 text-xs sm:text-sm font-bold text-white">Ride-Sharing Matrix</div>
+                          <div className="mt-0.5 text-[9px] sm:text-[10px] text-slate-400">Driver, Passenger, Fleet, Admin</div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/5 p-3 text-[11px] text-slate-300">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 rounded-lg border border-white/5 bg-white/5 p-2.5 sm:p-3 text-[10px] sm:text-[11px] text-slate-300">
                         <div className="flex items-center gap-2">
-                          <Sparkles className="h-4 w-4 text-pink-400" />
-                          <span>Interactive Components &amp; Atomic Design Tokens</span>
+                          <Sparkles className="h-4 w-4 text-pink-400 flex-shrink-0" />
+                          <span>Interactive Components &amp; Atomic Tokens</span>
                         </div>
-                        <span className="text-pink-300 font-bold">100% Mobile Ready</span>
+                        <span className="text-pink-300 font-bold flex-shrink-0">100% Mobile Ready</span>
                       </div>
                     </div>
                   </div>

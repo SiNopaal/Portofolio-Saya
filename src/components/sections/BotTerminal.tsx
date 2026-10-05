@@ -162,24 +162,24 @@ export function BotTerminal() {
         </div>
 
         {/* Quick Question Prompts */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-white/5 bg-[#0e1220]/70 px-4 py-2.5 text-xs">
-          <span className="mr-1 text-slate-500 flex items-center gap-1">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5 bg-[#0e1220]/70 px-3 sm:px-4 py-2.5 text-xs">
+          <span className="mr-1 text-slate-500 flex flex-shrink-0 items-center gap-1">
             <Sparkles className="h-3 w-3 text-cyan-400" />
-            <span>Tanya Cepat:</span>
+            <span className="hidden xs:inline">Tanya Cepat:</span>
           </span>
           {SUGGESTED_PROMPTS.map((prompt) => (
             <button
               key={prompt.label}
               onClick={() => sendMessage(prompt.query)}
               disabled={isLoading}
-              className="flex items-center gap-1.5 rounded-lg border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1 text-cyan-300 transition-all hover:border-cyan-400 hover:bg-cyan-500/20 active:scale-95 disabled:opacity-50"
+              className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-cyan-500/25 bg-cyan-500/10 px-2.5 py-1 text-cyan-300 transition-all hover:border-cyan-400 hover:bg-cyan-500/20 active:scale-95 disabled:opacity-50"
             >
               <span>{prompt.label}</span>
             </button>
           ))}
           <button
             onClick={() => sendMessage("clear")}
-            className="ml-auto flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-rose-300 transition-all hover:bg-rose-500/20 active:scale-95"
+            className="ml-auto flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-rose-300 transition-all hover:bg-rose-500/20 active:scale-95"
             title="Bersihkan layar chat"
           >
             <RotateCcw className="h-3 w-3" />
@@ -252,7 +252,7 @@ export function BotTerminal() {
         </div>
 
         {/* Terminal Chat Input Line */}
-        <div className="flex items-center gap-2 border-t border-white/5 bg-[#121624]/90 px-4 py-3">
+        <div className="flex items-center gap-2 border-t border-white/5 bg-[#121624]/90 px-3 sm:px-4 py-2.5 sm:py-3">
           <span className="font-bold text-cyan-400">&gt;</span>
           <input
             type="text"
@@ -260,13 +260,13 @@ export function BotTerminal() {
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
-            placeholder="Tanyakan sesuatu ke AI... (contoh: 'Ceritakan pengalaman proyek laundry')"
+            placeholder="Tanyakan ke Naufal AI... (Tekan Enter)"
             className="w-full bg-transparent font-mono text-xs sm:text-sm text-cyan-200 placeholder-slate-600 outline-none disabled:opacity-50"
           />
           <button
             onClick={() => sendMessage(inputVal)}
             disabled={isLoading || !inputVal.trim()}
-            className="rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-cyan-500/20 hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-40"
+            className="flex-shrink-0 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white shadow-lg shadow-cyan-500/20 hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-40"
           >
             <Send className="h-3 w-3" />
             <span className="hidden sm:inline">Kirim</span>
