@@ -29,11 +29,214 @@ function getSharedAudioContext(): AudioContext | null {
   }
 }
 
+/* ============================================================
+   PROCEDURAL SPATIAL AMBIENT SOUND ENGINE (Zero Asset Download)
+   Tranquil, cinematic ambient soundscape that harmonically morphs
+   based on avatar proximity to the 4 thematic corners & plaza.
+============================================================ */
+
+class MetaverseSpatialAmbientEngine {
+  private ctx: AudioContext | null = null;
+  private isMuted: boolean = true;
+  private isInitialized: boolean = false;
+  private masterGain: GainNode | null = null;
+  private filter: BiquadFilterNode | null = null;
+  private oscs: OscillatorNode[] = [];
+  private subGain: GainNode | null = null;
+  private shimmerGain: GainNode | null = null;
+  private lfo: OscillatorNode | null = null;
+  private lastUpdate: number = 0;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("portfolio_audio_muted");
+      // Default to muted (true) to satisfy modern browser autoplay policies
+      this.isMuted = saved === "0" ? false : true;
+    }
+  }
+
+  public getMuted(): boolean {
+    return this.isMuted;
+  }
+
+  public init() {
+    if (this.isInitialized || typeof window === "undefined") return;
+    try {
+      this.ctx = getSharedAudioContext();
+      if (!this.ctx) return;
+
+      // Master ambient gain - subtle, gentle background volume
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.gain.setValueAtTime(this.isMuted ? 0.0001 : 0.055, this.ctx.currentTime);
+
+      // Lowpass resonant filter for celestial warmth
+      this.filter = this.ctx.createBiquadFilter();
+      this.filter.type = "lowpass";
+      this.filter.frequency.setValueAtTime(420, this.ctx.currentTime);
+      this.filter.Q.setValueAtTime(1.8, this.ctx.currentTime);
+
+      // Base lush chord: C2 (65.41 Hz), G2 (98.0 Hz), D3 (146.83 Hz), E3 (164.81 Hz)
+      const freqs = [65.41, 98.0, 146.83, 164.81];
+      this.oscs = [];
+
+      freqs.forEach((freq, idx) => {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        osc.type = idx === 0 ? "triangle" : "sine";
+        // Subtle micro-detune for rich acoustic chorusing
+        osc.frequency.setValueAtTime(freq + (idx % 2 === 0 ? 0.12 : -0.12), this.ctx.currentTime);
+
+        const oscGain = this.ctx.createGain();
+        oscGain.gain.setValueAtTime(idx === 0 ? 0.42 : 0.26, this.ctx.currentTime);
+
+        osc.connect(oscGain);
+        if (this.filter) oscGain.connect(this.filter);
+        osc.start();
+        this.oscs.push(osc);
+      });
+
+      // Sub-bass oscillator (activated near SW DevOps / Aerospace runway)
+      const subOsc = this.ctx.createOscillator();
+      subOsc.type = "sine";
+      subOsc.frequency.setValueAtTime(43.65, this.ctx.currentTime); // Deep F1
+      this.subGain = this.ctx.createGain();
+      this.subGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      subOsc.connect(this.subGain);
+      this.subGain.connect(this.masterGain);
+      subOsc.start();
+      this.oscs.push(subOsc);
+
+      // Ethereal overtone shimmer (activated near NE Quantum AI & SE Zen)
+      const shimmerOsc = this.ctx.createOscillator();
+      shimmerOsc.type = "sine";
+      shimmerOsc.frequency.setValueAtTime(528.0, this.ctx.currentTime); // Solfeggio 528 Hz
+      this.shimmerGain = this.ctx.createGain();
+      this.shimmerGain.gain.setValueAtTime(0.0001, this.ctx.currentTime);
+      shimmerOsc.connect(this.shimmerGain);
+      this.shimmerGain.connect(this.masterGain);
+      shimmerOsc.start();
+      this.oscs.push(shimmerOsc);
+
+      // Slow organic LFO (0.05 Hz = 20s breathing cycle)
+      this.lfo = this.ctx.createOscillator();
+      const lfoGain = this.ctx.createGain();
+      this.lfo.frequency.setValueAtTime(0.05, this.ctx.currentTime);
+      lfoGain.gain.setValueAtTime(60, this.ctx.currentTime);
+      this.lfo.connect(lfoGain);
+      lfoGain.connect(this.filter.frequency);
+      this.lfo.start();
+
+      this.filter.connect(this.masterGain);
+      this.masterGain.connect(this.ctx.destination);
+
+      this.isInitialized = true;
+    } catch {
+      // Audio fallback safe
+    }
+  }
+
+  public setMuted(muted: boolean) {
+    this.isMuted = muted;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("portfolio_audio_muted", muted ? "1" : "0");
+      } catch {}
+    }
+
+    if (!this.isInitialized && !muted) {
+      this.init();
+    }
+
+    if (!this.ctx || !this.masterGain) return;
+
+    if (this.ctx.state === "suspended" && !muted) {
+      this.ctx.resume().catch(() => {});
+    }
+
+    const now = this.ctx.currentTime;
+    if (muted) {
+      // Smooth fade out
+      this.masterGain.gain.cancelScheduledValues(now);
+      this.masterGain.gain.setValueAtTime(this.masterGain.gain.value, now);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+    } else {
+      // Smooth fade in
+      this.masterGain.gain.cancelScheduledValues(now);
+      this.masterGain.gain.setValueAtTime(Math.max(this.masterGain.gain.value, 0.0001), now);
+      this.masterGain.gain.exponentialRampToValueAtTime(0.055, now + 1.2);
+    }
+  }
+
+  public updateSpatialCoordinates(x: number, z: number) {
+    if (this.isMuted || !this.isInitialized || !this.ctx || !this.filter) return;
+    const nowMs = Date.now();
+    if (nowMs - this.lastUpdate < 180) return; // Throttle spatial parameter updates
+    this.lastUpdate = nowMs;
+
+    const t = this.ctx.currentTime;
+
+    // Distances to 4 corner zones and center
+    const dNW = Math.hypot(x - (-32), z - (-32)); // Programming & Tech
+    const dNE = Math.hypot(x - 32, z - (-32));   // Quantum AI
+    const dSW = Math.hypot(x - (-32), z - 32);    // DevOps Runway
+    const dSE = Math.hypot(x - 32, z - 32);      // Zen Sanctuary
+    const dCenter = Math.hypot(x, z);            // Plaza
+
+    let targetCutoff = 420;
+    let targetSub = 0.0001;
+    let targetShimmer = 0.0001;
+
+    if (dNW < 24) {
+      // NW Programming: Brighter, crisp modern clarity
+      const w = 1 - dNW / 24;
+      targetCutoff = 420 + w * 320;
+    } else if (dNE < 24) {
+      // NE Quantum AI: Crystalline high overtone
+      const w = 1 - dNE / 24;
+      targetCutoff = 420 + w * 280;
+      targetShimmer = 0.0001 + w * 0.035;
+    } else if (dSW < 24) {
+      // SW DevOps: Deep warm sub-bass hum
+      const w = 1 - dSW / 24;
+      targetCutoff = 360 + w * 120;
+      targetSub = 0.0001 + w * 0.045;
+    } else if (dSE < 24) {
+      // SE Zen Sanctuary: Serene Solfeggio resonance
+      const w = 1 - dSE / 24;
+      targetCutoff = 460;
+      targetShimmer = 0.0001 + w * 0.04;
+    } else if (dCenter < 18) {
+      // Center Spawn: Serene warm ambient
+      targetCutoff = 400;
+    }
+
+    try {
+      this.filter.frequency.setTargetAtTime(targetCutoff, t, 0.8);
+      if (this.subGain) this.subGain.gain.setTargetAtTime(targetSub, t, 0.8);
+      if (this.shimmerGain) this.shimmerGain.gain.setTargetAtTime(targetShimmer, t, 0.8);
+    } catch {}
+  }
+}
+
+export const metaverseAmbient = new MetaverseSpatialAmbientEngine();
+
+export function setMetaverseAudioMuted(muted: boolean) {
+  metaverseAmbient.setMuted(muted);
+}
+
+export function getMetaverseAudioMuted(): boolean {
+  return metaverseAmbient.getMuted();
+}
+
+export function updateMetaverseSpatialAudio(x: number, z: number) {
+  metaverseAmbient.updateSpatialCoordinates(x, z);
+}
+
 /**
  * Procedural electronic synthesizer for the Cyber DJ Synth Pad
  */
 export function playSynthPadNote(frequency: number, isMuted: boolean = false) {
-  if (isMuted || typeof window === "undefined") return;
+  if (metaverseAmbient.getMuted() || isMuted || typeof window === "undefined") return;
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
@@ -80,7 +283,7 @@ export function playSynthPadNote(frequency: number, isMuted: boolean = false) {
  * Procedural spatial warp sound effect for Teleportation
  */
 export function playTeleportSound() {
-  if (typeof window === "undefined") return;
+  if (metaverseAmbient.getMuted() || typeof window === "undefined") return;
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
@@ -115,7 +318,7 @@ export function playTeleportSound() {
  * Procedural Tibetan Singing Bowl / Zen Pentatonic Chime
  */
 export function playZenChimeSound(freq: number = 528) {
-  if (typeof window === "undefined") return;
+  if (metaverseAmbient.getMuted() || typeof window === "undefined") return;
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
@@ -152,7 +355,7 @@ export function playZenChimeSound(freq: number = 528) {
  * Procedural subtle water droplet ripple sound
  */
 export function playWaterRippleSound() {
-  if (typeof window === "undefined") return;
+  if (metaverseAmbient.getMuted() || typeof window === "undefined") return;
   try {
     const ctx = getSharedAudioContext();
     if (!ctx) return;
@@ -1049,7 +1252,7 @@ export function CyberTeleportStation({
   position?: [number, number, number];
   rotation?: [number, number, number];
 }) {
-  const [selectedDestId, setSelectedDestId] = useState("projects");
+  const [selectedDestId, setSelectedDestId] = useState(TELEPORT_DESTINATIONS[0].id);
   const [warpFlash, setWarpFlash] = useState(false);
   const lastTeleportRef = useRef(0);
 

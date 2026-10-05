@@ -22,9 +22,23 @@ import {
   ExternalLink,
   Code2,
   Terminal,
+  Volume2,
+  VolumeX,
+  Compass,
+  Minimize2,
+  Maximize2,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES, CharacterModelType } from "@/lib/multiplayer";
-import { CyberTeleportStation, playTeleportSound, playZenChimeSound, playWaterRippleSound } from "./ArenaZones";
+import {
+  CyberTeleportStation,
+  playTeleportSound,
+  playZenChimeSound,
+  playWaterRippleSound,
+  TELEPORT_DESTINATIONS,
+  setMetaverseAudioMuted,
+  getMetaverseAudioMuted,
+  updateMetaverseSpatialAudio,
+} from "./ArenaZones";
 
 
 /* ============================================================
@@ -5317,6 +5331,8 @@ function World({
   registerKnockbackHandler,
   hitSparks,
   triggerEmote,
+  playerPoseRef,
+  teleportTargetRef,
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
@@ -5353,6 +5369,8 @@ function World({
   registerKnockbackHandler: (fn: (dir: [number, number], force: number) => void) => void;
   hitSparks: HitSpark[];
   triggerEmote: (emoji: string) => void;
+  playerPoseRef?: React.MutableRefObject<{ x: number; y: number; z: number; rot: number; speed: number }>;
+  teleportTargetRef?: React.MutableRefObject<[number, number, number] | null>;
 }) {
   const camera = useThree((s) => s.camera);
 
@@ -5493,6 +5511,15 @@ function World({
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
     const car = carState.current;
+
+    /* ---- Instant Teleport Fast-Travel Handling ---- */
+    if (teleportTargetRef?.current) {
+      const [tx, ty, tz] = teleportTargetRef.current;
+      car.pos.set(tx, ty, tz);
+      car.speed = 0;
+      vel.current = { x: 0, y: 0, z: 0 };
+      teleportTargetRef.current = null;
+    }
 
     /* ---- 8-Directional Humanoid Inputs ---- */
     const isW = keys.current.has("w") || keys.current.has("arrowup") || mobileControls.forward;
@@ -5787,6 +5814,18 @@ function World({
       isDriftingRef.current,
       car.onGround
     );
+
+    /* ---- High-Performance HUD Pose Reference & Spatial Ambient Sync ---- */
+    if (playerPoseRef?.current) {
+      playerPoseRef.current.x = car.pos.x;
+      playerPoseRef.current.y = car.pos.y;
+      playerPoseRef.current.z = car.pos.z;
+      playerPoseRef.current.rot = car.rot;
+      playerPoseRef.current.speed = car.speed;
+    }
+
+    // Procedural Spatial Ambient Soundscape coordinate update (Web Audio API)
+    updateMetaverseSpatialAudio(car.pos.x, car.pos.z);
   });
 
   return (
@@ -5862,6 +5901,343 @@ function World({
 }
 
 /* ============================================================
+   CYBER RADAR MINIMAP & COMPASS HUD
+   High-performance 60fps canvas radar HUD with:
+   - Cardinal compass markings (N, S, E, W)
+   - Procedural radar sweep scanning beam
+   - 4 Thematic Corner Landmarks (NW, NE, SW, SE) & Center Spawn
+   - Click-to-Teleport Fast Travel
+   - Real-time Avatar position & heading orientation cone
+   - Live Remote Multiplayer player dots
+   - Integrated Master Spatial Audio Toggle
+============================================================ */
+
+interface CyberMinimapProps {
+  playerPoseRef: React.MutableRefObject<{ x: number; y: number; z: number; rot: number; speed: number }>;
+  remotePlayers: PlayerData[];
+  onFastTravel: (pos: [number, number, number]) => void;
+  isAudioMuted: boolean;
+  onToggleAudio: () => void;
+  localPlayerColor?: string;
+}
+
+function CyberMinimap({
+  playerPoseRef,
+  remotePlayers,
+  onFastTravel,
+  isAudioMuted,
+  onToggleAudio,
+  localPlayerColor = "#38bdf8",
+}: CyberMinimapProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const playerDotRef = useRef<HTMLDivElement>(null);
+  const playerConeRef = useRef<SVGSVGElement>(null);
+  const coordsRef = useRef<HTMLSpanElement>(null);
+  const sectorRef = useRef<HTMLSpanElement>(null);
+
+  // High performance animation loop (0 React re-renders while walking)
+  useEffect(() => {
+    let animId: number;
+    let sweepAngle = 0;
+
+    const render = () => {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          const w = canvas.width;
+          const h = canvas.height;
+          const cx = w / 2;
+          const cy = h / 2;
+          const radius = cx - 3;
+
+          // Clear
+          ctx.clearRect(0, 0, w, h);
+
+          // Dark circular background
+          const bgGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, radius);
+          bgGrad.addColorStop(0, "rgba(8, 14, 26, 0.88)");
+          bgGrad.addColorStop(0.85, "rgba(4, 8, 16, 0.94)");
+          bgGrad.addColorStop(1, "rgba(2, 6, 12, 0.98)");
+          ctx.fillStyle = bgGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Outer cyber bezel
+          ctx.strokeStyle = "rgba(6, 182, 212, 0.35)";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Concentric Range Rings (15m, 30m, 44m)
+          [0.34, 0.68].forEach((scale) => {
+            ctx.strokeStyle = "rgba(6, 182, 212, 0.14)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([2, 3]);
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          });
+
+          // Cardinal Crosshairs
+          ctx.strokeStyle = "rgba(6, 182, 212, 0.16)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy - radius + 5);
+          ctx.lineTo(cx, cy + radius - 5);
+          ctx.moveTo(cx - radius + 5, cy);
+          ctx.lineTo(cx + radius - 5, cy);
+          ctx.stroke();
+
+          // Rotating Radar Sweep Cone
+          sweepAngle = (sweepAngle + 0.04) % (Math.PI * 2);
+          const sweepGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+          sweepGrad.addColorStop(0, "rgba(6, 182, 212, 0.35)");
+          sweepGrad.addColorStop(1, "rgba(6, 182, 212, 0.0)");
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.arc(cx, cy, radius, sweepAngle - 0.5, sweepAngle);
+          ctx.closePath();
+          ctx.fillStyle = sweepGrad;
+          ctx.fill();
+
+          // Leading sweep beam line
+          ctx.strokeStyle = "rgba(56, 189, 248, 0.75)";
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(
+            cx + Math.cos(sweepAngle) * radius,
+            cy + Math.sin(sweepAngle) * radius
+          );
+          ctx.stroke();
+          ctx.restore();
+
+          // Compass Cardinal Markers (N, S, E, W)
+          ctx.font = "bold 8px monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+
+          ctx.fillStyle = "#38bdf8"; // North is glowing cyan
+          ctx.fillText("N", cx, cy - radius + 7);
+
+          ctx.fillStyle = "rgba(148, 163, 184, 0.6)";
+          ctx.fillText("S", cx, cy + radius - 7);
+          ctx.fillText("W", cx - radius + 7, cy);
+          ctx.fillText("E", cx + radius - 7, cy);
+        }
+      }
+
+      // Update Player marker position & heading orientation
+      if (playerPoseRef.current) {
+        const pose = playerPoseRef.current;
+        const normX = Math.max(-1, Math.min(1, pose.x / 44));
+        const normZ = Math.max(-1, Math.min(1, pose.z / 44));
+        const pctX = 50 + normX * 44;
+        const pctZ = 50 + normZ * 44;
+
+        if (playerDotRef.current) {
+          playerDotRef.current.style.left = `${pctX}%`;
+          playerDotRef.current.style.top = `${pctZ}%`;
+        }
+
+        if (playerConeRef.current) {
+          // Pointer orientation math: facing angle
+          const deg = ((180 - pose.rot * (180 / Math.PI)) % 360);
+          playerConeRef.current.style.transform = `translate(-50%, -50%) rotate(${deg}deg)`;
+        }
+
+        if (coordsRef.current) {
+          coordsRef.current.textContent = `X:${pose.x.toFixed(1)} Z:${pose.z.toFixed(1)}`;
+        }
+
+        if (sectorRef.current) {
+          const dCenter = Math.hypot(pose.x, pose.z);
+          let sec = "PROMENADE";
+          if (dCenter < 14) sec = "NEXUS PLAZA";
+          else if (pose.x < -6 && pose.z < -6) sec = "NW TECH ARENA";
+          else if (pose.x > 6 && pose.z < -6) sec = "NE QUANTUM AI";
+          else if (pose.x < -6 && pose.z > 6) sec = "SW CLOUD RUNWAY";
+          else if (pose.x > 6 && pose.z > 6) sec = "SE ARCH ZEN";
+          sectorRef.current.textContent = sec;
+        }
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, [playerPoseRef]);
+
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-end gap-1.5 animate-in fade-in zoom-in-95 duration-200">
+        <button
+          onClick={() => setIsCollapsed(false)}
+          title="Buka Radar Minimap"
+          className="group relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-cyan-500/40 bg-neutral-950/85 shadow-lg backdrop-blur-md transition-all hover:border-cyan-400 hover:scale-105 active:scale-95 cursor-pointer"
+        >
+          <span className="absolute -inset-0.5 rounded-full bg-cyan-400/20 opacity-0 blur-xs transition-opacity group-hover:opacity-100" />
+          <Compass className="h-5 w-5 text-cyan-400 animate-spin-slow transition-transform group-hover:rotate-45" />
+          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-500" />
+          </span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1 select-none animate-in fade-in zoom-in-95 duration-200">
+      {/* Sleek Translucent Radar Bezel */}
+      <div className="relative rounded-2xl border border-cyan-500/35 bg-neutral-950/85 p-2 shadow-2xl backdrop-blur-md">
+        {/* Radar Header */}
+        <div className="flex items-center justify-between gap-2 px-1 pb-1.5 border-b border-white/10 text-[10px] font-mono">
+          <div className="flex items-center gap-1.5 text-cyan-400 font-bold">
+            <Compass className="h-3 w-3 animate-spin-slow" />
+            <span className="tracking-wider">RADAR // HUD</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {/* Audio Toggle in Minimap Header */}
+            <button
+              onClick={onToggleAudio}
+              title={isAudioMuted ? "Aktifkan Spatial Ambient Sound" : "Bisukan Ambient Sound"}
+              className={`flex h-5 w-5 items-center justify-center rounded-md border transition-all cursor-pointer active:scale-90 ${
+                !isAudioMuted
+                  ? "border-cyan-400/60 bg-cyan-950/60 text-cyan-300"
+                  : "border-white/10 bg-white/5 text-neutral-400 hover:text-white"
+              }`}
+            >
+              {!isAudioMuted ? (
+                <Volume2 className="h-3 w-3 text-cyan-400 animate-pulse" />
+              ) : (
+                <VolumeX className="h-3 w-3 text-neutral-400" />
+              )}
+            </button>
+
+            {/* Collapse Button */}
+            <button
+              onClick={() => setIsCollapsed(true)}
+              title="Kecilkan Radar"
+              className="flex h-5 w-5 items-center justify-center rounded-md border border-white/10 bg-white/5 text-neutral-400 hover:text-white transition-all cursor-pointer active:scale-90"
+            >
+              <Minimize2 className="h-2.5 w-2.5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Circular Radar Display Area */}
+        <div className="relative mt-1.5 h-28 w-28 sm:h-32 sm:w-32 rounded-full overflow-hidden flex items-center justify-center">
+          <canvas
+            ref={canvasRef}
+            width={128}
+            height={128}
+            className="h-full w-full pointer-events-none"
+          />
+
+          {/* Interactive Fast-Travel Landmarks */}
+          {TELEPORT_DESTINATIONS.map((dest) => {
+            const normX = Math.max(-1, Math.min(1, dest.pos[0] / 44));
+            const normZ = Math.max(-1, Math.min(1, dest.pos[2] / 44));
+            const pctX = 50 + normX * 44;
+            const pctZ = 50 + normZ * 44;
+
+            return (
+              <button
+                key={dest.id}
+                onClick={() => onFastTravel(dest.pos)}
+                title={`Teleport cepat: ${dest.name} (${dest.badge})`}
+                style={{ left: `${pctX}%`, top: `${pctZ}%` }}
+                className="group absolute -translate-x-1/2 -translate-y-1/2 p-0.5 rounded-full bg-neutral-950/70 border border-white/20 hover:scale-135 hover:border-cyan-400 hover:bg-cyan-950/80 transition-all duration-150 cursor-pointer shadow-md z-10"
+              >
+                <span className="text-[9px] sm:text-[10px] leading-none select-none block drop-shadow">
+                  {dest.icon}
+                </span>
+                <span className="pointer-events-none absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-neutral-950/90 px-1 py-0.5 text-[8px] font-mono text-cyan-300 opacity-0 shadow-lg group-hover:opacity-100 transition-opacity z-20">
+                  {dest.name.split(" ")[0]}
+                </span>
+              </button>
+            );
+          })}
+
+          {/* Remote Multiplayer Players Blips */}
+          {remotePlayers.map((player) => {
+            const rNormX = Math.max(-1, Math.min(1, player.pos[0] / 44));
+            const rNormZ = Math.max(-1, Math.min(1, player.pos[2] / 44));
+            const rPctX = 50 + rNormX * 44;
+            const rPctZ = 50 + rNormZ * 44;
+
+            return (
+              <div
+                key={player.id}
+                title={`Pemain: ${player.name}`}
+                style={{
+                  left: `${rPctX}%`,
+                  top: `${rPctZ}%`,
+                  backgroundColor: player.accentColor || player.color || "#10b981",
+                }}
+                className="absolute h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80 shadow-md shadow-emerald-500/50 pointer-events-none transition-all duration-200 z-10"
+              />
+            );
+          })}
+
+          {/* Local Player Marker with Direction Cone Arrow */}
+          <div
+            ref={playerDotRef}
+            style={{ left: "50%", top: "50%" }}
+            className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none z-15"
+          >
+            {/* Heading Cone / Direction Arrow */}
+            <svg
+              ref={playerConeRef}
+              viewBox="0 0 24 24"
+              className="absolute -top-3.5 -left-3.5 h-7 w-7 pointer-events-none filter drop-shadow(0 0 4px rgba(56,189,248,0.8))"
+            >
+              <polygon
+                points="12,2 18,22 12,17 6,22"
+                fill={localPlayerColor || "#38bdf8"}
+                stroke="#ffffff"
+                strokeWidth="1.2"
+              />
+            </svg>
+            {/* Center Core Dot */}
+            <div
+              style={{ backgroundColor: localPlayerColor || "#38bdf8" }}
+              className="h-2 w-2 rounded-full ring-2 ring-white/90 shadow-md shadow-cyan-400"
+            />
+          </div>
+        </div>
+
+        {/* Live Coordinate & Sector Readout Footer */}
+        <div className="mt-1.5 flex flex-col items-center justify-center border-t border-white/10 pt-1 text-center font-mono">
+          <span
+            ref={sectorRef}
+            className="text-[9px] font-bold text-cyan-300 tracking-wider"
+          >
+            NEXUS PLAZA
+          </span>
+          <span
+            ref={coordsRef}
+            className="text-[8px] text-neutral-400"
+          >
+            X:0.0 Z:0.0
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    WORLD HERO (Canvas, Mobile Controls & HUD)
 ============================================================ */
 function WorldHero() {
@@ -5899,6 +6275,32 @@ function WorldHero() {
   const [inputName, setInputName] = useState(localPlayer.name);
   const [selectedColor, setSelectedColor] = useState(localPlayer.color);
   const [selectedAccent, setSelectedAccent] = useState(localPlayer.accentColor);
+
+  // Real-time High Performance Player Pose for Minimap & HUD (0 React re-renders)
+  const playerPoseRef = useRef({ x: 0, y: 0, z: 1.6, rot: 0, speed: 0 });
+
+  // Fast Travel Teleport Target Reference
+  const teleportTargetRef = useRef<[number, number, number] | null>(null);
+
+  // Procedural Spatial Ambient Soundscape Master State
+  const [isAudioMuted, setIsAudioMuted] = useState(true);
+
+  useEffect(() => {
+    setIsAudioMuted(getMetaverseAudioMuted());
+  }, []);
+
+  const handleToggleAudio = useCallback(() => {
+    setIsAudioMuted((prev) => {
+      const next = !prev;
+      setMetaverseAudioMuted(next);
+      return next;
+    });
+  }, []);
+
+  const handleFastTravel = useCallback((pos: [number, number, number]) => {
+    teleportTargetRef.current = [pos[0], pos[1] + 0.2, pos[2]];
+    playTeleportSound();
+  }, []);
 
   // Surrounding Tech Ecosystem Ring State
   const [nearbyTech, setNearbyTech] = useState<TechPillarData | null>(null);
@@ -6013,6 +6415,8 @@ function WorldHero() {
           registerKnockbackHandler={registerKnockbackHandler}
           hitSparks={hitSparks}
           triggerEmote={triggerEmote}
+          playerPoseRef={playerPoseRef}
+          teleportTargetRef={teleportTargetRef}
         />
       </Canvas>
 
@@ -6028,27 +6432,45 @@ function WorldHero() {
           <p className="mt-1 sm:mt-2 text-[11px] sm:text-xs leading-relaxed text-neutral-400 hidden xs:block">
             Swipe layar arahkan kamera &bull; Kontrol karakter di bawah.
           </p>
-          {/* Mobile Visitor Indicator */}
-          <button
-            onClick={() => {
-              setInputName(localPlayer.name);
-              setSelectedColor(localPlayer.color);
-              setSelectedAccent(localPlayer.accentColor);
-              setShowNameModal(true);
-            }}
-            className="mt-2 flex items-center gap-1.5 md:hidden pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-[11px] font-semibold text-emerald-400">
-              {totalOnline}/{maxPlayers || 10} Online
-            </span>
-            <span className="text-[10px] text-cyan-300 font-mono underline">
-              🤖 {localPlayer.name} ✏️
-            </span>
-          </button>
+          {/* Mobile Visitor Indicator & Audio Toggle */}
+          <div className="mt-2 flex items-center gap-1.5 md:hidden pointer-events-auto">
+            <button
+              onClick={() => {
+                setInputName(localPlayer.name);
+                setSelectedColor(localPlayer.color);
+                setSelectedAccent(localPlayer.accentColor);
+                setShowNameModal(true);
+              }}
+              className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-semibold text-emerald-400">
+                {totalOnline}/{maxPlayers || 10} Online
+              </span>
+              <span className="text-[10px] text-cyan-300 font-mono underline">
+                🤖 {localPlayer.name} ✏️
+              </span>
+            </button>
+
+            <button
+              onClick={handleToggleAudio}
+              title={isAudioMuted ? "Aktifkan Audio Metaverse" : "Bisukan Audio Metaverse"}
+              className={`flex h-6 w-6 items-center justify-center rounded-full border transition-all active:scale-90 ${
+                !isAudioMuted
+                  ? "border-cyan-400/60 bg-cyan-950/70 text-cyan-300"
+                  : "border-white/15 bg-black/60 text-neutral-400"
+              }`}
+            >
+              {!isAudioMuted ? (
+                <Volume2 className="h-3 w-3 text-cyan-400 animate-pulse" />
+              ) : (
+                <VolumeX className="h-3 w-3 text-neutral-400" />
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="hidden flex-col items-end gap-2 text-right md:flex pointer-events-auto">
@@ -6088,6 +6510,29 @@ function WorldHero() {
               </div>
             )}
 
+            {/* Master Spatial Audio Toggle */}
+            <button
+              onClick={handleToggleAudio}
+              title={isAudioMuted ? "Aktifkan Spatial Ambient & Sound FX" : "Bisukan Suara (Mute)"}
+              className={`glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all cursor-pointer shadow-lg active:scale-95 ${
+                !isAudioMuted
+                  ? "border-cyan-400/60 bg-cyan-950/50 text-cyan-300 hover:bg-cyan-900/40"
+                  : "border-white/10 bg-neutral-900/40 text-neutral-400 hover:text-white"
+              }`}
+            >
+              {!isAudioMuted ? (
+                <>
+                  <Volume2 className="h-3.5 w-3.5 text-cyan-400 animate-pulse" />
+                  <span className="font-mono text-[11px] font-semibold text-cyan-300">AUDIO ON</span>
+                </>
+              ) : (
+                <>
+                  <VolumeX className="h-3.5 w-3.5 text-neutral-400" />
+                  <span className="font-mono text-[11px] text-neutral-400">AUDIO OFF</span>
+                </>
+              )}
+            </button>
+
             {/* Speed Indicator */}
             <div className="glass flex items-center gap-2 rounded-full px-3 py-1.5 text-xs text-neutral-300">
               <span id="hud-speed-dot" className="h-2 w-2 rounded-full bg-neutral-500" />
@@ -6098,6 +6543,18 @@ function WorldHero() {
             WASD RUN &bull; DRAG MOUSE / SWIPE CAMERA (ATAS &bull; BAWAH &bull; KIRI &bull; KANAN) &bull; F PUNCH
           </span>
         </div>
+      </div>
+
+      {/* Cyber Radar Minimap & Spatial Audio HUD (Top Right Corner) */}
+      <div className="pointer-events-auto absolute top-20 sm:top-24 md:top-28 right-3 sm:right-6 z-20">
+        <CyberMinimap
+          playerPoseRef={playerPoseRef}
+          remotePlayers={remotePlayers}
+          onFastTravel={handleFastTravel}
+          isAudioMuted={isAudioMuted}
+          onToggleAudio={handleToggleAudio}
+          localPlayerColor={localPlayer.accentColor}
+        />
       </div>
 
       {/* Desktop Quick Action Bar: Punch & Interactive Live Typing Chat (Hidden on Mobile) */}
