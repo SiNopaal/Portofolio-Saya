@@ -180,6 +180,7 @@ class MetaverseSpatialAmbientEngine {
     const dNE = Math.hypot(x - 32, z - (-32));   // Quantum AI
     const dSW = Math.hypot(x - (-32), z - 32);    // DevOps Runway
     const dSE = Math.hypot(x - 32, z - 32);      // Zen Sanctuary
+    const dLounge = Math.hypot(x - 0, z - 32);   // South Chill Firepit Lounge
     const dCenter = Math.hypot(x, z);            // Plaza
 
     let targetCutoff = 420;
@@ -205,6 +206,11 @@ class MetaverseSpatialAmbientEngine {
       const w = 1 - dSE / 24;
       targetCutoff = 460;
       targetShimmer = 0.0001 + w * 0.04;
+    } else if (dLounge < 16) {
+      // South Chill Lounge: Ultra-warm campfire pad with gentle ambient shimmer
+      const w = 1 - dLounge / 16;
+      targetCutoff = 380 + w * 60;
+      targetShimmer = 0.0001 + w * 0.025;
     } else if (dCenter < 18) {
       // Center Spawn: Serene warm ambient
       targetCutoff = 400;

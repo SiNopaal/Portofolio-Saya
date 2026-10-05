@@ -4081,6 +4081,533 @@ function MinimalistPromenadeTrees() {
 }
 
 /* ============================================================
+   SOUTH EDGE: CYBER FIREPIT & HOLOGRAPHIC CHILL LOUNGE [0, 0, 32]
+   - Center: Holographic floating particle campfire
+   - Perimeter: Semicircular charred-wood neon curved benches
+   - Canopy: Majestic Grand Ancient Cyber Sakura Tree (Pohon Besar)
+============================================================ */
+
+function HolographicFirepit() {
+  const flameCrystal1Ref = useRef<THREE.Mesh>(null);
+  const flameCrystal2Ref = useRef<THREE.Mesh>(null);
+  const flameRingRef = useRef<THREE.Group>(null);
+  const lightRef = useRef<THREE.PointLight>(null);
+  const embersRef = useRef<THREE.Points>(null);
+
+  // 24 procedural upward-floating fire embers
+  const emberPositions = useMemo(() => {
+    const arr = new Float32Array(24 * 3);
+    for (let i = 0; i < 24; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 0.8;
+      arr[i * 3 + 1] = Math.random() * 1.8 + 0.1;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 0.8;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+
+    // Inner flame crystal rotation and floating pulse
+    if (flameCrystal1Ref.current) {
+      flameCrystal1Ref.current.rotation.y += delta * 1.6;
+      flameCrystal1Ref.current.position.y = 0.42 + Math.sin(t * 3.5) * 0.05;
+      const s = 1.0 + Math.sin(t * 7) * 0.08;
+      flameCrystal1Ref.current.scale.set(s, s * 1.25, s);
+    }
+    if (flameCrystal2Ref.current) {
+      flameCrystal2Ref.current.rotation.y -= delta * 2.2;
+      flameCrystal2Ref.current.rotation.x = Math.sin(t * 2) * 0.2;
+      flameCrystal2Ref.current.position.y = 0.52 + Math.cos(t * 4.0) * 0.04;
+    }
+    if (flameRingRef.current) {
+      flameRingRef.current.rotation.z += delta * 1.8;
+      flameRingRef.current.rotation.x = Math.PI / 4 + Math.sin(t * 1.5) * 0.15;
+    }
+    // Dynamic organic flame flicker
+    if (lightRef.current) {
+      lightRef.current.intensity = 2.4 + Math.sin(t * 14) * 0.35 + Math.cos(t * 23) * 0.2;
+    }
+
+    // Upward ember drift
+    if (embersRef.current) {
+      const geo = embersRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 24; i++) {
+        pos[i * 3 + 1] += delta * (0.6 + (i % 5) * 0.15);
+        pos[i * 3] += Math.sin(t * 2 + i) * 0.003;
+        pos[i * 3 + 2] += Math.cos(t * 2 + i) * 0.003;
+        if (pos[i * 3 + 1] > 2.2) {
+          pos[i * 3 + 1] = 0.15;
+          pos[i * 3] = (Math.random() - 0.5) * 0.7;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 0.7;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Outer Volcanic Basalt Hearth Rim */}
+      <mesh position={[0, 0.08, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.15, 1.25, 0.16, 24]} />
+        <meshStandardMaterial color="#18181b" roughness={0.8} metalness={0.2} />
+      </mesh>
+      {/* Inner Metallic Heat Crucible */}
+      <mesh position={[0, 0.10, 0]}>
+        <cylinderGeometry args={[0.95, 0.95, 0.14, 24]} />
+        <meshStandardMaterial color="#09090b" roughness={0.4} metalness={0.7} />
+      </mesh>
+      {/* Glowing Ember Bed */}
+      <mesh position={[0, 0.14, 0]}>
+        <cylinderGeometry args={[0.82, 0.82, 0.04, 20]} />
+        <meshStandardMaterial
+          color="#7c2d12"
+          emissive="#ea580c"
+          emissiveIntensity={1.4}
+          roughness={0.7}
+        />
+      </mesh>
+
+      {/* Volcanic Charcoal Stone Ring */}
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        return (
+          <mesh
+            key={`coal-${i}`}
+            position={[Math.cos(rad) * 0.72, 0.16, Math.sin(rad) * 0.72]}
+            rotation={[deg, deg * 2, deg]}
+            castShadow
+          >
+            <dodecahedronGeometry args={[0.11]} />
+            <meshStandardMaterial color="#27272a" roughness={0.9} emissive="#ea580c" emissiveIntensity={0.2} />
+          </mesh>
+        );
+      })}
+
+      {/* Floating Holographic Energy Core (Crystalline Stylized Flame) */}
+      <mesh ref={flameCrystal1Ref} position={[0, 0.42, 0]} castShadow>
+        <octahedronGeometry args={[0.26, 0]} />
+        <meshStandardMaterial
+          color="#fef08a"
+          emissive="#f97316"
+          emissiveIntensity={2.2}
+          roughness={0.1}
+          metalness={0.2}
+        />
+      </mesh>
+
+      <mesh ref={flameCrystal2Ref} position={[0, 0.52, 0]}>
+        <tetrahedronGeometry args={[0.18, 0]} />
+        <meshStandardMaterial
+          color="#fed7aa"
+          emissive="#ef4444"
+          emissiveIntensity={2.5}
+          roughness={0.1}
+          wireframe
+        />
+      </mesh>
+
+      {/* Floating Thermal Energy Rings */}
+      <group ref={flameRingRef} position={[0, 0.45, 0]}>
+        <mesh>
+          <torusGeometry args={[0.42, 0.016, 12, 32]} />
+          <meshBasicMaterial color="#fbbf24" opacity={0.75} transparent />
+        </mesh>
+      </group>
+
+      {/* Floating Embers Particle System */}
+      <points ref={embersRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[emberPositions, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.065}
+          color="#fbbf24"
+          transparent
+          opacity={0.85}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Warm Cozy Campfire Light */}
+      <pointLight
+        ref={lightRef}
+        position={[0, 0.65, 0]}
+        color="#f97316"
+        intensity={2.6}
+        distance={11}
+        castShadow
+        shadow-bias={-0.001}
+      />
+    </group>
+  );
+}
+
+function CurvedNeonBenches() {
+  // Semicircular amphitheater curved benches around radius ~2.75m
+  // Leaving open the North entrance facing the plaza
+  const benchAngles = [
+    { angleMid: 50 },
+    { angleMid: 95 },
+    { angleMid: 140 },
+    { angleMid: 220 },
+    { angleMid: 265 },
+    { angleMid: 310 },
+  ];
+
+  return (
+    <group>
+      {benchAngles.map((b, idx) => {
+        const radMid = (b.angleMid * Math.PI) / 180;
+        const bx = Math.cos(radMid) * 2.75;
+        const bz = Math.sin(radMid) * 2.75;
+        const rotY = -radMid + Math.PI / 2;
+
+        return (
+          <group key={`bench-${idx}`} position={[bx, 0, bz]} rotation={[0, rotY, 0]}>
+            {/* Charred Wood Seat Plinth */}
+            <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+              <boxGeometry args={[1.4, 0.08, 0.55]} />
+              <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.2} />
+            </mesh>
+            {/* Ergonomic Back Cushion Pad */}
+            <mesh position={[0, 0.38, 0.24]} castShadow>
+              <boxGeometry args={[1.36, 0.26, 0.08]} />
+              <meshStandardMaterial color="#27272a" roughness={0.8} />
+            </mesh>
+            {/* Cantilever Titanium Legs */}
+            {[-0.55, 0.55].map((lx, lIdx) => (
+              <mesh key={`leg-${lIdx}`} position={[lx, 0.1, 0]}>
+                <boxGeometry args={[0.08, 0.2, 0.45]} />
+                <meshStandardMaterial color="#09090b" metalness={0.85} roughness={0.3} />
+              </mesh>
+            ))}
+            {/* Recessed Warm Amber Underglow Strip */}
+            <mesh position={[0, 0.04, 0]}>
+              <boxGeometry args={[1.3, 0.02, 0.04]} />
+              <meshBasicMaterial color="#f59e0b" opacity={0.65} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+
+      {/* Cyber Side Drink Coasters / Low Tables */}
+      {[-65, 65].map((deg, i) => {
+        const rad = (deg * Math.PI) / 180;
+        const tx = Math.sin(rad) * 3.1;
+        const tz = Math.cos(rad) * 3.1;
+        return (
+          <group key={`table-${i}`} position={[tx, 0, tz]}>
+            <mesh position={[0, 0.15, 0]} castShadow>
+              <cylinderGeometry args={[0.3, 0.32, 0.3, 16]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.6} />
+            </mesh>
+            <mesh position={[0, 0.305, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+              <ringGeometry args={[0.18, 0.22, 16]} />
+              <meshBasicMaterial color="#38bdf8" opacity={0.7} transparent />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+function GrandAncientCyberTree({ position = [0, 0, 3.8] }: { position?: [number, number, number] }) {
+  const foliageRef = useRef<THREE.Group>(null);
+  const petalsRef = useRef<THREE.Points>(null);
+  const lanternRopesRef = useRef<THREE.Group>(null);
+
+  // 32 drifting petal particles
+  const petalPositions = useMemo(() => {
+    const arr = new Float32Array(32 * 3);
+    for (let i = 0; i < 32; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 5.2;
+      arr[i * 3 + 1] = Math.random() * 4.5 + 1.0;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 5.2;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+
+    // Majestic organic breathing sway of foliage
+    if (foliageRef.current) {
+      foliageRef.current.rotation.y = Math.sin(t * 0.6) * 0.025;
+      foliageRef.current.rotation.z = Math.cos(t * 0.8) * 0.015;
+    }
+
+    // Gentle lantern swing
+    if (lanternRopesRef.current) {
+      lanternRopesRef.current.rotation.z = Math.sin(t * 1.4) * 0.04;
+    }
+
+    // Drifting Sakura / Petal Spores
+    if (petalsRef.current) {
+      const geo = petalsRef.current.geometry;
+      const pos = geo.attributes.position.array as Float32Array;
+      for (let i = 0; i < 32; i++) {
+        pos[i * 3 + 1] -= delta * (0.35 + (i % 4) * 0.1);
+        pos[i * 3] += Math.sin(t * 1.2 + i) * 0.005;
+        pos[i * 3 + 2] += Math.cos(t * 1.0 + i) * 0.005;
+        if (pos[i * 3 + 1] < 0.1) {
+          pos[i * 3 + 1] = 5.2;
+          pos[i * 3] = (Math.random() - 0.5) * 4.8;
+          pos[i * 3 + 2] = (Math.random() - 0.5) * 4.8;
+        }
+      }
+      geo.attributes.position.needsUpdate = true;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Root Base & Buttress Flare */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <coneGeometry args={[1.2, 0.55, 10]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.9} />
+      </mesh>
+
+      {/* Massive Ancient Tree Trunk Segments (Gnarled, twisting posture) */}
+      <mesh position={[0, 1.1, 0]} rotation={[0.08, 0.2, -0.05]} castShadow>
+        <cylinderGeometry args={[0.62, 0.85, 1.6, 12]} />
+        <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
+      </mesh>
+      <mesh position={[-0.1, 2.4, 0.1]} rotation={[-0.12, 0.4, 0.1]} castShadow>
+        <cylinderGeometry args={[0.48, 0.62, 1.5, 12]} />
+        <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
+      </mesh>
+      <mesh position={[-0.15, 3.6, -0.1]} rotation={[0.15, 0.1, -0.14]} castShadow>
+        <cylinderGeometry args={[0.36, 0.48, 1.4, 10]} />
+        <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
+      </mesh>
+
+      {/* Primary Sweeping Boughs arching over Firepit Lounge */}
+      {/* 1. Forward arching bough (reaching over campfire) */}
+      <mesh position={[0, 3.2, -1.1]} rotation={[-0.7, 0, 0]} castShadow>
+        <cylinderGeometry args={[0.22, 0.32, 2.2, 8]} />
+        <meshStandardMaterial color="#292524" roughness={0.85} />
+      </mesh>
+      {/* 2. Left spreading bough (reaching over west benches) */}
+      <mesh position={[-1.1, 3.5, 0.2]} rotation={[0.2, 0.3, 0.8]} castShadow>
+        <cylinderGeometry args={[0.2, 0.3, 2.1, 8]} />
+        <meshStandardMaterial color="#292524" roughness={0.85} />
+      </mesh>
+      {/* 3. Right spreading bough (reaching over east benches) */}
+      <mesh position={[1.1, 3.4, 0.1]} rotation={[-0.15, -0.4, -0.75]} castShadow>
+        <cylinderGeometry args={[0.2, 0.3, 2.0, 8]} />
+        <meshStandardMaterial color="#292524" roughness={0.85} />
+      </mesh>
+      {/* 4. Top crown spire */}
+      <mesh position={[-0.05, 4.6, -0.2]} rotation={[0.1, 0.1, 0.05]} castShadow>
+        <cylinderGeometry args={[0.14, 0.24, 1.6, 8]} />
+        <meshStandardMaterial color="#292524" roughness={0.85} />
+      </mesh>
+
+      {/* Multi-Tiered Ethereal Cyber Sakura Foliage Canopies */}
+      <group ref={foliageRef}>
+        {/* Main Lower Front Canopy (Sheltering over Campfire) */}
+        <mesh position={[0, 4.2, -2.1]} castShadow>
+          <sphereGeometry args={[1.6, 16, 12]} />
+          <meshStandardMaterial
+            color="#f472b6"
+            emissive="#db2777"
+            emissiveIntensity={0.35}
+            roughness={0.7}
+            metalness={0.1}
+          />
+        </mesh>
+        {/* West Side Canopy */}
+        <mesh position={[-2.3, 4.4, 0.3]} castShadow>
+          <sphereGeometry args={[1.45, 16, 12]} />
+          <meshStandardMaterial
+            color="#ec4899"
+            emissive="#be185d"
+            emissiveIntensity={0.3}
+            roughness={0.7}
+          />
+        </mesh>
+        {/* East Side Canopy */}
+        <mesh position={[2.2, 4.3, 0.2]} castShadow>
+          <sphereGeometry args={[1.5, 16, 12]} />
+          <meshStandardMaterial
+            color="#f472b6"
+            emissive="#db2777"
+            emissiveIntensity={0.32}
+            roughness={0.7}
+          />
+        </mesh>
+        {/* High Central Crown Canopy */}
+        <mesh position={[-0.1, 5.7, -0.3]} castShadow>
+          <sphereGeometry args={[1.8, 16, 12]} />
+          <meshStandardMaterial
+            color="#fbcfe8"
+            emissive="#ec4899"
+            emissiveIntensity={0.38}
+            roughness={0.65}
+          />
+        </mesh>
+        {/* Rear Deep Canopy */}
+        <mesh position={[0.2, 4.8, 1.6]} castShadow>
+          <sphereGeometry args={[1.35, 14, 10]} />
+          <meshStandardMaterial
+            color="#ec4899"
+            emissive="#be185d"
+            emissiveIntensity={0.25}
+            roughness={0.75}
+          />
+        </mesh>
+        {/* Top Floating Cloud Cap */}
+        <mesh position={[0, 6.8, -0.2]}>
+          <sphereGeometry args={[1.1, 14, 10]} />
+          <meshStandardMaterial
+            color="#fdf2f8"
+            emissive="#f472b6"
+            emissiveIntensity={0.45}
+            roughness={0.6}
+          />
+        </mesh>
+      </group>
+
+      {/* Hanging Cyber Chochin Lanterns dangling from the boughs */}
+      <group ref={lanternRopesRef}>
+        {[
+          [-1.2, 2.7, -1.2],
+          [1.2, 2.6, -1.2],
+          [-1.6, 2.8, 0.4],
+          [1.6, 2.7, 0.3],
+        ].map(([lx, ly, lz], idx) => (
+          <group key={`hanging-lantern-${idx}`} position={[lx, ly, lz]}>
+            {/* Hanging Cord */}
+            <mesh position={[0, 0.22, 0]}>
+              <cylinderGeometry args={[0.008, 0.008, 0.45, 6]} />
+              <meshBasicMaterial color="#78716c" />
+            </mesh>
+            {/* Lantern Cap */}
+            <mesh position={[0, 0.02, 0]}>
+              <cylinderGeometry args={[0.12, 0.16, 0.06, 12]} />
+              <meshStandardMaterial color="#1c1917" roughness={0.7} />
+            </mesh>
+            {/* Frosted Warm Paper Body */}
+            <mesh position={[0, -0.16, 0]} castShadow>
+              <sphereGeometry args={[0.18, 12, 10]} />
+              <meshStandardMaterial
+                color="#fef3c7"
+                emissive="#f59e0b"
+                emissiveIntensity={0.85}
+                roughness={0.3}
+              />
+            </mesh>
+            {/* Bottom Tassel */}
+            <mesh position={[0, -0.36, 0]}>
+              <coneGeometry args={[0.04, 0.15, 6]} />
+              <meshBasicMaterial color="#b45309" />
+            </mesh>
+            {/* Soft Warm Candle Glow */}
+            <pointLight position={[0, -0.16, 0]} color="#fde68a" intensity={0.55} distance={3.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* Drifting Sakura Petals */}
+      <points ref={petalsRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[petalPositions, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.08}
+          color="#f472b6"
+          transparent
+          opacity={0.8}
+          blending={THREE.AdditiveBlending}
+        />
+      </points>
+
+      {/* Subtle Tree Spotlight Accent from base upward */}
+      <pointLight position={[0, 0.6, 0.8]} color="#f472b6" intensity={1.2} distance={7} />
+    </group>
+  );
+}
+
+function CyberFirepitChillLounge({ position = [0, 0, 32] }: { position?: [number, number, number] }) {
+  return (
+    <group position={position}>
+      {/* 1. Circular Obsidian Flagstone Terrace Patio (Radius 5.8m x Height 0.06m) */}
+      <mesh position={[0, 0.03, 0]} receiveShadow>
+        <cylinderGeometry args={[5.8, 6.1, 0.06, 36]} />
+        <meshStandardMaterial color="#0e1420" roughness={0.85} metalness={0.15} />
+      </mesh>
+
+      {/* Terrace Outer Titanium Ring Trim */}
+      <mesh position={[0, 0.015, 0]}>
+        <cylinderGeometry args={[6.15, 6.3, 0.03, 36]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.8} />
+      </mesh>
+
+      {/* Concentric Inlaid Glowing Paving Rings on the Patio */}
+      <group position={[0, 0.062, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh>
+          <ringGeometry args={[1.9, 1.93, 36]} />
+          <meshBasicMaterial color="#f97316" opacity={0.45} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[3.8, 3.83, 36]} />
+          <meshBasicMaterial color="#f59e0b" opacity={0.35} transparent />
+        </mesh>
+        <mesh>
+          <ringGeometry args={[5.4, 5.43, 36]} />
+          <meshBasicMaterial color="#38bdf8" opacity={0.3} transparent />
+        </mesh>
+      </group>
+
+      {/* North Entrance Stepping Stones Pathway connecting from Promenade */}
+      {[-3.6, -4.3, -5.0].map((pz, i) => (
+        <mesh key={`path-stone-${i}`} position={[0, 0.065, pz]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <boxGeometry args={[1.5, 0.52, 0.01]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
+        </mesh>
+      ))}
+
+      {/* Holographic Entry Signpost: CHILL LOUNGE */}
+      <group position={[0, 0, -4.8]}>
+        {/* Twin Entrance Stanchions */}
+        {[-1.2, 1.2].map((sx, i) => (
+          <group key={`stanchion-${i}`} position={[sx, 0, 0]}>
+            <mesh position={[0, 0.45, 0]} castShadow>
+              <cylinderGeometry args={[0.04, 0.06, 0.9, 12]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+            </mesh>
+            <mesh position={[0, 0.92, 0]}>
+              <sphereGeometry args={[0.05, 12, 12]} />
+              <meshStandardMaterial color="#fde047" emissive="#eab308" emissiveIntensity={1.2} />
+            </mesh>
+            <pointLight position={[0, 0.92, 0]} color="#fde047" intensity={0.4} distance={2.2} />
+          </group>
+        ))}
+      </group>
+
+      {/* 2. Central Holographic Floating Particle Campfire */}
+      <HolographicFirepit />
+
+      {/* 3. Semicircular Curved Ergonomic Neon Benches */}
+      <CurvedNeonBenches />
+
+      {/* 4. Pohon Besar: Majestic Grand Ancient Cyber Sakura Tree */}
+      <GrandAncientCyberTree position={[0, 0, 3.4]} />
+    </group>
+  );
+}
+
+/* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena({
@@ -4169,6 +4696,9 @@ function CyberMetaverseArena({
         carRef={carRef}
         onNearbyNode={onNearbyZenNode}
       />
+
+      {/* South Edge: Cyber Firepit & Holographic Chill Lounge with Grand Ancient Sakura Tree */}
+      <CyberFirepitChillLounge position={[0, 0, 32]} />
 
       {/* 4. Zen-Minimalist Promenade Decorations (Floor Traces, Light Bollards & Solitary Trees) */}
       <FloorDataTraces />
