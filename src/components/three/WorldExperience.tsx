@@ -433,6 +433,85 @@ export const TECH_PILLARS: TechPillarData[] = [
   { id: "git", name: "Git", badge: "GIT", category: "VCS", desc: "Distributed DAG snapshots & atomic cryptographical commits", color: "#fb923c", border: "#fdba74" },
 ];
 
+/* ============================================================
+   QUANTUM AI & DISTRIBUTED SYSTEMS OBSERVATORY DATA
+============================================================ */
+export interface QuantumObservatoryNode {
+  id: string;
+  name: string;
+  category: string;
+  badge: string;
+  color: string;
+  border: string;
+  formula: string;
+  concept: string;
+  realWorldUsage: string;
+  position: [number, number, number];
+}
+
+export const QUANTUM_OBSERVATORY_NODES: QuantumObservatoryNode[] = [
+  {
+    id: "quantum-core",
+    name: "The Quantum Core & Bloch Sphere",
+    category: "QUANTUM COMPUTE",
+    badge: "Q-CORE",
+    color: "#38bdf8",
+    border: "#60a5fa",
+    formula: "|ψ⟩ = α|0⟩ + β|1⟩",
+    concept: "Superposisi probabilitas melampaui biner (0 & 1) untuk komputasi paralel masif eksponensial.",
+    realWorldUsage: "Kriptografi Post-Quantum (PQC), simulasi fisika molekuler, & optimasi komputasi eksponensial.",
+    position: [0, 0, 0],
+  },
+  {
+    id: "vector-space",
+    name: "Latent Nebula & Vector Embeddings",
+    category: "AI & EMBEDDINGS",
+    badge: "AI-VEC",
+    color: "#a855f7",
+    border: "#c084fc",
+    formula: "cos(θ) = (A · B) / (||A|| ||B||)",
+    concept: "Representasi semantik kata dan pengetahuan di ruang n-dimensi (1536D) untuk penalaran kontekstual AI.",
+    realWorldUsage: "Semantic vector search (Pinecone/Milvus), RAG, & Transformer Self-Attention Q-K-V.",
+    position: [-5.2, 0, 0],
+  },
+  {
+    id: "raft-mesh",
+    name: "Orbital Mesh & Raft Consensus",
+    category: "DISTRIBUTED SYSTEMS",
+    badge: "RAFT",
+    color: "#f59e0b",
+    border: "#fbbf24",
+    formula: "Quorum = ⌊N / 2⌋ + 1",
+    concept: "Protokol konsensus pemilihan Leader dan replikasi log konsisten terhadap partisi jaringan (CAP Theorem).",
+    realWorldUsage: "Kubernetes etcd, CockroachDB, TiKV, & cluster cloud berkeandalan 99.999%.",
+    position: [5.2, 0, 0],
+  },
+  {
+    id: "dag-graph",
+    name: "The Celestial DAG & Graph Theory",
+    category: "GRAPH THEORY",
+    badge: "DAG",
+    color: "#10b981",
+    border: "#34d399",
+    formula: "G = (V, E) [Acyclic]",
+    concept: "Struktur graf berarah tanpa siklus untuk pemetaan dependensi waktu, kausalitas, dan determinisme eksekusi.",
+    realWorldUsage: "Git commit tree DAG, monorepo build graph (Turborepo/Bazel), & Airflow DAGs.",
+    position: [0, 0, -5.2],
+  },
+  {
+    id: "event-stream",
+    name: "Reactive Streams & Event Pipeline",
+    category: "EVENT-DRIVEN",
+    badge: "STREAM",
+    color: "#ec4899",
+    border: "#f472b6",
+    formula: "Throughput: O(1) append-log",
+    concept: "Pemisahan produsen dan konsumen data melalui append-only commit log dengan penanganan backpressure.",
+    realWorldUsage: "Apache Kafka, AWS Kinesis, RabbitMQ, & microservices event-driven scalability.",
+    position: [3.7, 0, 3.7],
+  },
+];
+
 function getTechBadgeTexture(item: TechPillarData): THREE.CanvasTexture {
   const key = `tech-badge-${item.id}`;
   const cached = textureCache.get(key);
@@ -1887,18 +1966,527 @@ function ZenGalleryCorner({
   );
 }
 
-/* --- Corner 2: Stargazer Sky Platform & Monolith Courtyard --- */
-function SkyPlatformCorner({ position }: { position: [number, number, number] }) {
-  const monolithRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Group>(null);
+/* --- 1. The Quantum Core & Armillary Sphere (Centerpiece) --- */
+function QuantumCoreArmillary() {
+  const ring1Ref = useRef<THREE.Group>(null);
+  const ring2Ref = useRef<THREE.Group>(null);
+  const ring3Ref = useRef<THREE.Group>(null);
+  const ring4Ref = useRef<THREE.Group>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const beamRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
-    if (monolithRef.current) {
-      monolithRef.current.rotation.y += delta * 0.18;
-      monolithRef.current.position.y = 1.9 + Math.sin(state.clock.elapsedTime * 0.7) * 0.08;
+    const t = state.clock.elapsedTime;
+    if (ring1Ref.current) ring1Ref.current.rotation.y += delta * 0.35;
+    if (ring2Ref.current) ring2Ref.current.rotation.x += delta * 0.45;
+    if (ring3Ref.current) ring3Ref.current.rotation.z -= delta * 0.3;
+    if (ring4Ref.current) {
+      ring4Ref.current.rotation.y -= delta * 0.55;
+      ring4Ref.current.rotation.x = Math.sin(t * 0.8) * 0.15;
+    }
+    if (coreRef.current) {
+      coreRef.current.position.y = 1.95 + Math.sin(t * 1.5) * 0.05;
+      const s = 1.0 + Math.sin(t * 3.0) * 0.08;
+      coreRef.current.scale.set(s, s, s);
+    }
+    if (beamRef.current) {
+      (beamRef.current.material as THREE.MeshBasicMaterial).opacity = 0.25 + Math.sin(t * 2.5) * 0.1;
+    }
+  });
+
+  return (
+    <group position={[0, 0, 0]}>
+      {/* Basalt Octagonal Central Plinth */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[1.5, 1.8, 0.4, 8]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
+      </mesh>
+      {/* Plinth Accent Trim in Starlight Cyan */}
+      <mesh position={[0, 0.46, 0]}>
+        <cylinderGeometry args={[1.54, 1.54, 0.03, 8]} />
+        <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Zenith Sky Laser Light Beam (Tembus ke Angkasa) */}
+      <mesh ref={beamRef} position={[0, 16, 0]}>
+        <cylinderGeometry args={[0.02, 0.06, 32, 8]} />
+        <meshBasicMaterial
+          color="#38bdf8"
+          transparent
+          opacity={0.3}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Kinetic 4-Ring Armillary Sphere & Bloch Frame */}
+      <group position={[0, 1.95, 0]}>
+        {/* Ring 1 (Meridian - Outer Titanium Ring) */}
+        <group ref={ring1Ref}>
+          <mesh castShadow>
+            <torusGeometry args={[1.35, 0.032, 16, 48]} />
+            <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.9} />
+          </mesh>
+        </group>
+
+        {/* Ring 2 (Celestial Equator - Bronze Tilted Ring) */}
+        <group ref={ring2Ref} rotation={[0.41, 0, 0]}>
+          <mesh castShadow>
+            <torusGeometry args={[1.12, 0.028, 16, 48]} />
+            <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.9} emissive="#b45309" emissiveIntensity={0.3} />
+          </mesh>
+        </group>
+
+        {/* Ring 3 (Ecliptic - Cyan Luminous Orbit Ring) */}
+        <group ref={ring3Ref} rotation={[-0.41, 0, Math.PI / 4]}>
+          <mesh castShadow>
+            <torusGeometry args={[0.9, 0.024, 16, 48]} />
+            <meshStandardMaterial color="#38bdf8" roughness={0.15} metalness={0.95} emissive="#0284c7" emissiveIntensity={0.4} />
+          </mesh>
+        </group>
+
+        {/* Ring 4 (Bloch Sphere Superposition Axis Wireframe) */}
+        <group ref={ring4Ref}>
+          <mesh>
+            <sphereGeometry args={[0.65, 16, 12]} />
+            <meshStandardMaterial color="#94a3b8" wireframe roughness={0.3} metalness={0.8} opacity={0.35} transparent />
+          </mesh>
+        </group>
+
+        {/* Central Levitating Quantum Core (Stellar Singularity) */}
+        <mesh ref={coreRef} castShadow>
+          <octahedronGeometry args={[0.26, 0]} />
+          <meshStandardMaterial
+            color="#e0f2fe"
+            roughness={0.08}
+            metalness={0.95}
+            emissive="#38bdf8"
+            emissiveIntensity={0.85}
+          />
+        </mesh>
+      </group>
+
+      {/* Gentle Starlight Ambient Core Light */}
+      <pointLight position={[0, 2.1, 0]} color="#38bdf8" intensity={1.8} distance={7} />
+    </group>
+  );
+}
+
+/* --- 2. Latent Space & Vector Embeddings Station (AI / LLM) --- */
+function VectorSpaceStation({ position }: { position: [number, number, number] }) {
+  const clusterRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+
+  const points = useMemo(() => {
+    return [
+      [-0.35, 0.25, 0.2],
+      [-0.2, 0.45, -0.15],
+      [0.15, 0.3, 0.35],
+      [0.35, 0.15, -0.25],
+      [-0.1, 0.1, 0.4],
+      [0.25, 0.4, 0.1],
+      [-0.3, -0.1, -0.2],
+      [0.1, -0.15, 0.25],
+      [-0.15, 0.35, 0.15],
+      [0.4, 0.2, 0.15],
+      [-0.25, 0.15, -0.3],
+      [0.05, 0.5, -0.1],
+    ] as [number, number, number][];
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (clusterRef.current) {
+      clusterRef.current.rotation.y += delta * 0.4;
+      clusterRef.current.position.y = 1.35 + Math.sin(t * 1.3) * 0.04;
     }
     if (ringRef.current) {
-      ringRef.current.rotation.y -= delta * 0.12;
+      ringRef.current.rotation.z -= delta * 0.5;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Plinth */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.1, 0.38, 1.1]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
+      </mesh>
+      {/* Violet Plinth Accent Rim */}
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[1.14, 0.02, 1.14]} />
+        <meshStandardMaterial color="#a855f7" roughness={0.2} metalness={0.9} emissive="#7e22ce" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Floating Holographic Vector Cluster */}
+      <group ref={clusterRef} position={[0, 1.35, 0]}>
+        {/* Outer Coordinate Lens Ring */}
+        <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.015, 12, 32]} />
+          <meshStandardMaterial color="#c084fc" transparent opacity={0.65} />
+        </mesh>
+
+        {/* 12 Embedding Vector Nodes */}
+        {points.map((p, idx) => (
+          <mesh key={`vec-${idx}`} position={p}>
+            <sphereGeometry args={[0.04, 12, 12]} />
+            <meshStandardMaterial color="#d8b4fe" emissive="#a855f7" emissiveIntensity={0.7} />
+          </mesh>
+        ))}
+
+        {/* Semantic Connecting Vector Axis */}
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.9, 6]} />
+          <meshBasicMaterial color="#a855f7" transparent opacity={0.4} />
+        </mesh>
+        <mesh rotation={[Math.PI / 4, 0, 0]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.9, 6]} />
+          <meshBasicMaterial color="#c084fc" transparent opacity={0.4} />
+        </mesh>
+      </group>
+
+      {/* Soft Violet Point Light */}
+      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.2} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- 3. Orbital Mesh & Raft Consensus Station (Distributed Systems) --- */
+function RaftMeshStation({ position }: { position: [number, number, number] }) {
+  const meshGroupRef = useRef<THREE.Group>(null);
+  const leaderRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (meshGroupRef.current) {
+      meshGroupRef.current.rotation.y += delta * 0.55;
+      meshGroupRef.current.position.y = 1.35 + Math.sin(t * 1.4 + 1) * 0.04;
+    }
+    if (leaderRef.current) {
+      const s = 1.0 + Math.sin(t * 4.0) * 0.12;
+      leaderRef.current.scale.set(s, s, s);
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Plinth */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.1, 0.38, 1.1]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
+      </mesh>
+      {/* Amber Plinth Accent Rim */}
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[1.14, 0.02, 1.14]} />
+        <meshStandardMaterial color="#f59e0b" roughness={0.2} metalness={0.9} emissive="#b45309" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Floating Orbital Consensus Nodes */}
+      <group ref={meshGroupRef} position={[0, 1.35, 0]}>
+        {/* Consensus Quorum Outer Orbit Ring */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.54, 0.57, 32]} />
+          <meshBasicMaterial color="#f59e0b" transparent opacity={0.5} side={THREE.DoubleSide} />
+        </mesh>
+
+        {/* Elected Leader Node (Center) */}
+        <mesh ref={leaderRef} position={[0, 0, 0]} castShadow>
+          <octahedronGeometry args={[0.16, 0]} />
+          <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} metalness={0.9} />
+        </mesh>
+
+        {/* 3 Replicated Follower Nodes in Orbital Ring */}
+        {[0, (2 * Math.PI) / 3, (4 * Math.PI) / 3].map((angle, idx) => {
+          const sx = Math.cos(angle) * 0.55;
+          const sz = Math.sin(angle) * 0.55;
+          return (
+            <group key={`sat-${idx}`} position={[sx, 0, sz]}>
+              <mesh castShadow>
+                <boxGeometry args={[0.1, 0.1, 0.1]} />
+                <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.9} />
+              </mesh>
+              {/* Solar / Mesh Panels */}
+              <mesh position={[0.08, 0, 0]}>
+                <boxGeometry args={[0.07, 0.015, 0.14]} />
+                <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
+              </mesh>
+              <mesh position={[-0.08, 0, 0]}>
+                <boxGeometry args={[0.07, 0.015, 0.14]} />
+                <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
+              </mesh>
+              {/* Heartbeat Laser Line connecting to Leader */}
+              <mesh position={[-sx * 0.5, 0, -sz * 0.5]}>
+                <cylinderGeometry args={[0.006, 0.006, 0.55, 6]} />
+                <meshBasicMaterial color="#f59e0b" transparent opacity={0.6} />
+              </mesh>
+            </group>
+          );
+        })}
+      </group>
+
+      {/* Dedicated Amber Point Light */}
+      <pointLight position={[0, 1.35, 0]} color="#f59e0b" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- 4. The Celestial DAG & Graph Theory Station --- */
+function DagGraphStation({ position }: { position: [number, number, number] }) {
+  const dagGroupRef = useRef<THREE.Group>(null);
+
+  const vertices = useMemo(() => [
+    { pos: [0, 0.45, 0], label: "Root" },
+    { pos: [-0.32, 0.15, 0.15], label: "B1" },
+    { pos: [0.32, 0.15, -0.15], label: "B2" },
+    { pos: [-0.4, -0.2, 0], label: "C1" },
+    { pos: [0, -0.2, 0.25], label: "C2" },
+    { pos: [0.4, -0.2, -0.1], label: "C3" },
+  ] as { pos: [number, number, number]; label: string }[], []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (dagGroupRef.current) {
+      dagGroupRef.current.rotation.y += delta * 0.35;
+      dagGroupRef.current.position.y = 1.35 + Math.sin(t * 1.2 + 2) * 0.04;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Plinth */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.1, 0.38, 1.1]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
+      </mesh>
+      {/* Emerald Plinth Accent Rim */}
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[1.14, 0.02, 1.14]} />
+        <meshStandardMaterial color="#10b981" roughness={0.2} metalness={0.9} emissive="#059669" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Floating 3D DAG Graph Structure */}
+      <group ref={dagGroupRef} position={[0, 1.35, 0]}>
+        {/* Vertices */}
+        {vertices.map((v, idx) => (
+          <mesh key={`v-${idx}`} position={v.pos}>
+            <octahedronGeometry args={[0.07, 0]} />
+            <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.7} metalness={0.85} />
+          </mesh>
+        ))}
+
+        {/* Connecting Directed Graph Edges (Beams) */}
+        {[
+          { from: vertices[0].pos, to: vertices[1].pos },
+          { from: vertices[0].pos, to: vertices[2].pos },
+          { from: vertices[1].pos, to: vertices[3].pos },
+          { from: vertices[1].pos, to: vertices[4].pos },
+          { from: vertices[2].pos, to: vertices[4].pos },
+          { from: vertices[2].pos, to: vertices[5].pos },
+        ].map((edge, idx) => {
+          const midX = (edge.from[0] + edge.to[0]) / 2;
+          const midY = (edge.from[1] + edge.to[1]) / 2;
+          const midZ = (edge.from[2] + edge.to[2]) / 2;
+          const len = Math.hypot(edge.to[0] - edge.from[0], edge.to[1] - edge.from[1], edge.to[2] - edge.from[2]);
+          return (
+            <group key={`edge-${idx}`} position={[midX, midY, midZ]}>
+              <mesh>
+                <boxGeometry args={[0.015, len, 0.015]} />
+                <meshStandardMaterial color="#34d399" transparent opacity={0.65} emissive="#10b981" emissiveIntensity={0.4} />
+              </mesh>
+            </group>
+          );
+        })}
+      </group>
+
+      {/* Dedicated Emerald Point Light */}
+      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.2} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- 5. Reactive Streams & Event Pipeline Station --- */
+function EventStreamStation({ position }: { position: [number, number, number] }) {
+  const streamRef = useRef<THREE.Group>(null);
+  const ringRef1 = useRef<THREE.Mesh>(null);
+  const ringRef2 = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (streamRef.current) {
+      streamRef.current.position.y = 1.35 + Math.sin(t * 1.5 + 3) * 0.04;
+    }
+    if (ringRef1.current) ringRef1.current.rotation.z += delta * 1.6;
+    if (ringRef2.current) ringRef2.current.rotation.z -= delta * 1.4;
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Plinth */}
+      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.1, 0.38, 1.1]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
+      </mesh>
+      {/* Magenta Plinth Accent Rim */}
+      <mesh position={[0, 0.45, 0]}>
+        <boxGeometry args={[1.14, 0.02, 1.14]} />
+        <meshStandardMaterial color="#ec4899" roughness={0.2} metalness={0.9} emissive="#be185d" emissiveIntensity={0.5} />
+      </mesh>
+
+      {/* Floating Event Conduit Particle Accelerator */}
+      <group ref={streamRef} position={[0, 1.35, 0]}>
+        {/* Ring 1 (Horizontal Event Pipe) */}
+        <mesh ref={ringRef1} rotation={[Math.PI / 4, 0, 0]}>
+          <torusGeometry args={[0.55, 0.025, 16, 36]} />
+          <meshStandardMaterial color="#f472b6" roughness={0.2} metalness={0.9} emissive="#ec4899" emissiveIntensity={0.5} />
+        </mesh>
+
+        {/* Ring 2 (Vertical Reactive Pipe) */}
+        <mesh ref={ringRef2} rotation={[-Math.PI / 4, 0, 0]}>
+          <torusGeometry args={[0.42, 0.02, 16, 36]} />
+          <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
+        </mesh>
+
+        {/* Center Buffer Queue Sphere */}
+        <mesh castShadow>
+          <sphereGeometry args={[0.15, 16, 16]} />
+          <meshStandardMaterial color="#f43f5e" emissive="#e11d48" emissiveIntensity={0.7} metalness={0.9} />
+        </mesh>
+      </group>
+
+      {/* Dedicated Magenta Point Light */}
+      <pointLight position={[0, 1.35, 0]} color="#ec4899" intensity={1.2} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Floating AI & Distributed Systems Formula Runes --- */
+const QUANTUM_FORMULA_GLYPHS = [
+  { glyph: "softmax()", color: "#38bdf8" },
+  { glyph: "Q•K^T", color: "#a855f7" },
+  { glyph: "O(N log N)", color: "#10b981" },
+  { glyph: "CAP", color: "#f59e0b" },
+  { glyph: "|ψ⟩", color: "#38bdf8" },
+  { glyph: "Embed(1536)", color: "#c084fc" },
+  { glyph: "Raft::Heartbeat", color: "#fbbf24" },
+  { glyph: "DAG::Sort", color: "#34d399" },
+  { glyph: "Kafka::Stream", color: "#ec4899" },
+  { glyph: "Loss(θ)", color: "#f43f5e" },
+  { glyph: "p99 < 5ms", color: "#2dd4bf" },
+  { glyph: "λx.x", color: "#fb923c" },
+];
+
+function FloatingQuantumRunesCloud({ count = 32 }: { count?: number }) {
+  const runeItems = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const g = QUANTUM_FORMULA_GLYPHS[i % QUANTUM_FORMULA_GLYPHS.length];
+      const radius = 1.2 + Math.random() * 6.5;
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        id: i,
+        glyph: g.glyph,
+        color: g.color,
+        baseX: Math.cos(angle) * radius,
+        baseZ: Math.sin(angle) * radius,
+        y: 0.6 + Math.random() * 3.4,
+        speed: 0.2 + Math.random() * 0.25,
+        swaySpeed: 0.8 + Math.random() * 0.6,
+        swayAmp: 0.15 + Math.random() * 0.18,
+        rotSpeed: (Math.random() - 0.5) * 0.5,
+        seed: Math.random() * 10,
+        scale: 0.28 + Math.random() * 0.1,
+      };
+    });
+  }, [count]);
+
+  const refs = useRef<(THREE.Group | null)[]>([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < runeItems.length; i++) {
+      const item = runeItems[i];
+      const el = refs.current[i];
+      if (!el) continue;
+
+      item.y += delta * item.speed;
+      if (item.y > 4.2) {
+        item.y = 0.5;
+      }
+
+      el.position.y = item.y;
+      el.position.x = item.baseX + Math.sin(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.position.z = item.baseZ + Math.cos(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.rotation.y += delta * item.rotSpeed;
+    }
+  });
+
+  return (
+    <group>
+      {runeItems.map((item, i) => {
+        const tex = getCodeRuneTexture(item.glyph, item.color);
+        return (
+          <group
+            key={`quantum-rune-${i}`}
+            ref={(r) => {
+              refs.current[i] = r;
+            }}
+            position={[item.baseX, item.y, item.baseZ]}
+          >
+            <mesh>
+              <planeGeometry args={[item.scale, item.scale]} />
+              <meshStandardMaterial
+                map={tex}
+                transparent
+                opacity={0.82}
+                roughness={0.2}
+                metalness={0.1}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* --- Corner 2: Stargazer Quantum AI & Distributed Systems Observatory --- */
+function SkyPlatformCorner({
+  position,
+  carRef,
+  onNearbyNode,
+}: {
+  position: [number, number, number];
+  carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  onNearbyNode?: (node: QuantumObservatoryNode | null) => void;
+}) {
+  const ringRef = useRef<THREE.Group>(null);
+  const currentNearbyRef = useRef<string | null>(null);
+
+  useFrame((state, delta) => {
+    if (ringRef.current) {
+      ringRef.current.rotation.z -= delta * 0.12;
+    }
+
+    if (carRef?.current && onNearbyNode) {
+      const carPos = carRef.current.pos;
+      let closest: QuantumObservatoryNode | null = null;
+      let minD = 2.8;
+
+      for (const node of QUANTUM_OBSERVATORY_NODES) {
+        const nx = position[0] + node.position[0];
+        const nz = position[2] + node.position[2];
+        const d = Math.hypot(carPos.x - nx, carPos.z - nz);
+        if (d < minD) {
+          minD = d;
+          closest = node;
+        }
+      }
+
+      if ((closest?.id ?? null) !== currentNearbyRef.current) {
+        currentNearbyRef.current = closest?.id ?? null;
+        onNearbyNode(closest);
+      }
     }
   });
 
@@ -1920,58 +2508,48 @@ function SkyPlatformCorner({ position }: { position: [number, number, number] })
       <group position={[0, 0.102, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <mesh>
           <ringGeometry args={[3.4, 3.44, 48]} />
-          <meshBasicMaterial color="#475569" opacity={0.8} transparent />
+          <meshBasicMaterial color="#38bdf8" opacity={0.5} transparent />
         </mesh>
         <mesh>
           <ringGeometry args={[5.6, 5.64, 48]} />
-          <meshBasicMaterial color="#334155" opacity={0.6} transparent />
+          <meshBasicMaterial color="#818cf8" opacity={0.4} transparent />
         </mesh>
         <mesh>
-          <ringGeometry args={[7.4, 7.43, 48]} />
-          <meshBasicMaterial color="#334155" opacity={0.4} transparent />
+          <ringGeometry args={[7.4, 7.44, 48]} />
+          <meshBasicMaterial color="#38bdf8" opacity={0.35} transparent />
         </mesh>
       </group>
 
-      {/* Slowly Rotating Astronomical Dial Ring */}
+      {/* Slowly Rotating Astronomical Coordinate Dial Ring */}
       <group ref={ringRef} position={[0, 0.105, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         {[0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4].map((rad, idx) => (
-          <mesh key={`dial-${idx}`} position={[Math.cos(rad) * 4.5, Math.sin(rad) * 4.5, 0]} rotation={[0, 0, rad]}>
-            <planeGeometry args={[0.08, 0.35]} />
+          <mesh key={`dial-${idx}`} position={[Math.cos(rad) * 6.5, Math.sin(rad) * 6.5, 0]} rotation={[0, 0, rad]}>
+            <planeGeometry args={[0.08, 0.45]} />
             <meshBasicMaterial color="#94a3b8" />
           </mesh>
         ))}
       </group>
 
-      {/* Central Monolith Plinth Base */}
-      <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.5, 1.7, 0.24, 8]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
-      </mesh>
+      {/* Center Module: The Quantum Core & Bloch Sphere */}
+      <QuantumCoreArmillary />
 
-      {/* Levitating Obsidian Obelisk Monolith */}
-      <group ref={monolithRef} position={[0, 1.9, 0]}>
-        {/* Main Obelisk Shaft */}
-        <mesh castShadow receiveShadow>
-          <cylinderGeometry args={[0.42, 0.65, 2.6, 4]} />
-          <meshStandardMaterial color="#090d16" roughness={0.2} metalness={0.85} />
-        </mesh>
-        {/* Pyramid Cap */}
-        <mesh position={[0, 1.55, 0]} castShadow>
-          <coneGeometry args={[0.42, 0.5, 4]} />
-          <meshStandardMaterial color="#1e293b" roughness={0.15} metalness={0.9} />
-        </mesh>
-        {/* Subtle Warm Core Inset Line */}
-        <mesh position={[0, 0, 0]}>
-          <cylinderGeometry args={[0.44, 0.67, 0.05, 4]} />
-          <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.5} />
-        </mesh>
-      </group>
+      {/* Station 1: Latent Nebula & Vector Embeddings (West) */}
+      <VectorSpaceStation position={[-5.2, 0, 0]} />
 
-      {/* Gentle Warm Uplight for the Monolith */}
-      <pointLight position={[0, 0.45, 0]} color="#fef3c7" intensity={1.4} distance={5} />
+      {/* Station 2: Orbital Mesh & Raft Consensus (East) */}
+      <RaftMeshStation position={[5.2, 0, 0]} />
+
+      {/* Station 3: The Celestial DAG & Graph Theory (North) */}
+      <DagGraphStation position={[0, 0, -5.2]} />
+
+      {/* Station 4: Reactive Streams & Event Pipeline (South-East) */}
+      <EventStreamStation position={[3.7, 0, 3.7]} />
+
+      {/* Floating Software Engineering & AI Formula Runes */}
+      <FloatingQuantumRunesCloud count={32} />
 
       {/* Low-profile Perimeter Observatory Stanchions */}
-      {[0.3, 0.7, 1.1, 1.5, 1.9, 2.3].map((angleMult, idx) => {
+      {[0.25, 0.55, 0.85, 1.15, 1.45, 1.75, 2.05].map((angleMult, idx) => {
         const rad = angleMult * Math.PI;
         const bx = Math.cos(rad) * 7.9;
         const bz = Math.sin(rad) * 7.9;
@@ -1981,10 +2559,10 @@ function SkyPlatformCorner({ position }: { position: [number, number, number] })
               <cylinderGeometry args={[0.07, 0.09, 0.5, 16]} />
               <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
             </mesh>
-            {/* Soft Warm Amber Top Lens Dot */}
+            {/* Soft Starlight Cyan Top Lens Dot */}
             <mesh position={[0, 0.51, 0]}>
               <cylinderGeometry args={[0.05, 0.05, 0.03, 16]} />
-              <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={0.6} />
+              <meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.7} />
             </mesh>
           </group>
         );
@@ -2247,11 +2825,13 @@ function CyberMetaverseArena({
   carRef,
   onNearbyArtwork,
   onNearbyTech,
+  onNearbyQuantumNode,
   resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   onNearbyTech?: (tech: TechPillarData | null) => void;
+  onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
   resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
@@ -2304,7 +2884,11 @@ function CyberMetaverseArena({
       />
 
       {/* Corner 2: Floating Monolith Courtyard / Stargazer Sky Platform (North-East) */}
-      <SkyPlatformCorner position={[32, 0, -32]} />
+      <SkyPlatformCorner
+        position={[32, 0, -32]}
+        carRef={carRef}
+        onNearbyNode={onNearbyQuantumNode}
+      />
 
       {/* Corner 3: Clean Aerospace Runway / Minimalist Hangar Apron (South-West) */}
       <AerospaceRunwayCorner position={[-32, 0, 32]} />
@@ -3663,6 +4247,7 @@ function World({
   onActiveLandmark,
   onNearbyArtwork,
   onNearbyTech,
+  onNearbyQuantumNode,
   resonancePulseKey = 0,
   mobileControls,
   localPlayer,
@@ -3679,6 +4264,7 @@ function World({
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   onNearbyTech?: (tech: TechPillarData | null) => void;
+  onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
   resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
@@ -4168,6 +4754,7 @@ function World({
         carRef={carState}
         onNearbyArtwork={onNearbyArtwork}
         onNearbyTech={onNearbyTech}
+        onNearbyQuantumNode={onNearbyQuantumNode}
         resonancePulseKey={resonancePulseKey}
       />
 
@@ -4255,6 +4842,9 @@ function WorldHero() {
   // Surrounding Tech Ecosystem Ring State
   const [nearbyTech, setNearbyTech] = useState<TechPillarData | null>(null);
 
+  // Stargazer Quantum AI Observatory State
+  const [nearbyQuantumNode, setNearbyQuantumNode] = useState<QuantumObservatoryNode | null>(null);
+
   // Zen Gallery Kinetic Resonance Pulse State
   const [resonancePulseKey, setResonancePulseKey] = useState(0);
 
@@ -4341,6 +4931,7 @@ function WorldHero() {
         <World
           onActiveLandmark={setActiveLandmark}
           onNearbyTech={setNearbyTech}
+          onNearbyQuantumNode={setNearbyQuantumNode}
           resonancePulseKey={resonancePulseKey}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
@@ -4557,6 +5148,52 @@ function WorldHero() {
               </h4>
               <p className="text-[11px] text-neutral-300 font-mono truncate">
                 {nearbyTech.desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stargazer Quantum AI & Distributed Systems HUD Floating Pill */}
+      {nearbyQuantumNode && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-24 sm:bottom-20 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-white/10 bg-neutral-950/90 p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border font-mono font-black text-xs tracking-wider shadow-inner text-center"
+              style={{
+                borderColor: `${nearbyQuantumNode.color}55`,
+                backgroundColor: `${nearbyQuantumNode.color}15`,
+                color: nearbyQuantumNode.color,
+                boxShadow: `0 0 16px ${nearbyQuantumNode.color}25`,
+              }}
+            >
+              {nearbyQuantumNode.badge}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className="rounded-full px-2 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase border"
+                  style={{
+                    borderColor: `${nearbyQuantumNode.color}40`,
+                    backgroundColor: `${nearbyQuantumNode.color}10`,
+                    color: nearbyQuantumNode.color,
+                  }}
+                >
+                  {nearbyQuantumNode.category}
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono">Observatory</span>
+              </div>
+              <h4 className="mt-0.5 text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
+                <span>{nearbyQuantumNode.name}</span>
+              </h4>
+              <div className="mt-0.5 inline-block font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-cyan-300">
+                {nearbyQuantumNode.formula}
+              </div>
+              <p className="mt-1 text-[11px] text-neutral-300 line-clamp-2 leading-relaxed">
+                {nearbyQuantumNode.concept}
+              </p>
+              <p className="mt-1 text-[10px] text-neutral-400 truncate font-mono">
+                <span className="text-neutral-500">Real-World:</span> {nearbyQuantumNode.realWorldUsage}
               </p>
             </div>
           </div>
