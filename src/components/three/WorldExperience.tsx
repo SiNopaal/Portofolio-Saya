@@ -18,6 +18,10 @@ import {
   User,
   Check,
   X,
+  Copy,
+  ExternalLink,
+  Code2,
+  Terminal,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES, CharacterModelType } from "@/lib/multiplayer";
 import { CyberTeleportStation, playTeleportSound, playZenChimeSound, playWaterRippleSound } from "./ArenaZones";
@@ -397,6 +401,126 @@ function getBlobTexture(): THREE.CanvasTexture {
   return tex;
 }
 
+function getCodePlateTexture(pillarKey: "prism" | "mobius" | "gyroscope" | "bonsai"): THREE.CanvasTexture {
+  const key = `code-plate-${pillarKey}`;
+  const cached = textureCache.get(key);
+  if (cached) return cached;
+
+  const W = 512;
+  const H = 768;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  roundedRect(ctx, 10, 10, W - 20, H - 20, 24);
+  ctx.fillStyle = "rgba(11, 16, 28, 0.94)";
+  ctx.fill();
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+  ctx.stroke();
+
+  // Window titlebar
+  roundedRect(ctx, 10, 10, W - 20, 52, 24);
+  ctx.fillStyle = "rgba(15, 23, 42, 0.98)";
+  ctx.fill();
+
+  // Dots
+  ctx.fillStyle = "#ef4444";
+  ctx.beginPath();
+  ctx.arc(36, 36, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f59e0b";
+  ctx.beginPath();
+  ctx.arc(58, 36, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#10b981";
+  ctx.beginPath();
+  ctx.arc(80, 36, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  // File tab title
+  const titles = {
+    prism: "fixed_timestep.ts",
+    mobius: "resilient_worker.py",
+    gyroscope: "spatial_hash.ts",
+    bonsai: "clean_architecture.ts",
+  };
+  ctx.fillStyle = "#cbd5e1";
+  ctx.font = "600 20px Consolas, monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(titles[pillarKey], 108, 43);
+
+  // Code lines sample
+  const codeLines: Record<string, { text: string; color: string }[]> = {
+    prism: [
+      { text: "// Fixed Timestep vs Render Loop", color: "#64748b" },
+      { text: "// Solves High-Speed Tunneling Trap", color: "#38bdf8" },
+      { text: "const FIXED_STEP = 1 / 60;", color: "#e2e8f0" },
+      { text: "state.accum += Math.min(dt, 0.2);", color: "#38bdf8" },
+      { text: "while (state.accum >= FIXED_STEP) {", color: "#f59e0b" },
+      { text: "  physicsWorld.step(FIXED_STEP);", color: "#34d399" },
+      { text: "  state.accum -= FIXED_STEP;", color: "#e2e8f0" },
+      { text: "}", color: "#f59e0b" },
+      { text: "const alpha = state.accum / STEP;", color: "#a78bfa" },
+      { text: "interpolateTransforms(alpha);", color: "#34d399" },
+      { text: "// Deterministik di Semua Monitor", color: "#64748b" },
+    ],
+    mobius: [
+      { text: "# Resilient Async Event Loop", color: "#64748b" },
+      { text: "# Backoff + Jitter: No Thundering", color: "#f59e0b" },
+      { text: "class ResilientWorker:", color: "#38bdf8" },
+      { text: "  async def run_event_loop(self):", color: "#38bdf8" },
+      { text: "    while True:", color: "#f59e0b" },
+      { text: "      task = await queue.pop()", color: "#e2e8f0" },
+      { text: "      try:", color: "#f59e0b" },
+      { text: "        await execute_idempotent(task)", color: "#34d399" },
+      { text: "      except RateLimitError:", color: "#ef4444" },
+      { text: "        delay = calc_jitter_backoff()", color: "#a78bfa" },
+      { text: "        await asyncio.sleep(delay)", color: "#38bdf8" },
+    ],
+    gyroscope: [
+      { text: "// Spatial Hashing: O(N²) -> O(1)", color: "#64748b" },
+      { text: "// Discrete Coordinate Partitioning", color: "#818cf8" },
+      { text: "function hash(x, z, cellSize) {", color: "#818cf8" },
+      { text: "  const cx = Math.floor(x / cellSize);", color: "#e2e8f0" },
+      { text: "  const cz = Math.floor(z / cellSize);", color: "#e2e8f0" },
+      { text: "  return ((cx * P1) ^ (cz * P2)) >>> 0;", color: "#34d399" },
+      { text: "}", color: "#818cf8" },
+      { text: "const nearby = grid.query(x, z);", color: "#38bdf8" },
+      { text: "// Cek 4 tetangga, bukan 2.000 objek!", color: "#64748b" },
+    ],
+    bonsai: [
+      { text: "// Software Zen: Pruning Debt", color: "#64748b" },
+      { text: "const ArchitectureHealth = {", color: "#34d399" },
+      { text: "  singleResponsibility: 1.0,", color: "#38bdf8" },
+      { text: "  cyclomaticComplexity: '<= 4',", color: "#38bdf8" },
+      { text: "  deadCodePercentage: 0.0,", color: "#38bdf8" },
+      { text: "  pruneUnusedAbstractions: true,", color: "#f59e0b" },
+      { text: "  looselyCoupled: true,", color: "#34d399" },
+      { text: "} as const;", color: "#34d399" },
+    ],
+  };
+
+  const lines = codeLines[pillarKey] || [];
+  let y = 105;
+  for (const line of lines) {
+    ctx.fillStyle = line.color;
+    ctx.font = "500 24px Consolas, monospace";
+    ctx.fillText(line.text, 28, y);
+    y += 40;
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  textureCache.set(key, tex);
+  return tex;
+}
+
 /* ============================================================
    1. FLOATING COSMIC STARDUST (Debu Bintang & Partikel Kosmis di Jurang Hampa)
 ============================================================ */
@@ -542,55 +666,243 @@ function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
 /* ============================================================
    ZEN DIGITAL GALLERY ARTWORKS DATA & TYPES
 ============================================================ */
+export type ZenPillarId = "prism" | "mobius" | "gyroscope" | "bonsai";
+
 export interface ZenGalleryArtwork {
-  id: "prism" | "mobius" | "gyroscope";
+  id: ZenPillarId;
   exhibitNumber: string;
   title: string;
   subtitle: string;
+  categoryBadge: string;
+  coreConcept: string;
+  problemSolved: string;
+  educationalTakeaways: string[];
   year: string;
   medium: string;
+  filename: string;
+  language: "typescript" | "python";
+  stackTags: string[];
+  metrics: { label: string; value: string }[];
   description: string;
+  codeSnippet: string;
   philosophy: string;
   accent: string;
   borderAccent: string;
+  learnMoreUrl: string;
 }
 
-export const ZEN_GALLERY_ARTWORKS: Record<"prism" | "mobius" | "gyroscope", ZenGalleryArtwork> = {
+export const ZEN_GALLERY_ARTWORKS: Record<ZenPillarId, ZenGalleryArtwork> = {
   prism: {
     id: "prism",
     exhibitNumber: "01",
-    title: "The Primordial Prism",
-    subtitle: "Spatial Computing & Dimensional Purity",
-    year: "2026",
-    medium: "Procedural R3F / Double-Faceted Refractive Crystal & Celestial Gimbal",
-    description: "Instalasi kristal prisma berlapis oktahedron dan ikosahedron dengan rotasi harmonik presisi, merefleksikan arsitektur sistem modern yang bersih, modular, dan terstruktur tanpa redundansi logika.",
-    philosophy: "Clean code architecture is like optical refraction: complexity simplified into pure harmonic clarity.",
+    title: "Fixed Timestep vs Render Loop: Solving the Tunneling Trap",
+    subtitle: "Computer Graphics & Real-Time Physics Engine Synchronization",
+    categoryBadge: "Spatial Engine Architecture",
+    coreConcept: "Pemisahan deterministik antara siklus fisika diskrit (Fixed Timestep) dan siklus rendering monitor (Variable Delta Rate).",
+    problemSolved: "Dalam game & simulasi 3D, jika kalkulasi gerak diikat langsung ke delta waktu monitor (requestAnimationFrame), penurunan frame drastis akan memperbesar langkah perpindahan objek (step displacement). Akibatnya, proyektil atau karakter berkecepatan tinggi dapat menembus dinding tebal tanpa terdeteksi tabrakan (masalah klasik 'Tunneling').",
+    educationalTakeaways: [
+      "Jangan pernah mengeksekusi kalkulasi posisi fisika langsung di dalam variabel delta render yang fluktuatif.",
+      "Gunakan Fixed Timestep Accumulator (misal: tepat 1/60 detik = 16.6ms) agar pergerakan selalu deterministik dan stabil di semua perangkat.",
+      "Interpolasikan posisi visual (alpha blend) antara state fisik sebelumnya dan state fisik saat ini agar gerakan tetap mulus di monitor 120Hz/144Hz.",
+      "Terapkan dead-reckoning saat menyinkronkan posisi multiplayer melalui WebSocket untuk menyamarkan latensi jaringan internet.",
+    ],
+    year: "Computer Science Foundation",
+    medium: "Interactive WebGL Simulation / Deterministic Physics Pipeline",
+    filename: "fixed_timestep_accumulator.ts",
+    language: "typescript",
+    stackTags: ["Fixed Timestep", "Dead Reckoning", "Game Physics", "Frame Budgeting"],
+    metrics: [
+      { label: "Physics Rate", value: "60Hz Fixed (16.6ms)" },
+      { label: "Render Hz", value: "Variable 60-144Hz" },
+      { label: "Tunneling Risk", value: "Zero (Sub-Stepped)" },
+    ],
+    description: "Eksibisi ini mendemonstrasikan bagaimana mesin komputasi spasial memproses realitas virtual. Inti dari stabilitas simulasi adalah kepastian matematis: kalkulasi fisika harus selalu berjalan pada interval waktu diskrit yang identik, terlepas apakah layar pengguna berjalan lambat di 30 FPS atau cepat di 144 FPS.",
+    codeSnippet: `// 💡 EDUKASI: Pola Pemisahan Fixed Timestep vs Render Loop
+// Mencegah masalah 'tunneling' objek menembus dinding saat frame drop.
+
+export function runPhysicsTickPipeline(
+  state: SimulationState,
+  deltaSec: number,
+  physicsWorld: PhysicsEngine
+) {
+  const FIXED_STEP = 1 / 60; // Tepat 16.66 milidetik per kalkulasi fisika
+  const MAX_ACCUMULATOR = 0.2; // Batas perlindungan dari 'spiral of death' jika lag parah
+
+  // 1. Kumpulkan waktu delta yang berjalan di frame render
+  state.accumulator += Math.min(deltaSec, MAX_ACCUMULATOR);
+
+  // 2. Eksekusi kalkulasi fisika hanya dalam interval fixed time
+  while (state.accumulator >= FIXED_STEP) {
+    physicsWorld.step(FIXED_STEP); // Deterministik, konsisten di semua PC
+    state.accumulator -= FIXED_STEP;
+  }
+
+  // 3. Hitung rasio sisa waktu untuk interpolasi visual di monitor 120Hz+
+  const alpha = state.accumulator / FIXED_STEP;
+  renderInterpolation(state.previousTransform, state.currentTransform, alpha);
+}`,
+    philosophy: "Deterministik dalam kalkulasi, dinamis dalam visualisasi: stabilitas sistem real-time bergantung pada disiplin pemisahan state waktu.",
     accent: "text-sky-300 bg-sky-500/10 border-sky-500/30",
     borderAccent: "#38bdf8",
+    learnMoreUrl: "https://gafferongames.com/post/fix_your_timestep/",
   },
   mobius: {
     id: "mobius",
     exhibitNumber: "02",
-    title: "Möbius Singularity",
-    subtitle: "Continuous Integration & Infinite Flow",
-    year: "2026",
-    medium: "Torus Knot Parametric Geometry / Golden Bronze Composite",
-    description: "Pahatan kinetik topologi Möbius yang berputar tiada henti. Merepresentasikan alur CI/CD otomatis, feedback loop tanpa henti, dan siklus iterasi rekayasa perangkat lunak modern.",
-    philosophy: "Every end is an entry point for continuous refinement, automated verification, and resilient deployment.",
+    title: "Asynchronous Resilient Event Loops & Task Queues",
+    subtitle: "Distributed Systems, Idempotency & Exponential Backoff with Jitter",
+    categoryBadge: "Distributed Cloud Architecture",
+    coreConcept: "Pola pemrosesan asynchronous berdaya tahan tinggi (Resilient Event-Driven Pipeline) dengan buffer antrean terdistribusi dan strategi self-healing backoff.",
+    problemSolved: "Jika arsitektur backend memanggil API eksternal (seperti LLM atau database eksternal) secara synchronous (blocking) saat terjadi lonjakan trafik mendadak, thread pool server akan terkuras habis. Ini memicu 'cascading failure' di mana seluruh ekosistem layanan mikro crash secara beruntun.",
+    educationalTakeaways: [
+      "Pisahkan penerimaan tugas (ingress HTTP) dari pengerjaan beban berat menggunakan antrean pesan (message queue buffer).",
+      "Selalu tambahkan 'Jitter' (variasi acak) pada Exponential Backoff agar request yang gagal tidak me-retry serentak membanjiri server hilir (thundering herd problem).",
+      "Pastikan setiap tugas bersifat Idempoten: mengeksekusi tugas yang sama 2 kali harus menghasilkan kondisi akhir yang sama persis tanpa duplikasi transaksi.",
+      "Terapkan Dead-Letter Queue (DLQ) untuk mengisolasi pesan yang rusak tanpa menghentikan pemrosesan pesan antrean lainnya.",
+    ],
+    year: "Distributed Systems",
+    medium: "Async Event Pipeline / Rate Limiter & Circuit Breaker Model",
+    filename: "resilient_async_worker.py",
+    language: "python",
+    stackTags: ["AsyncIO", "Event Loop", "Task Queue", "Exponential Backoff"],
+    metrics: [
+      { label: "Concurrency", value: "Non-Blocking Async" },
+      { label: "Retry Strategy", value: "Exp Backoff + Jitter" },
+      { label: "Failure Isolation", value: "Dead-Letter Queue" },
+    ],
+    description: "Eksibisi Möbius merepresentasikan siklus kontinu sebuah event loop. Seperti topologi Möbius yang tak berujung, sistem terdistribusi modern dirancang untuk mengalir tanpa henti: saat error tak terduga muncul, sistem tidak panik ataupun crash, melainkan merespons dengan perlambatan terkontrol (graceful degradation) dan retry otomatis.",
+    codeSnippet: `# 💡 EDUKASI: Arsitektur Resilient Worker dengan Exponential Backoff + Jitter
+# Mencegah 'Thundering Herd' ketika layanan eksternal mengalami gangguan.
+
+import asyncio, random
+
+class ResilientJobProcessor:
+    def __init__(self, queue, max_retries: int = 5):
+        self.queue = queue
+        self.max_retries = max_retries
+
+    def compute_backoff_with_jitter(self, attempt: int, base_delay: float = 0.5) -> float:
+        # Full Jitter: Sleep = random_between(0, min(cap, base * 2 ** attempt))
+        # Memecah gelombang retry serentak agar server hilir dapat bernapas
+        exponential_limit = min(30.0, base_delay * (2 ** attempt))
+        return random.uniform(0.1, exponential_limit)
+
+    async def execute_task_loop(self):
+        while True:
+            job = await self.queue.pop_next_job()
+            try:
+                # Tugas harus Idempoten (aman diulang jika jaringan sempat putus)
+                await self.process_idempotent_task(job)
+            except ExternalServiceRateLimitError:
+                delay = self.compute_backoff_with_jitter(job.retry_count)
+                await asyncio.sleep(delay)
+                await self.queue.requeue(job)`,
+    philosophy: "Sistem yang tangguh bukan sistem yang tidak pernah gagal, melainkan sistem yang dirancang untuk pulih secara mandiri saat kegagalan terjadi.",
     accent: "text-amber-300 bg-amber-500/10 border-amber-500/30",
     borderAccent: "#f59e0b",
+    learnMoreUrl: "https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/",
   },
   gyroscope: {
     id: "gyroscope",
     exhibitNumber: "03",
-    title: "Quantum Gyroscope",
-    subtitle: "Reactive State Synchronization",
-    year: "2026",
-    medium: "Triple Gimbal Multi-Axis Rings / High-Density Obsidian Mirror Core",
-    description: "Tiga cincin konsentris yang berputar independen mengelilingi inti gravitasi tunggal. Menggambarkan sistem state management terdistribusi yang tetap stabil di bawah konkurensi tinggi.",
-    philosophy: "Decoupled asynchronous domains rotating freely while bound to a single immutable source of truth.",
+    title: "Spatial Hashing: Slashing O(N²) Collisions to O(1)",
+    subtitle: "Discrete Coordinate Hashing & Spatial Data Structures",
+    categoryBadge: "Algorithmic Efficiency & Math",
+    coreConcept: "Algoritma partisi ruang matematis (Spatial Hashing) yang memetakan objek kontinu ke dalam sel-sel bucket diskrit untuk mendeteksi kedekatan instan.",
+    problemSolved: "Pendekatan naif (brute-force) membandingkan setiap objek dengan semua objek lain membutuhkan N*(N-1)/2 perbandingan (kompleksitas kuadratik O(N²)). Pada 2.000 objek, terjadi hampir 2.000.000 komparasi per frame (60 kali/detik) yang langsung membekukan CPU.",
+    educationalTakeaways: [
+      "Bagi ruang dunia menjadi sel grid diskrit berukuran teratur (misal: 4m x 4m) menggunakan fungsi hash bilangan prima integer.",
+      "Pindahkan pencarian dari 'seluruh dunia' menjadi hanya memeriksa objek yang menempati sel yang sama atau 8 sel tetangga terdekat.",
+      "Kompleksitas komputasi terpangkas dari kuadratik O(N²) menjadi waktu konstan O(1) amortized.",
+      "Gunakan flat arrays atau pre-allocated object pools untuk mencegah alokasi memori dinamis yang memicu Garbage Collection lag.",
+    ],
+    year: "Data Structures & Algorithms",
+    medium: "Spatial Hash Table / Vector Geometry Optimization",
+    filename: "spatial_hash_partition.ts",
+    language: "typescript",
+    stackTags: ["Spatial Partitioning", "Big-O Optimization", "Hash Collisions", "Memory Locality"],
+    metrics: [
+      { label: "Complexity", value: "O(1) Amortized" },
+      { label: "Broadphase Cost", value: "< 0.2ms / frame" },
+      { label: "Memory GC", value: "Zero Allocations" },
+    ],
+    description: "Tiga cincin konsentris giroskop melambangkan pemetaan koordinat ruang (X, Y, Z). Eksibisi ini mengajarkan salah satu lompatan performa paling fundamental dalam ilmu komputer: mengubah masalah penelusuran ruang yang berat menjadi pencarian kamus hash cepat berbasis aritmatika integer.",
+    codeSnippet: `// 💡 EDUKASI: Spatial Hashing untuk Collision Detection O(1)
+// Mengeliminasi pemeriksaan kuadratik O(N²) menjadi lookup instan.
+
+export class SpatialHashGrid {
+  private cellSize: number = 4.0; // Ukuran sel grid dalam satuan meter
+  private buckets = new Map<number, Entity[]>();
+
+  // Hash koordinat ruang kontinu ke integer 32-bit diskrit
+  public hash(x: number, z: number): number {
+    const cx = Math.floor(x / this.cellSize);
+    const cz = Math.floor(z / this.cellSize);
+    // Kombinasikan koordinat dengan perkalian bilangan prima besar
+    return ((cx * 73856093) ^ (cz * 19349663)) >>> 0;
+  }
+
+  // Hanya periksa tabrakan terhadap entitas di sel yang relevan!
+  public queryNearby(x: number, z: number): Entity[] {
+    const cellKey = this.hash(x, z);
+    return this.buckets.get(cellKey) || [];
+    // Hasil: hanya memeriksa ~4 objek terdekat, bukan 2.000 objek dunia!
+  }
+}`,
+    philosophy: "Struktur data yang tepat mengubah komputasi yang mustahil menjadi instan tanpa memerlukan perangkat keras yang lebih mahal.",
     accent: "text-indigo-300 bg-indigo-500/10 border-indigo-500/30",
     borderAccent: "#818cf8",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/Spatial_hash",
+  },
+  bonsai: {
+    id: "bonsai",
+    exhibitNumber: "04",
+    title: "The Zen of Clean Architecture & Pruning Complexity",
+    subtitle: "Software Craftsmanship, SOLID Principles & Preventing Code Rot",
+    categoryBadge: "Software Engineering Principles",
+    coreConcept: "Filosofi perawatan kode jangka panjang: secara berkala memangkas 'dead code', mengisolasi domain independen, dan melawan entropi perangkat lunak.",
+    problemSolved: "Seiring bertambahnya usia perangkat lunak, penambahan fitur tanpa refactoring menciptakan 'software rot' (pembusukan arsitektur). Kode menjadi saling terikat erat (tightly coupled), sehingga mengubah 1 baris di satu tempat bisa merusak modul yang sama sekali tidak berhubungan.",
+    educationalTakeaways: [
+      "Kode dibaca 10 kali lebih sering daripada ditulis. Jangan korbankan keterbacaan demi kode yang tampak 'pintar' namun sulit dipahami.",
+      "Prinsip Single Responsibility: Satu modul atau fungsi idealnya hanya menyelesaikan satu tugas spesifik dan memiliki satu alasan untuk berubah.",
+      "Pangkas ketergantungan (dependencies) yang tidak perlu seperti memangkas cabang pohon bonsai yang mati agar nutrisi mengalir ke struktur inti.",
+      "Tulis unit test sebagai jaring pengaman (safety net) sehingga refactoring besar dapat dilakukan dengan rasa percaya diri penuh.",
+    ],
+    year: "Software Craftsmanship",
+    medium: "Domain-Driven Design / Static Analysis / Clean Code Heuristics",
+    filename: "clean_architecture_zen.ts",
+    language: "typescript",
+    stackTags: ["Clean Architecture", "SOLID Principles", "Refactoring", "Domain Decoupling"],
+    metrics: [
+      { label: "Cognitive Load", value: "Minimal & Clean" },
+      { label: "Coupling", value: "Loosely Coupled" },
+      { label: "Maintainability", value: "High / Scalable" },
+    ],
+    description: "Pohon bonsai di taman zen ini adalah metafora nyata dari seni rekayasa perangkat lunak: keindahan dan kekuatan bukan berasal dari seberapa besar dan liarnya pohon tumbuh, melainkan dari kedisiplinan memangkas kerumitan yang tak berfaedah demi menjaga kemurnian dan daya tahan struktur intinya.",
+    codeSnippet: `// 💡 EDUKASI: Zen Arsitektur Bersih - Memangkas Kompleksitas (Refactoring)
+// Kode yang baik adalah kode yang mudah dipahami, mudah diuji, dan mudah diubah.
+
+export interface SoftwareArchitectureHealth {
+  // 1. Single Responsibility: Apakah setiap fungsi hanya punya 1 tugas?
+  readonly singleResponsibilityRatio: number; // Target: 1.0 (Tinggi)
+  
+  // 2. Cyclomatic Complexity: Jumlah cabang percabangan logika per fungsi
+  readonly averageCyclomaticComplexity: number; // Target: <= 4 (Rendah)
+  
+  // 3. Dead Code Pruning: Persentase kode mati yang belum dibersihkan
+  readonly unreferencedCodeRatio: number; // Target: 0.0% (Terpangkas rapi)
+}
+
+export function evaluateEngineeringZen(metrics: SoftwareArchitectureHealth): string {
+  if (metrics.averageCyclomaticComplexity <= 4 && metrics.unreferencedCodeRatio === 0) {
+    return "HARMONIC_ZEN: Arsitektur stabil, mudah dirawat, minim technical debt.";
+  }
+  return "PRUNING_REQUIRED: Pangkas cabang logika yang kusut sebelum menambah fitur baru.";
+}`,
+    philosophy: "Kesederhanaan adalah prasyarat utama keandalan sistem. Kode terbaik bukanlah kode yang tidak bisa ditambah lagi, melainkan kode yang tidak ada lagi yang perlu dihapus.",
+    accent: "text-teal-300 bg-teal-500/10 border-teal-500/30",
+    borderAccent: "#14b8a6",
+    learnMoreUrl: "https://martinfowler.com/books/refactoring.html",
   },
 };
 
@@ -713,6 +1025,25 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
         </points>
       </group>
 
+      {/* 3D Vertical Frameless Glass Syntax Code Terminal Plate */}
+      <group position={[0, 0.95, -0.52]}>
+        <mesh>
+          <planeGeometry args={[0.85, 1.25]} />
+          <meshStandardMaterial
+            map={getCodePlateTexture("bonsai")}
+            transparent
+            opacity={0.92}
+            roughness={0.1}
+            metalness={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+        <mesh position={[0, 0, -0.01]}>
+          <boxGeometry args={[0.88, 1.28, 0.015]} />
+          <meshStandardMaterial color="#0f766e" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
+        </mesh>
+      </group>
+
       {/* Dedicated Subtle Warm Micro-Spotlight */}
       <pointLight position={[0, 1.2, 0]} color="#ccfbf1" intensity={0.7} distance={3.5} />
     </group>
@@ -737,7 +1068,7 @@ function ZenGalleryCorner({
 }: {
   position: [number, number, number];
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
-  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   resonancePulseKey?: number;
 }) {
   const crystalRef = useRef<THREE.Group>(null);
@@ -749,7 +1080,7 @@ function ZenGalleryCorner({
   const gyroCoreRef = useRef<THREE.Mesh>(null);
   const poolWaterRef = useRef<THREE.Mesh>(null);
   const flareRingRef = useRef<THREE.Mesh>(null);
-  const currentNearbyRef = useRef<"prism" | "mobius" | "gyroscope" | null>(null);
+  const currentNearbyRef = useRef<ZenPillarId | null>(null);
 
   // Dynamic Footstep Water Ripples State
   const [ripples, setRipples] = useState<WaterRippleItem[]>([]);
@@ -863,11 +1194,13 @@ function ZenGalleryCorner({
       if (onNearbyArtwork) {
         const dWest = Math.hypot(carPos.x - (position[0] - 5.5), carPos.z - position[2]);
         const dEast = Math.hypot(carPos.x - (position[0] + 5.5), carPos.z - position[2]);
+        const dBonsai = Math.hypot(carPos.x - (position[0] - 5.5), carPos.z - (position[2] - 5.5));
 
-        let detected: "prism" | "mobius" | "gyroscope" | null = null;
+        let detected: ZenPillarId | null = null;
         if (dCenter < 2.9) detected = "prism";
         else if (dWest < 2.5) detected = "mobius";
         else if (dEast < 2.5) detected = "gyroscope";
+        else if (dBonsai < 2.5) detected = "bonsai";
 
         if (detected !== currentNearbyRef.current) {
           currentNearbyRef.current = detected;
@@ -1105,6 +1438,25 @@ function ZenGalleryCorner({
 
         {/* Subtle Warm Recessed Downlight */}
         <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
+
+        {/* 3D Vertical Syntax Code Plate */}
+        <group position={[0, 1.15, -0.62]}>
+          <mesh>
+            <planeGeometry args={[0.95, 1.4]} />
+            <meshStandardMaterial
+              map={getCodePlateTexture("prism")}
+              transparent
+              opacity={0.92}
+              roughness={0.1}
+              metalness={0.2}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh position={[0, 0, -0.01]}>
+            <boxGeometry args={[0.98, 1.43, 0.015]} />
+            <meshStandardMaterial color="#0284c7" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
+          </mesh>
+        </group>
       </group>
 
       {/* ========================================================
@@ -1143,6 +1495,25 @@ function ZenGalleryCorner({
 
         {/* Dedicated Warm Amber Accent Spotlight */}
         <pointLight position={[0, 0.7, 0]} color="#fef3c7" intensity={1.5} distance={5.5} />
+
+        {/* 3D Vertical Syntax Code Plate */}
+        <group position={[0, 1.1, -0.55]}>
+          <mesh>
+            <planeGeometry args={[0.9, 1.35]} />
+            <meshStandardMaterial
+              map={getCodePlateTexture("mobius")}
+              transparent
+              opacity={0.92}
+              roughness={0.1}
+              metalness={0.2}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh position={[0, 0, -0.01]}>
+            <boxGeometry args={[0.93, 1.38, 0.015]} />
+            <meshStandardMaterial color="#d97706" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
+          </mesh>
+        </group>
       </group>
 
       {/* ========================================================
@@ -1197,6 +1568,25 @@ function ZenGalleryCorner({
 
         {/* Dedicated Soft Indigo Accent Spotlight */}
         <pointLight position={[0, 0.7, 0]} color="#e0e7ff" intensity={1.5} distance={5.5} />
+
+        {/* 3D Vertical Syntax Code Plate */}
+        <group position={[0, 1.1, -0.55]}>
+          <mesh>
+            <planeGeometry args={[0.9, 1.35]} />
+            <meshStandardMaterial
+              map={getCodePlateTexture("gyroscope")}
+              transparent
+              opacity={0.92}
+              roughness={0.1}
+              metalness={0.2}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+          <mesh position={[0, 0, -0.01]}>
+            <boxGeometry args={[0.93, 1.38, 0.015]} />
+            <meshStandardMaterial color="#6366f1" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
+          </mesh>
+        </group>
       </group>
 
       {/* ========================================================
@@ -1596,7 +1986,7 @@ function CyberMetaverseArena({
   resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
-  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
@@ -3020,7 +3410,7 @@ function World({
   triggerEmote,
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
-  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
   resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
@@ -3594,10 +3984,19 @@ function WorldHero() {
   const [selectedAccent, setSelectedAccent] = useState(localPlayer.accentColor);
 
   // Zen Gallery Artwork Inspection State
-  const [nearbyArtwork, setNearbyArtwork] = useState<"prism" | "mobius" | "gyroscope" | null>(null);
+  const [nearbyArtwork, setNearbyArtwork] = useState<ZenPillarId | null>(null);
   const [activeCuratorNote, setActiveCuratorNote] = useState<ZenGalleryArtwork | null>(null);
+  const [copiedCode, setCopiedCode] = useState(false);
   const nearbyArtworkRef = useRef(nearbyArtwork);
   nearbyArtworkRef.current = nearbyArtwork;
+
+  const handleCopyCode = (code: string) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
 
   // Zen Gallery Kinetic Resonance Pulse State
   const [resonancePulseKey, setResonancePulseKey] = useState(0);
@@ -3874,7 +4273,7 @@ function WorldHero() {
         </div>
       )}
 
-      {/* Zen Gallery Museum Exhibition Inspector HUD Prompt */}
+      {/* Zen Gallery CS & Architecture Lab HUD Prompt */}
       {nearbyArtwork && !activeCuratorNote && (
         <div className="absolute inset-x-3 bottom-32 sm:bottom-28 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-sky-400/30 bg-neutral-950/90 p-3 sm:p-4 shadow-2xl backdrop-blur-xl md:bottom-24 animate-in fade-in slide-in-from-bottom-2 duration-200">
           <div className="flex items-center justify-between gap-3">
@@ -3883,7 +4282,9 @@ function WorldHero() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/15 px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold tracking-wider text-sky-300">
                   🏛️ EXHIBIT {ZEN_GALLERY_ARTWORKS[nearbyArtwork].exhibitNumber}
                 </span>
-                <span className="text-[10px] text-neutral-400 font-mono">Zen Digital Gallery</span>
+                <span className="text-[10px] text-neutral-400 font-mono truncate">
+                  {ZEN_GALLERY_ARTWORKS[nearbyArtwork].categoryBadge}
+                </span>
               </div>
               <h4 className="mt-1 text-sm sm:text-base font-bold text-white truncate">
                 {ZEN_GALLERY_ARTWORKS[nearbyArtwork].title}
@@ -3896,76 +4297,181 @@ function WorldHero() {
               onClick={() => setActiveCuratorNote(ZEN_GALLERY_ARTWORKS[nearbyArtwork])}
               className="shrink-0 flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-400/20 hover:bg-sky-400/30 px-3.5 py-2 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
             >
-              <span>Inspect [E]</span>
+              <span>Pelajari [E]</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* Zen Gallery Curatorial Essay Modal */}
+      {/* Zen Gallery Interactive Computer Science & Architecture Learning Lab Modal */}
       {activeCuratorNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-white/20 bg-neutral-950/95 p-6 sm:p-7 shadow-2xl backdrop-blur-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-white/20 bg-neutral-950/95 p-5 sm:p-7 shadow-2xl backdrop-blur-2xl overflow-hidden">
             {/* Close Button */}
             <button
               onClick={() => setActiveCuratorNote(null)}
-              className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="absolute right-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Close Note"
             >
               <X className="h-4 w-4" />
             </button>
 
-            {/* Header Badge */}
-            <div className="flex items-center gap-2">
-              <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${activeCuratorNote.accent}`}>
-                Exhibit {activeCuratorNote.exhibitNumber} &bull; {activeCuratorNote.year}
-              </span>
-              <span className="text-xs text-neutral-500 font-mono">Zen Digital Gallery</span>
-            </div>
+            {/* Scrollable Body Container */}
+            <div className="flex-1 overflow-y-auto pr-1 space-y-4">
+              {/* Header Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${activeCuratorNote.accent}`}>
+                  Exhibit {activeCuratorNote.exhibitNumber}
+                </span>
+                <span className="rounded-full border border-neutral-700 bg-neutral-800/60 px-2.5 py-0.5 text-[10px] text-neutral-300 font-mono">
+                  {activeCuratorNote.categoryBadge}
+                </span>
+                <span className="rounded-full border border-neutral-700 bg-neutral-800/60 px-2.5 py-0.5 text-[10px] text-neutral-400 font-mono">
+                  {activeCuratorNote.language === "typescript" ? "TypeScript 5.x" : "Python 3.11+"}
+                </span>
+              </div>
 
-            {/* Title & Subtitle */}
-            <h3 className="mt-3 text-xl sm:text-2xl font-black text-white tracking-tight">
-              {activeCuratorNote.title}
-            </h3>
-            <p className="mt-0.5 text-xs font-medium text-cyan-400">
-              {activeCuratorNote.subtitle}
-            </p>
-
-            {/* Medium tag */}
-            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2">
-              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold block">
-                Medium / Technique
-              </span>
-              <span className="text-xs text-neutral-300 font-mono">
-                {activeCuratorNote.medium}
-              </span>
-            </div>
-
-            {/* Curatorial Essay */}
-            <div className="mt-4 space-y-2.5">
-              <p className="text-xs sm:text-sm leading-relaxed text-neutral-300">
-                {activeCuratorNote.description}
-              </p>
-              <div className="border-l-2 border-sky-400/50 pl-3.5 py-1.5 bg-sky-500/5 rounded-r-lg">
-                <p className="text-xs italic text-neutral-400">
-                  &ldquo;{activeCuratorNote.philosophy}&rdquo;
+              {/* Title & Subtitle */}
+              <div>
+                <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight leading-snug">
+                  {activeCuratorNote.title}
+                </h3>
+                <p className="mt-1 text-xs sm:text-sm font-medium text-cyan-400">
+                  {activeCuratorNote.subtitle}
                 </p>
+              </div>
+
+              {/* Core Concept Box */}
+              <div className="rounded-2xl border border-sky-500/25 bg-sky-500/10 p-3.5 sm:p-4">
+                <div className="flex items-center gap-2 text-sky-300 font-bold text-xs uppercase tracking-wider">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  <span>Konsep Inti Rekayasa (Core Concept)</span>
+                </div>
+                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-sky-100">
+                  {activeCuratorNote.coreConcept}
+                </p>
+              </div>
+
+              {/* The Real-World Bottleneck / Problem Box */}
+              <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3.5 sm:p-4">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  <Zap className="h-3.5 w-3.5" />
+                  <span>Tantangan & Masalah di Dunia Nyata (The Problem)</span>
+                </div>
+                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-amber-100">
+                  {activeCuratorNote.problemSolved}
+                </p>
+              </div>
+
+              {/* Benchmark Metrics Bar */}
+              <div className="grid grid-cols-3 gap-2 rounded-2xl border border-neutral-800 bg-neutral-900/50 p-2.5">
+                {activeCuratorNote.metrics.map((m, i) => (
+                  <div key={i} className="text-center">
+                    <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium truncate">
+                      {m.label}
+                    </span>
+                    <span className="block text-xs sm:text-sm font-bold text-sky-300 font-mono truncate">
+                      {m.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Syntax Code Editor Window */}
+              <div className="rounded-2xl border border-neutral-800 bg-[#0b101c] overflow-hidden shadow-inner">
+                {/* Editor Titlebar */}
+                <div className="flex items-center justify-between border-b border-neutral-800/80 bg-neutral-900/80 px-3.5 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
+                    </div>
+                    <div className="ml-2 flex items-center gap-1.5 text-xs font-mono text-neutral-300">
+                      <Code2 className="h-3.5 w-3.5 text-sky-400" />
+                      <span>{activeCuratorNote.filename}</span>
+                    </div>
+                  </div>
+
+                  {/* Copy Code Button */}
+                  <button
+                    onClick={() => handleCopyCode(activeCuratorNote.codeSnippet)}
+                    className="flex items-center gap-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 px-2 py-1 text-[11px] font-mono text-neutral-300 transition-colors"
+                  >
+                    {copiedCode ? (
+                      <>
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-3.5 w-3.5 text-neutral-400" />
+                        <span>Copy Code</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Code Body */}
+                <pre className="overflow-x-auto p-4 text-[11px] sm:text-xs font-mono leading-relaxed text-neutral-200 select-all max-h-60">
+                  <code>{activeCuratorNote.codeSnippet}</code>
+                </pre>
+              </div>
+
+              {/* Key Educational Takeaways / Best Practices */}
+              <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2.5 flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>Prinsip & Pelajaran Kunci untuk Pengembang</span>
+                </h4>
+                <ul className="space-y-2">
+                  {activeCuratorNote.educationalTakeaways.map((point, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-neutral-300">
+                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
+                      <span className="leading-relaxed">{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Curatorial Context & Philosophy */}
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm leading-relaxed text-neutral-400">
+                  {activeCuratorNote.description}
+                </p>
+                <div className="border-l-2 border-sky-400/50 pl-3.5 py-1.5 bg-sky-500/5 rounded-r-lg">
+                  <p className="text-xs italic text-neutral-300">
+                    &ldquo;{activeCuratorNote.philosophy}&rdquo;
+                  </p>
+                </div>
               </div>
             </div>
 
             {/* Action Footer */}
-            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <button
-                onClick={handleTriggerResonance}
-                className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 px-4 py-2.5 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
-              >
-                <span>✨ Harmonic Resonance Pulse</span>
-              </button>
+            <div className="mt-4 pt-3 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={handleTriggerResonance}
+                  className="flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 px-3.5 py-2 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
+                >
+                  <span>✨ Simulasi Resonansi Kinetik</span>
+                </button>
+                <a
+                  href={activeCuratorNote.learnMoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-xl border border-neutral-700 bg-neutral-800/80 hover:bg-neutral-700 px-3.5 py-2 text-xs font-bold text-neutral-200 transition-all hover:scale-105 active:scale-95 shadow-md"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span>Pelajari Referensi CS</span>
+                </a>
+              </div>
+
               <button
                 onClick={() => setActiveCuratorNote(null)}
-                className="w-full sm:w-auto rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                Close Exhibition Card (Esc)
+                Tutup (Esc)
               </button>
             </div>
           </div>
