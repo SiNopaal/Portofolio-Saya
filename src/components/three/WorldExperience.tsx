@@ -176,9 +176,8 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: 32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 4.0 },
   // Corner 3: Aerospace Runway VTOL Parked Drone (SW: [-26.3, 26.3])
   { x: -26.3, z: 26.3, r: 1.25, minY: 0.0, maxY: 2.5 },
-  // Corner 4: Zen Garden Natural Rock Formations (SE: [30, 30] & [35.5, 34.5])
-  { x: 30.0, z: 30.0, r: 0.95, minY: 0.0, maxY: 2.0 },
-  { x: 35.5, z: 34.5, r: 0.8, minY: 0.0, maxY: 2.0 },
+  // Corner 4: Clean Architecture Hexagonal Core Altar (SE: [32, 32])
+  { x: 32.0, z: 32.0, r: 1.4, minY: 0.0, maxY: 2.5 },
 ];
 
 /* ============================================================
@@ -588,6 +587,85 @@ export const DEVOPS_LAUNCHPAD_NODES: DevOpsStationNode[] = [
     concept: "Teknik peluncuran sistem tanpa henti layanan (Blue/Green Deployment, Canary Release) melalui intelligent reverse proxy.",
     realWorldUsage: "Envoy Proxy, Nginx Ingress, Istio Service Mesh, & Cloudflare Edge.",
     position: [0, 0, -8.0],
+  },
+];
+
+/* ============================================================
+   CLEAN ARCHITECTURE & CRAFTSMANSHIP ZEN SANCTUARY DATA
+============================================================ */
+export interface ZenArchitectureNode {
+  id: string;
+  name: string;
+  category: string;
+  badge: string;
+  color: string;
+  border: string;
+  formula: string;
+  concept: string;
+  realWorldUsage: string;
+  position: [number, number, number]; // local coordinate inside Zen corner
+}
+
+export const ZEN_ARCHITECTURE_NODES: ZenArchitectureNode[] = [
+  {
+    id: "hexagonal-core",
+    name: "The Hexagonal Core & Domain-Driven Design",
+    category: "ARCHITECTURE",
+    badge: "DDD",
+    color: "#f59e0b",
+    border: "#fbbf24",
+    formula: "Domain Core ⟂ Ports & Adapters",
+    concept: "Pemisahan logika bisnis murni dari database, web framework, dan dependensi eksternal agar sistem tahan lama dan mudah diuji.",
+    realWorldUsage: "Enterprise core systems, banking ledger, Clean Architecture, & Hexagonal microservices.",
+    position: [0, 0, 0],
+  },
+  {
+    id: "solid-principles",
+    name: "SOLID Principles & Clean Code Monolith",
+    category: "SOFTWARE DESIGN",
+    badge: "SOLID",
+    color: "#38bdf8",
+    border: "#60a5fa",
+    formula: "High Cohesion, Loose Coupling",
+    concept: "5 hukum dasar desain rekayasa perangkat lunak untuk menghasilkan sistem yang modular, dapat diperluas, dan mudah dirawat.",
+    realWorldUsage: "Single Responsibility, Open/Closed, Liskov, Interface Segregation, & Dependency Inversion.",
+    position: [0, 0, -4.8],
+  },
+  {
+    id: "zero-trust",
+    name: "Zero-Trust Security & Cryptographic Vault",
+    category: "CYBERSECURITY",
+    badge: "SEC",
+    color: "#ef4444",
+    border: "#f87171",
+    formula: "Never Trust, Always Verify",
+    concept: "Arsitektur keamanan modern tanpa batas perimeter implisit: setiap request wajib terotentikasi, terotorisasi, dan terenkripsi.",
+    realWorldUsage: "AES-256-GCM, Ed25519 asymmetric keys, OAuth 2.1 / OIDC, TLS 1.3, & mTLS.",
+    position: [0, 0, 4.8],
+  },
+  {
+    id: "big-o-harmony",
+    name: "Algorithmic Big-O Harmony & Complexity",
+    category: "ALGORITHMS",
+    badge: "BIG-O",
+    color: "#10b981",
+    border: "#34d399",
+    formula: "T(n) ⚖️ S(n) [Time vs Space]",
+    concept: "Keseimbangan trade-off antara kecepatan eksekusi algoritma dan efisiensi alokasi memori komputer.",
+    realWorldUsage: "O(1) Hash Map access, O(log N) Binary Trees / B-Trees, & O(N log N) Quicksort/Mergesort.",
+    position: [-4.8, 0, 0],
+  },
+  {
+    id: "craftsmanship",
+    name: "Software Craftsmanship & Test Pyramid",
+    category: "QUALITY & TESTING",
+    badge: "TDD",
+    color: "#a855f7",
+    border: "#c084fc",
+    formula: "Unit (70%) > Integration (20%) > E2E (10%)",
+    concept: "Disiplin rekayasa kode berkelanjutan: otomatisasi pengujian, refactoring konstan (Boy Scout Rule), dan desain ekspresif.",
+    realWorldUsage: "Test-Driven Development (TDD), CI test suites, Vitest/Jest, & clean refactoring.",
+    position: [4.8, 0, 0],
   },
 ];
 
@@ -3173,109 +3251,439 @@ function AerospaceRunwayCorner({
 }
 
 /* --- Corner 4: Cyber Oasis / Japanese Zen Rock Garden --- */
-function ZenGardenCorner({ position }: { position: [number, number, number] }) {
-  // Stepping stones coordinate path
-  const steppingStones: [number, number][] = [
-    [-5.5, -4.5],
-    [-4.0, -3.2],
-    [-2.6, -1.8],
-    [-1.2, -0.5],
-    [0.3, 0.8],
-    [1.8, 2.2],
-    [3.2, 3.6],
-    [4.8, 4.9],
-  ];
+/* ============================================================
+   CORNER 4: CLEAN ARCHITECTURE, SECURITY & CRAFTSMANSHIP SANCTUARY
+============================================================ */
+
+/* --- Floating Architecture & Security Runes Cloud --- */
+const ZEN_ARCHITECTURE_GLYPHS = [
+  { glyph: "SOLID", color: "#38bdf8" },
+  { glyph: "KISS / DRY", color: "#60a5fa" },
+  { glyph: "SHA-256", color: "#ef4444" },
+  { glyph: "O(1) Map", color: "#10b981" },
+  { glyph: "O(log N) Tree", color: "#34d399" },
+  { glyph: "Zero-Trust", color: "#f87171" },
+  { glyph: "DDD::Core", color: "#f59e0b" },
+  { glyph: "Pure Function", color: "#fbbf24" },
+  { glyph: "Idempotent", color: "#a855f7" },
+  { glyph: "AES-256-GCM", color: "#f43f5e" },
+  { glyph: "Ed25519", color: "#fb7185" },
+  { glyph: "TDD::Green", color: "#22c55e" },
+  { glyph: "Decoupled", color: "#c084fc" },
+  { glyph: "BoyScoutRule", color: "#38bdf8" },
+];
+
+function FloatingZenArchitectureRunesCloud({ count = 28 }: { count?: number }) {
+  const runeItems = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const g = ZEN_ARCHITECTURE_GLYPHS[i % ZEN_ARCHITECTURE_GLYPHS.length];
+      const radius = 2.2 + Math.random() * 6.5;
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        id: i,
+        glyph: g.glyph,
+        color: g.color,
+        baseX: Math.cos(angle) * radius,
+        baseZ: Math.sin(angle) * radius,
+        y: 0.6 + Math.random() * 3.4,
+        speed: 0.18 + Math.random() * 0.22,
+        swaySpeed: 0.7 + Math.random() * 0.5,
+        swayAmp: 0.14 + Math.random() * 0.16,
+        rotSpeed: (Math.random() - 0.5) * 0.45,
+        seed: Math.random() * 10,
+        scale: 0.28 + Math.random() * 0.1,
+      };
+    });
+  }, [count]);
+
+  const refs = useRef<(THREE.Group | null)[]>([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < runeItems.length; i++) {
+      const item = runeItems[i];
+      const el = refs.current[i];
+      if (!el) continue;
+
+      item.y += delta * item.speed;
+      if (item.y > 4.2) {
+        item.y = 0.5;
+      }
+
+      el.position.y = item.y;
+      el.position.x = item.baseX + Math.sin(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.position.z = item.baseZ + Math.cos(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.rotation.y += delta * item.rotSpeed;
+    }
+  });
+
+  return (
+    <group>
+      {runeItems.map((item, i) => {
+        const tex = getCodeRuneTexture(item.glyph, item.color);
+        return (
+          <group
+            key={`zen-rune-${i}`}
+            ref={(r) => {
+              refs.current[i] = r;
+            }}
+            position={[item.baseX, item.y, item.baseZ]}
+          >
+            <mesh>
+              <planeGeometry args={[item.scale, item.scale]} />
+              <meshStandardMaterial
+                map={tex}
+                transparent
+                depthWrite={false}
+                roughness={0.2}
+                metalness={0.8}
+                emissive={item.color}
+                emissiveIntensity={0.4}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
+/* --- Reusable Standardized Basalt Zen Pedestal --- */
+function StandardZenPedestal({
+  accentColor,
+  children,
+}: {
+  accentColor: string;
+  children?: React.ReactNode;
+}) {
+  return (
+    <group>
+      {/* Octagonal Basalt Plinth */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.72, 0.85, 0.38, 8]} />
+        <meshStandardMaterial color="#0b0f19" roughness={0.4} metalness={0.7} />
+      </mesh>
+      {/* Outer Titanium Trim */}
+      <mesh position={[0, 0.02, 0]}>
+        <cylinderGeometry args={[0.88, 0.92, 0.04, 8]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.3} metalness={0.8} />
+      </mesh>
+      {/* Floor Glowing Halo Ring */}
+      <mesh position={[0, 0.025, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.0, 1.1, 32]} />
+        <meshBasicMaterial color={accentColor} transparent opacity={0.65} />
+      </mesh>
+      {/* Dual Dark Timber Posts */}
+      {[-0.42, 0.42].map((sx, idx) => (
+        <group key={`zen-post-${idx}`} position={[sx, 0.6, 0]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[0.03, 0.04, 0.6, 16]} />
+            <meshStandardMaterial color="#292524" roughness={0.6} metalness={0.3} />
+          </mesh>
+          <mesh position={[0, 0.31, 0]}>
+            <sphereGeometry args={[0.045, 16, 16]} />
+            <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.8} />
+          </mesh>
+        </group>
+      ))}
+      {children}
+    </group>
+  );
+}
+
+/* --- Station 1: The Hexagonal Core & Domain-Driven Design (Center Altar) --- */
+function HexagonalCoreStation({ position }: { position: [number, number, number] }) {
+  const coreRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    if (coreRef.current) {
+      coreRef.current.rotation.y += delta * 0.5;
+      coreRef.current.position.y = 1.38 + Math.sin(state.clock.elapsedTime * 1.8) * 0.03;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z -= delta * 0.4;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Stepped Central Altar Terrace */}
+      <mesh position={[0, 0.12, 0]} receiveShadow>
+        <cylinderGeometry args={[1.8, 2.0, 0.24, 6]} />
+        <meshStandardMaterial color="#111827" roughness={0.4} metalness={0.7} />
+      </mesh>
+      <mesh position={[0, 0.25, 0]}>
+        <cylinderGeometry args={[1.3, 1.45, 0.08, 6]} />
+        <meshStandardMaterial color="#1c1917" roughness={0.3} metalness={0.8} />
+      </mesh>
+      {/* Concentric Gold Inlay Ring */}
+      <mesh position={[0, 0.292, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.15, 1.22, 36]} />
+        <meshBasicMaterial color="#f59e0b" transparent opacity={0.8} />
+      </mesh>
+
+      {/* Floating Pure Domain Dodecahedron Core */}
+      <mesh ref={coreRef} position={[0, 1.38, 0]} castShadow>
+        <dodecahedronGeometry args={[0.32, 0]} />
+        <meshStandardMaterial color="#fef08a" emissive="#f59e0b" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+      </mesh>
+
+      {/* Hexagonal Outer Ports & Adapters Ring */}
+      <group ref={ringRef} position={[0, 1.38, 0]} rotation={[Math.PI / 4, 0, 0]}>
+        <mesh>
+          <torusGeometry args={[0.68, 0.016, 16, 6]} />
+          <meshStandardMaterial color="#fbbf24" roughness={0.2} metalness={0.9} emissive="#f59e0b" emissiveIntensity={0.4} />
+        </mesh>
+      </group>
+
+      <pointLight position={[0, 1.38, 0]} color="#f59e0b" intensity={1.4} distance={5.0} />
+    </group>
+  );
+}
+
+/* --- Station 2: SOLID Principles & Clean Code Monolith (North) --- */
+function SolidPrinciplesStation({ position }: { position: [number, number, number] }) {
+  const prismRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (prismRef.current) {
+      prismRef.current.rotation.y += delta * 0.6;
+      prismRef.current.position.y = 1.35 + Math.sin(state.clock.elapsedTime * 2.0) * 0.025;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardZenPedestal accentColor="#38bdf8">
+        <group position={[0, 0.4, 0]}>
+          {/* Obsidian Monolith Pillar */}
+          <mesh position={[0, 0.45, 0]} castShadow>
+            <boxGeometry args={[0.34, 0.9, 0.34]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+          </mesh>
+          {/* 5 Glowing Horizontal SOLID Inlay Bands */}
+          {[-0.28, -0.14, 0, 0.14, 0.28].map((yOff, idx) => (
+            <mesh key={`solid-band-${idx}`} position={[0, 0.45 + yOff, 0]}>
+              <boxGeometry args={[0.355, 0.025, 0.355]} />
+              <meshBasicMaterial color="#38bdf8" />
+            </mesh>
+          ))}
+          {/* Floating Cyan Apex Prism */}
+          <mesh ref={prismRef} position={[0, 1.15, 0]} castShadow>
+            <octahedronGeometry args={[0.18, 0]} />
+            <meshStandardMaterial color="#bae6fd" emissive="#38bdf8" emissiveIntensity={0.9} roughness={0.1} metalness={0.9} />
+          </mesh>
+        </group>
+      </StandardZenPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#38bdf8" intensity={1.2} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 3: Zero-Trust Security & Cryptographic Vault (South) --- */
+function ZeroTrustVaultStation({ position }: { position: [number, number, number] }) {
+  const key1Ref = useRef<THREE.Mesh>(null);
+  const key2Ref = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+
+  useFrame((_, delta) => {
+    if (key1Ref.current) key1Ref.current.rotation.y += delta * 0.7;
+    if (key2Ref.current) key2Ref.current.rotation.z -= delta * 0.8;
+    if (coreRef.current) coreRef.current.rotation.x += delta * 0.5;
+  });
+
+  return (
+    <group position={position}>
+      <StandardZenPedestal accentColor="#ef4444">
+        <group position={[0, 1.35, 0]}>
+          {/* Cryptographic Core Crystal */}
+          <mesh ref={coreRef} castShadow>
+            <octahedronGeometry args={[0.22, 0]} />
+            <meshStandardMaterial color="#fca5a5" emissive="#ef4444" emissiveIntensity={0.9} roughness={0.1} metalness={0.9} />
+          </mesh>
+          {/* Outer Rotating Shield Rings (Public/Private Keypair) */}
+          <mesh ref={key1Ref} rotation={[Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[0.48, 0.018, 16, 36]} />
+            <meshStandardMaterial color="#f87171" roughness={0.2} metalness={0.9} emissive="#dc2626" emissiveIntensity={0.4} />
+          </mesh>
+          <mesh ref={key2Ref} rotation={[-Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[0.56, 0.014, 16, 36]} />
+            <meshStandardMaterial color="#fca5a5" roughness={0.25} metalness={0.9} />
+          </mesh>
+        </group>
+      </StandardZenPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#ef4444" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 4: Algorithmic Big-O Harmony & Complexity Balance (West) --- */
+function BigOHarmonyStation({ position }: { position: [number, number, number] }) {
+  const beamRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (beamRef.current) {
+      beamRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 1.6) * 0.18;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardZenPedestal accentColor="#10b981">
+        <group position={[0, 1.15, 0]}>
+          {/* Central Fulcrum Pillar */}
+          <mesh position={[0, 0, 0]} castShadow>
+            <cylinderGeometry args={[0.04, 0.07, 0.45, 16]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+          </mesh>
+          {/* Tilting Balance Beam */}
+          <group ref={beamRef} position={[0, 0.22, 0]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.9, 0.03, 0.04]} />
+              <meshStandardMaterial color="#34d399" roughness={0.2} metalness={0.9} emissive="#10b981" emissiveIntensity={0.4} />
+            </mesh>
+            {/* Left Weight: Time Complexity T(n) */}
+            <mesh position={[-0.42, -0.12, 0]} castShadow>
+              <sphereGeometry args={[0.11, 24, 24]} />
+              <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+            </mesh>
+            {/* Right Weight: Space Complexity S(n) */}
+            <mesh position={[0.42, 0.12, 0]} castShadow>
+              <sphereGeometry args={[0.11, 24, 24]} />
+              <meshStandardMaterial color="#a7f3d0" emissive="#059669" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+            </mesh>
+          </group>
+        </group>
+      </StandardZenPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Station 5: Software Craftsmanship & Test Pyramid Pagoda (East) --- */
+function CraftsmanshipStation({ position }: { position: [number, number, number] }) {
+  const pyramidRef = useRef<THREE.Mesh>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state, delta) => {
+    if (pyramidRef.current) {
+      pyramidRef.current.rotation.y += delta * 0.55;
+      pyramidRef.current.position.y = 1.35 + Math.sin(state.clock.elapsedTime * 1.7) * 0.03;
+    }
+    if (ringRef.current) {
+      ringRef.current.rotation.z += delta * 0.6;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <StandardZenPedestal accentColor="#a855f7">
+        <group position={[0, 1.35, 0]}>
+          {/* Floating Test Pyramid (Tetrahedron) */}
+          <mesh ref={pyramidRef} castShadow>
+            <tetrahedronGeometry args={[0.26, 0]} />
+            <meshStandardMaterial color="#e9d5ff" emissive="#a855f7" emissiveIntensity={0.9} roughness={0.1} metalness={0.9} />
+          </mesh>
+          {/* Continuous Quality Verification Ring */}
+          <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
+            <torusGeometry args={[0.52, 0.016, 16, 32]} />
+            <meshStandardMaterial color="#c084fc" roughness={0.2} metalness={0.9} emissive="#9333ea" emissiveIntensity={0.4} />
+          </mesh>
+        </group>
+      </StandardZenPedestal>
+      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
+    </group>
+  );
+}
+
+/* --- Corner 4 Main Assembly: Zen Architecture & Craftsmanship Sanctuary --- */
+function ZenGardenCorner({
+  position,
+  carRef,
+  onNearbyNode,
+}: {
+  position: [number, number, number];
+  carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  onNearbyNode?: (node: ZenArchitectureNode | null) => void;
+}) {
+  const currentNearbyRef = useRef<string | null>(null);
+
+  useFrame(() => {
+    if (carRef?.current && onNearbyNode) {
+      const carPos = carRef.current.pos;
+      let closest: ZenArchitectureNode | null = null;
+      let minD = 2.8;
+
+      for (const node of ZEN_ARCHITECTURE_NODES) {
+        const nx = position[0] + node.position[0];
+        const nz = position[2] + node.position[2];
+        const d = Math.hypot(carPos.x - nx, carPos.z - nz);
+        if (d < minD) {
+          minD = d;
+          closest = node;
+        }
+      }
+
+      if ((closest?.id ?? null) !== currentNearbyRef.current) {
+        currentNearbyRef.current = closest?.id ?? null;
+        onNearbyNode(closest);
+      }
+    }
+  });
 
   return (
     <group position={position}>
       {/* Dark Charcoal Gravel Sanctuary Bed (16m x 16m x 0.05m) */}
       <mesh position={[0, 0.025, 0]} receiveShadow>
         <boxGeometry args={[16, 0.05, 16]} />
-        <meshStandardMaterial color="#18181b" roughness={0.9} metalness={0.1} />
+        <meshStandardMaterial color="#111827" roughness={0.9} metalness={0.1} />
       </mesh>
 
       {/* Dark Basalt Timber Border Frame */}
       <mesh position={[0, 0.035, 0]}>
         <boxGeometry args={[16.5, 0.07, 16.5]} />
-        <meshStandardMaterial color="#1c1917" roughness={0.6} metalness={0.2} />
+        <meshStandardMaterial color="#1e293b" roughness={0.6} metalness={0.3} />
       </mesh>
 
-      {/* Concentric Raked Gravel Wave Ripples around Main Cairn at (-2, -2) */}
-      <group position={[-2, 0.052, -2]} rotation={[-Math.PI / 2, 0, 0]}>
-        {[1.6, 2.4, 3.2, 4.0].map((radius, idx) => (
-          <mesh key={`ripple-${idx}`}>
-            <ringGeometry args={[radius, radius + 0.04, 36]} />
-            <meshBasicMaterial color="#27272a" opacity={0.7} transparent />
+      {/* Concentric Raked Gravel Wave Ripples centered on Hexagonal Core */}
+      <group position={[0, 0.052, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[1.8, 3.0, 4.2, 5.5, 6.8].map((radius, idx) => (
+          <mesh key={`zen-ripple-${idx}`}>
+            <ringGeometry args={[radius, radius + 0.04, 48]} />
+            <meshBasicMaterial color="#334155" opacity={0.6} transparent />
           </mesh>
         ))}
       </group>
 
-      {/* Concentric Raked Gravel Wave Ripples around Secondary Cairn at (3.5, 2.5) */}
-      <group position={[3.5, 0.052, 2.5]} rotation={[-Math.PI / 2, 0, 0]}>
-        {[1.4, 2.1, 2.8].map((radius, idx) => (
-          <mesh key={`ripple2-${idx}`}>
-            <ringGeometry args={[radius, radius + 0.04, 36]} />
-            <meshBasicMaterial color="#27272a" opacity={0.7} transparent />
+      {/* Symmetrical Cardinal Cross Stepping Stones Path */}
+      {[-3.6, -2.4, -1.2, 1.2, 2.4, 3.6].map((offset, idx) => (
+        <group key={`cross-stones-${idx}`}>
+          {/* North-South Axis Stone */}
+          <mesh position={[0, 0.055, offset]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <circleGeometry args={[0.38, 16]} />
+            <meshStandardMaterial color="#1f2937" roughness={0.8} metalness={0.2} />
           </mesh>
-        ))}
-      </group>
-
-      {/* Primary Naturalistic Rock Cairn Formation at (-2, -2) */}
-      <group position={[-2, 0.05, -2]}>
-        {/* Main Center Boulder */}
-        <mesh position={[0, 0.65, 0]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.85, 1]} />
-          <meshStandardMaterial color="#262626" roughness={0.95} metalness={0.05} />
-        </mesh>
-        {/* Flanking Boulder 1 */}
-        <mesh position={[-0.7, 0.35, 0.4]} rotation={[0.4, 0.8, 0.2]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.5, 1]} />
-          <meshStandardMaterial color="#292524" roughness={0.9} metalness={0.05} />
-        </mesh>
-        {/* Flanking Boulder 2 */}
-        <mesh position={[0.65, 0.28, -0.3]} rotation={[-0.3, 0.5, 0.6]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.42, 1]} />
-          <meshStandardMaterial color="#1c1917" roughness={0.9} metalness={0.05} />
-        </mesh>
-      </group>
-
-      {/* Secondary Stone Cluster at (3.5, 2.5) */}
-      <group position={[3.5, 0.05, 2.5]}>
-        <mesh position={[0, 0.45, 0]} rotation={[0.2, 1.1, -0.4]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.65, 1]} />
-          <meshStandardMaterial color="#27272a" roughness={0.95} metalness={0.05} />
-        </mesh>
-        <mesh position={[0.5, 0.22, 0.3]} rotation={[0.5, 0.2, 0.1]} castShadow receiveShadow>
-          <dodecahedronGeometry args={[0.35, 1]} />
-          <meshStandardMaterial color="#1f2937" roughness={0.9} metalness={0.05} />
-        </mesh>
-      </group>
-
-      {/* Organic Dark River Stone Stepping Path */}
-      {steppingStones.map(([sx, sz], idx) => (
-        <mesh
-          key={`step-${idx}`}
-          position={[sx, 0.055, sz]}
-          rotation={[-Math.PI / 2, 0, (idx * 0.7) % Math.PI]}
-          receiveShadow
-        >
-          <circleGeometry args={[0.42 + ((idx % 3) * 0.05), 16]} />
-          <meshStandardMaterial color="#27272a" roughness={0.8} metalness={0.15} />
-        </mesh>
+          {/* East-West Axis Stone */}
+          <mesh position={[offset, 0.055, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+            <circleGeometry args={[0.38, 16]} />
+            <meshStandardMaterial color="#1f2937" roughness={0.8} metalness={0.2} />
+          </mesh>
+        </group>
       ))}
 
-      {/* 4 Japanese-style Warm Cube Lanterns (Andon / Toro style, 2700K warm glow) */}
+      {/* 4 Japanese-style Warm Cube Lanterns (Andon / Toro style, placed symmetrically) */}
       {[
-        [-6.5, -6.5],
-        [6.5, -6.5],
-        [-6.5, 6.5],
-        [6.5, 6.5],
+        [-6.6, -6.6],
+        [6.6, -6.6],
+        [-6.6, 6.6],
+        [6.6, 6.6],
       ].map(([lx, lz], idx) => (
-        <group key={`lantern-${idx}`} position={[lx, 0.05, lz]}>
+        <group key={`zen-lantern-${idx}`} position={[lx, 0.05, lz]}>
           {/* Stone Plinth Footing */}
           <mesh position={[0, 0.06, 0]} castShadow>
             <boxGeometry args={[0.6, 0.12, 0.6]} />
-            <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.1} />
+            <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
           </mesh>
           {/* Frosted Warm Paper / Glass Cube */}
           <mesh position={[0, 0.38, 0]} castShadow>
@@ -3283,24 +3691,42 @@ function ZenGardenCorner({ position }: { position: [number, number, number] }) {
             <meshStandardMaterial
               color="#fef3c7"
               emissive="#f59e0b"
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.55}
               roughness={0.3}
             />
           </mesh>
           {/* Dark Timber Lattice Posts */}
           <mesh position={[0, 0.38, 0]}>
             <boxGeometry args={[0.44, 0.52, 0.44]} />
-            <meshBasicMaterial color="#1c1917" wireframe />
+            <meshBasicMaterial color="#0f172a" wireframe />
           </mesh>
           {/* Overhanging Pyramid Roof Cap */}
           <mesh position={[0, 0.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
             <coneGeometry args={[0.42, 0.22, 4]} />
-            <meshStandardMaterial color="#1c1917" roughness={0.7} metalness={0.2} />
+            <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
           </mesh>
           {/* Soft 2700K Warm Ambient Radiance */}
           <pointLight position={[0, 0.4, 0]} color="#fde68a" intensity={0.9} distance={4.5} />
         </group>
       ))}
+
+      {/* Center Station: The Hexagonal Core & DDD */}
+      <HexagonalCoreStation position={[0, 0, 0]} />
+
+      {/* North Station: SOLID Principles & Clean Code Monolith */}
+      <SolidPrinciplesStation position={[0, 0, -4.8]} />
+
+      {/* South Station: Zero-Trust Security & Cryptographic Vault */}
+      <ZeroTrustVaultStation position={[0, 0, 4.8]} />
+
+      {/* West Station: Algorithmic Big-O Harmony & Complexity */}
+      <BigOHarmonyStation position={[-4.8, 0, 0]} />
+
+      {/* East Station: Software Craftsmanship & Test Pyramid */}
+      <CraftsmanshipStation position={[4.8, 0, 0]} />
+
+      {/* Floating Architecture & Security Runes Cloud */}
+      <FloatingZenArchitectureRunesCloud count={28} />
     </group>
   );
 }
@@ -3314,6 +3740,7 @@ function CyberMetaverseArena({
   onNearbyTech,
   onNearbyQuantumNode,
   onNearbyDevOpsNode,
+  onNearbyZenNode,
   resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
@@ -3321,6 +3748,7 @@ function CyberMetaverseArena({
   onNearbyTech?: (tech: TechPillarData | null) => void;
   onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
   onNearbyDevOpsNode?: (node: DevOpsStationNode | null) => void;
+  onNearbyZenNode?: (node: ZenArchitectureNode | null) => void;
   resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
@@ -3386,8 +3814,12 @@ function CyberMetaverseArena({
         onNearbyNode={onNearbyDevOpsNode}
       />
 
-      {/* Corner 4: Cyber Oasis / Japanese Zen Rock Garden (South-East) */}
-      <ZenGardenCorner position={[32, 0, 32]} />
+      {/* Corner 4: Clean Architecture, Security & Craftsmanship Sanctuary (South-East) */}
+      <ZenGardenCorner
+        position={[32, 0, 32]}
+        carRef={carRef}
+        onNearbyNode={onNearbyZenNode}
+      />
 
       {/* Elevated Stepping Terraces / Walkways (Teleport Station Platform) */}
       {ELEVATED_PLATFORMS.map((plat, idx) => (
@@ -4742,6 +5174,7 @@ function World({
   onNearbyTech,
   onNearbyQuantumNode,
   onNearbyDevOpsNode,
+  onNearbyZenNode,
   resonancePulseKey = 0,
   mobileControls,
   localPlayer,
@@ -4760,6 +5193,7 @@ function World({
   onNearbyTech?: (tech: TechPillarData | null) => void;
   onNearbyQuantumNode?: (node: QuantumObservatoryNode | null) => void;
   onNearbyDevOpsNode?: (node: DevOpsStationNode | null) => void;
+  onNearbyZenNode?: (node: ZenArchitectureNode | null) => void;
   resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
@@ -5251,6 +5685,7 @@ function World({
         onNearbyTech={onNearbyTech}
         onNearbyQuantumNode={onNearbyQuantumNode}
         onNearbyDevOpsNode={onNearbyDevOpsNode}
+        onNearbyZenNode={onNearbyZenNode}
         resonancePulseKey={resonancePulseKey}
       />
 
@@ -5344,6 +5779,9 @@ function WorldHero() {
   // DevOps Launchpad & Cloud Infrastructure State
   const [nearbyDevOpsNode, setNearbyDevOpsNode] = useState<DevOpsStationNode | null>(null);
 
+  // Clean Architecture & Software Craftsmanship State
+  const [nearbyZenNode, setNearbyZenNode] = useState<ZenArchitectureNode | null>(null);
+
   // Zen Gallery Kinetic Resonance Pulse State
   const [resonancePulseKey, setResonancePulseKey] = useState(0);
 
@@ -5432,6 +5870,7 @@ function WorldHero() {
           onNearbyTech={setNearbyTech}
           onNearbyQuantumNode={setNearbyQuantumNode}
           onNearbyDevOpsNode={setNearbyDevOpsNode}
+          onNearbyZenNode={setNearbyZenNode}
           resonancePulseKey={resonancePulseKey}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
@@ -5740,6 +6179,52 @@ function WorldHero() {
               </p>
               <p className="mt-1 text-[10px] text-neutral-400 truncate font-mono">
                 <span className="text-neutral-500">Real-World:</span> {nearbyDevOpsNode.realWorldUsage}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clean Architecture & Cybersecurity Zen Sanctuary HUD Floating Pill */}
+      {nearbyZenNode && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-24 sm:bottom-20 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-white/10 bg-neutral-950/90 p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border font-mono font-black text-xs tracking-wider shadow-inner text-center"
+              style={{
+                borderColor: `${nearbyZenNode.color}55`,
+                backgroundColor: `${nearbyZenNode.color}15`,
+                color: nearbyZenNode.color,
+                boxShadow: `0 0 16px ${nearbyZenNode.color}25`,
+              }}
+            >
+              {nearbyZenNode.badge}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span
+                  className="rounded-full px-2 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase border"
+                  style={{
+                    borderColor: `${nearbyZenNode.color}40`,
+                    backgroundColor: `${nearbyZenNode.color}10`,
+                    color: nearbyZenNode.color,
+                  }}
+                >
+                  {nearbyZenNode.category}
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono">Zen Sanctuary</span>
+              </div>
+              <h4 className="mt-0.5 text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
+                <span>{nearbyZenNode.name}</span>
+              </h4>
+              <div className="mt-0.5 inline-block font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/5 text-amber-300">
+                {nearbyZenNode.formula}
+              </div>
+              <p className="mt-1 text-[11px] text-neutral-300 line-clamp-2 leading-relaxed">
+                {nearbyZenNode.concept}
+              </p>
+              <p className="mt-1 text-[10px] text-neutral-400 truncate font-mono">
+                <span className="text-neutral-500">Real-World:</span> {nearbyZenNode.realWorldUsage}
               </p>
             </div>
           </div>
