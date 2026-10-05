@@ -1914,7 +1914,7 @@ function World({
       isDragging.current = false;
     };
 
-    // Mobile / Tablet Touch Drag (Swipe camera atas/bawah/kiri/kanan)
+    // Mobile / Tablet Touch Drag (Swipe camera atas/bawah/kiri/kanan tanpa scroll halaman)
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1 && (e.target as HTMLElement).tagName === "CANVAS") {
         isDragging.current = true;
@@ -1923,6 +1923,9 @@ function World({
     };
     const onTouchMove = (e: TouchEvent) => {
       if (isDragging.current && e.touches.length === 1) {
+        if (e.cancelable) {
+          e.preventDefault(); // Stop mobile browser from scrolling page down while looking around in 3D
+        }
         const deltaX = e.touches[0].clientX - dragStart.current.x;
         const deltaY = e.touches[0].clientY - dragStart.current.y;
         camYawRef.current -= deltaX * 0.006;
@@ -1942,7 +1945,7 @@ function World({
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
     window.addEventListener("touchend", onTouchEnd);
 
     return () => {
@@ -2439,7 +2442,7 @@ function WorldHero() {
 
   return (
     <div
-      className="relative h-full w-full select-none"
+      className="relative h-full w-full select-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
     >
@@ -2448,7 +2451,7 @@ function WorldHero() {
         dpr={[1, 1.25]}
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 4.6, -7.2], fov: 48 }}
-        className="absolute inset-0 cursor-crosshair"
+        className="absolute inset-0 cursor-crosshair touch-none"
       >
         <World
           onActiveLandmark={setActiveLandmark}
@@ -2688,9 +2691,9 @@ function WorldHero() {
           </button>
           <a
             href="#about"
-            className="flex items-center gap-1 rounded-full border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[10px] text-slate-300 backdrop-blur-md shadow-md active:scale-95 transition-all hover:text-white"
+            className="flex items-center gap-1 rounded-full border border-cyan-400/40 bg-black/75 px-3 py-1 font-mono text-[10px] sm:text-[11px] font-bold text-cyan-300 backdrop-blur-md shadow-md active:scale-95 transition-all hover:text-white"
           >
-            <span>Explore &darr;</span>
+            <span>Scroll Bawah &darr;</span>
           </a>
         </div>
 
