@@ -159,8 +159,14 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: -2.4, z: -12.55, r: 0.85, minY: 0.5, maxY: 3.5 },
 
   // 3. Four Minimalist Corner Arenas (Pedestals, Monoliths, Parked Craft, Rock Cairns)
-  // Corner 1: Zen Gallery Center Sculpture Pedestal (NW: [-32, -32])
+  // Corner 1: Zen Gallery Pedestals & Columns (NW: [-32, -32])
   { x: -32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 2.5 },
+  { x: -37.5, z: -32.0, r: 0.75, minY: 0.0, maxY: 2.0 },
+  { x: -26.5, z: -32.0, r: 0.75, minY: 0.0, maxY: 2.0 },
+  { x: -39.0, z: -39.0, r: 0.25, minY: 0.0, maxY: 5.0 },
+  { x: -25.0, z: -39.0, r: 0.25, minY: 0.0, maxY: 5.0 },
+  { x: -39.0, z: -25.0, r: 0.25, minY: 0.0, maxY: 5.0 },
+  { x: -25.0, z: -25.0, r: 0.25, minY: 0.0, maxY: 5.0 },
   // Corner 2: Stargazer Sky Platform Monolith (NE: [32, -32])
   { x: 32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 4.0 },
   // Corner 3: Aerospace Runway VTOL Parked Drone (SW: [-26.3, 26.3])
@@ -532,15 +538,134 @@ function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
    4. Cyber Oasis / Japanese Zen Rock Garden (South-East: [32, 0, 32])
 ============================================================ */
 
+/* ============================================================
+   ZEN DIGITAL GALLERY ARTWORKS DATA & TYPES
+============================================================ */
+export interface ZenGalleryArtwork {
+  id: "prism" | "mobius" | "gyroscope";
+  exhibitNumber: string;
+  title: string;
+  subtitle: string;
+  year: string;
+  medium: string;
+  description: string;
+  philosophy: string;
+  accent: string;
+  borderAccent: string;
+}
+
+export const ZEN_GALLERY_ARTWORKS: Record<"prism" | "mobius" | "gyroscope", ZenGalleryArtwork> = {
+  prism: {
+    id: "prism",
+    exhibitNumber: "01",
+    title: "The Primordial Prism",
+    subtitle: "Spatial Computing & Dimensional Purity",
+    year: "2026",
+    medium: "Procedural R3F / Double-Faceted Refractive Crystal & Celestial Gimbal",
+    description: "Instalasi kristal prisma berlapis oktahedron dan ikosahedron dengan rotasi harmonik presisi, merefleksikan arsitektur sistem modern yang bersih, modular, dan terstruktur tanpa redundansi logika.",
+    philosophy: "Clean code architecture is like optical refraction: complexity simplified into pure harmonic clarity.",
+    accent: "text-sky-300 bg-sky-500/10 border-sky-500/30",
+    borderAccent: "#38bdf8",
+  },
+  mobius: {
+    id: "mobius",
+    exhibitNumber: "02",
+    title: "Möbius Singularity",
+    subtitle: "Continuous Integration & Infinite Flow",
+    year: "2026",
+    medium: "Torus Knot Parametric Geometry / Golden Bronze Composite",
+    description: "Pahatan kinetik topologi Möbius yang berputar tiada henti. Merepresentasikan alur CI/CD otomatis, feedback loop tanpa henti, dan siklus iterasi rekayasa perangkat lunak modern.",
+    philosophy: "Every end is an entry point for continuous refinement, automated verification, and resilient deployment.",
+    accent: "text-amber-300 bg-amber-500/10 border-amber-500/30",
+    borderAccent: "#f59e0b",
+  },
+  gyroscope: {
+    id: "gyroscope",
+    exhibitNumber: "03",
+    title: "Quantum Gyroscope",
+    subtitle: "Reactive State Synchronization",
+    year: "2026",
+    medium: "Triple Gimbal Multi-Axis Rings / High-Density Obsidian Mirror Core",
+    description: "Tiga cincin konsentris yang berputar independen mengelilingi inti gravitasi tunggal. Menggambarkan sistem state management terdistribusi yang tetap stabil di bawah konkurensi tinggi.",
+    philosophy: "Decoupled asynchronous domains rotating freely while bound to a single immutable source of truth.",
+    accent: "text-indigo-300 bg-indigo-500/10 border-indigo-500/30",
+    borderAccent: "#818cf8",
+  },
+};
+
 /* --- Corner 1: Zen Minimalist Digital Gallery --- */
-function ZenGalleryCorner({ position }: { position: [number, number, number] }) {
+function ZenGalleryCorner({
+  position,
+  carRef,
+  onNearbyArtwork,
+}: {
+  position: [number, number, number];
+  carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+}) {
   const crystalRef = useRef<THREE.Group>(null);
+  const crystalRingsRef = useRef<THREE.Group>(null);
+  const mobiusRef = useRef<THREE.Group>(null);
+  const gyroRing1Ref = useRef<THREE.Group>(null);
+  const gyroRing2Ref = useRef<THREE.Group>(null);
+  const gyroRing3Ref = useRef<THREE.Group>(null);
+  const gyroCoreRef = useRef<THREE.Mesh>(null);
+  const poolWaterRef = useRef<THREE.Mesh>(null);
+  const currentNearbyRef = useRef<"prism" | "mobius" | "gyroscope" | null>(null);
 
   useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+
+    // 1. Centerpiece Crystal & Outer Gimbal
     if (crystalRef.current) {
       crystalRef.current.rotation.y += delta * 0.35;
-      crystalRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.8) * 0.15;
-      crystalRef.current.position.y = 1.35 + Math.sin(state.clock.elapsedTime * 1.2) * 0.05;
+      crystalRef.current.rotation.x = Math.sin(t * 0.8) * 0.12;
+      crystalRef.current.position.y = 1.35 + Math.sin(t * 1.2) * 0.05;
+    }
+    if (crystalRingsRef.current) {
+      crystalRingsRef.current.rotation.z += delta * 0.25;
+      crystalRingsRef.current.rotation.y -= delta * 0.2;
+    }
+
+    // 2. West Wing: Möbius Singularity Kinetic Rotation
+    if (mobiusRef.current) {
+      mobiusRef.current.rotation.x += delta * 0.45;
+      mobiusRef.current.rotation.y += delta * 0.6;
+      mobiusRef.current.position.y = 1.25 + Math.sin(t * 1.1 + 0.5) * 0.04;
+    }
+
+    // 3. East Wing: Quantum Gyroscope Independent 3-Axis Rings
+    if (gyroRing1Ref.current) gyroRing1Ref.current.rotation.x += delta * 0.85;
+    if (gyroRing2Ref.current) gyroRing2Ref.current.rotation.y += delta * 1.15;
+    if (gyroRing3Ref.current) gyroRing3Ref.current.rotation.z += delta * 0.65;
+    if (gyroCoreRef.current) {
+      gyroCoreRef.current.position.y = 1.25 + Math.sin(t * 1.3) * 0.03;
+    }
+
+    // 4. Subtle Shimmering Water Reflection Wave
+    if (poolWaterRef.current) {
+      const mat = poolWaterRef.current.material as THREE.MeshStandardMaterial;
+      if (mat) {
+        mat.roughness = 0.04 + Math.sin(t * 1.8) * 0.015;
+      }
+    }
+
+    // 5. Proximity Check for Artwork Inspection
+    if (carRef?.current && onNearbyArtwork) {
+      const carPos = carRef.current.pos;
+      const dCenter = Math.hypot(carPos.x - position[0], carPos.z - position[2]);
+      const dWest = Math.hypot(carPos.x - (position[0] - 5.5), carPos.z - position[2]);
+      const dEast = Math.hypot(carPos.x - (position[0] + 5.5), carPos.z - position[2]);
+
+      let detected: "prism" | "mobius" | "gyroscope" | null = null;
+      if (dCenter < 2.9) detected = "prism";
+      else if (dWest < 2.5) detected = "mobius";
+      else if (dEast < 2.5) detected = "gyroscope";
+
+      if (detected !== currentNearbyRef.current) {
+        currentNearbyRef.current = detected;
+        onNearbyArtwork(detected);
+      }
     }
   });
 
@@ -558,7 +683,7 @@ function ZenGalleryCorner({ position }: { position: [number, number, number] }) 
         <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.6} />
       </mesh>
 
-      {/* Paving Seam Lines (Subtle geometric tile grid) */}
+      {/* Paving Seam Lines */}
       {[-4, 0, 4].map((coord, i) => (
         <group key={`gallery-seam-${i}`}>
           <mesh position={[coord, 0.082, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -572,7 +697,69 @@ function ZenGalleryCorner({ position }: { position: [number, number, number] }) 
         </group>
       ))}
 
-      {/* Black Mirror Reflective Water Basin (5.6m x 5.6m) */}
+      {/* ========================================================
+          TADAO ANDO ARCHITECTURAL LOUVERED PERGOLA / CANOPY
+      ======================================================== */}
+      {/* 4 Slender Titanium Columns at (±7m, ±7m) */}
+      {[-7, 7].flatMap((cx) =>
+        [-7, 7].map((cz) => (
+          <group key={`column-${cx}-${cz}`} position={[cx, 0.08, cz]}>
+            {/* Column Base Footing Plate */}
+            <mesh position={[0, 0.04, 0]} castShadow receiveShadow>
+              <boxGeometry args={[0.48, 0.08, 0.48]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+            </mesh>
+            {/* Slender Titanium Column Shaft */}
+            <mesh position={[0, 2.1, 0]} castShadow receiveShadow>
+              <cylinderGeometry args={[0.11, 0.11, 4.12, 16]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.25} metalness={0.85} />
+            </mesh>
+            {/* Column Top Structural Capital */}
+            <mesh position={[0, 4.18, 0]} castShadow>
+              <boxGeometry args={[0.42, 0.08, 0.42]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.3} metalness={0.8} />
+            </mesh>
+          </group>
+        ))
+      )}
+
+      {/* Perimeter Cantilever Lintel Beams (y: 4.22m) */}
+      <group position={[0, 4.26, 0]}>
+        {/* North & South Lintel Beams */}
+        {[-7, 7].map((lz, idx) => (
+          <mesh key={`lintel-ns-${idx}`} position={[0, 0, lz]} castShadow>
+            <boxGeometry args={[14.48, 0.22, 0.28]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
+          </mesh>
+        ))}
+        {/* West & East Lintel Beams */}
+        {[-7, 7].map((lx, idx) => (
+          <mesh key={`lintel-we-${idx}`} position={[lx, 0, 0]} castShadow>
+            <boxGeometry args={[0.28, 0.22, 14.48]} />
+            <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
+          </mesh>
+        ))}
+
+        {/* 9 Architectural Louver Slats (Spanning X, Spaced across Z) */}
+        {[-5.4, -4.05, -2.7, -1.35, 0, 1.35, 2.7, 4.05, 5.4].map((sz, idx) => (
+          <mesh
+            key={`louver-${idx}`}
+            position={[0, 0.16, sz]}
+            rotation={[0.35, 0, 0]}
+            castShadow
+          >
+            <boxGeometry args={[13.9, 0.03, 0.22]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.7} />
+          </mesh>
+        ))}
+
+        {/* Concealed Warm Cove Downlight Strip beneath Canopy Perimeter */}
+        <pointLight position={[0, -0.3, 0]} color="#fffbeb" intensity={2.2} distance={15} />
+      </group>
+
+      {/* ========================================================
+          BLACK MIRROR REFLECTION POOL & GLASS WALKWAY BRIDGE
+      ======================================================== */}
       <group position={[0, 0.082, 0]}>
         {/* Basin Rim */}
         <mesh position={[0, 0.005, 0]}>
@@ -580,67 +767,205 @@ function ZenGalleryCorner({ position }: { position: [number, number, number] }) 
           <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.8} />
         </mesh>
         {/* Pool Water Surface */}
-        <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh ref={poolWaterRef} position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[5.4, 5.4]} />
           <meshStandardMaterial color="#060c18" roughness={0.04} metalness={0.96} />
         </mesh>
+
+        {/* Glass Walkway Bridge (Crosses from South Rim z: 2.7m to Center Pedestal z: 0.7m) */}
+        <group position={[0, 0.018, 1.7]}>
+          {/* Frosted Architectural Glass Deck */}
+          <mesh receiveShadow>
+            <boxGeometry args={[1.36, 0.025, 2.1]} />
+            <meshStandardMaterial
+              color="#f8fafc"
+              roughness={0.08}
+              metalness={0.9}
+              transparent
+              opacity={0.6}
+            />
+          </mesh>
+          {/* Left Stainless Steel Stringer */}
+          <mesh position={[-0.7, -0.005, 0]}>
+            <boxGeometry args={[0.04, 0.035, 2.1]} />
+            <meshStandardMaterial color="#475569" roughness={0.2} metalness={0.9} />
+          </mesh>
+          {/* Right Stainless Steel Stringer */}
+          <mesh position={[0.7, -0.005, 0]}>
+            <boxGeometry args={[0.04, 0.035, 2.1]} />
+            <meshStandardMaterial color="#475569" roughness={0.2} metalness={0.9} />
+          </mesh>
+          {/* Subtle Underside Warm Edge Glow */}
+          <pointLight position={[0, -0.05, 0]} color="#fef3c7" intensity={0.6} distance={2.5} />
+        </group>
       </group>
 
-      {/* Center Basalt Sculpture Pedestal */}
-      <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.3, 0.5, 1.3]} />
-        <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
-      </mesh>
-      {/* Pedestal Accent Trim */}
-      <mesh position={[0, 0.61, 0]}>
-        <boxGeometry args={[1.34, 0.02, 1.34]} />
-        <meshStandardMaterial color="#cbd5e1" roughness={0.2} metalness={0.85} />
-      </mesh>
+      {/* ========================================================
+          EXHIBIT 01: THE PRIMORDIAL PRISM (Centerpiece)
+      ======================================================== */}
+      <group position={[0, 0, 0]}>
+        {/* Center Basalt Sculpture Pedestal */}
+        <mesh position={[0, 0.35, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.3, 0.5, 1.3]} />
+          <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+        </mesh>
+        {/* Pedestal Accent Trim */}
+        <mesh position={[0, 0.61, 0]}>
+          <boxGeometry args={[1.34, 0.02, 1.34]} />
+          <meshStandardMaterial color="#cbd5e1" roughness={0.2} metalness={0.85} />
+        </mesh>
+        {/* Curatorial Plaque on Pedestal Face (South-facing) */}
+        <mesh position={[0, 0.35, 0.67]}>
+          <planeGeometry args={[0.55, 0.22]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+        </mesh>
 
-      {/* Floating Pristine Crystal Geometry */}
-      <group ref={crystalRef} position={[0, 1.35, 0]}>
-        {/* Outer Faceted Prism */}
-        <mesh castShadow>
-          <octahedronGeometry args={[0.65, 0]} />
-          <meshStandardMaterial
-            color="#e2e8f0"
-            roughness={0.08}
-            metalness={0.9}
-            transparent
-            opacity={0.85}
-          />
-        </mesh>
-        {/* Inner Core Wireframe */}
-        <mesh>
-          <icosahedronGeometry args={[0.35, 0]} />
-          <meshStandardMaterial
-            color="#94a3b8"
-            roughness={0.15}
-            metalness={0.8}
-            wireframe
-          />
-        </mesh>
+        {/* Floating Pristine Crystal Geometry */}
+        <group ref={crystalRef} position={[0, 1.35, 0]}>
+          {/* Outer Faceted Prism */}
+          <mesh castShadow>
+            <octahedronGeometry args={[0.65, 0]} />
+            <meshStandardMaterial
+              color="#e2e8f0"
+              roughness={0.08}
+              metalness={0.9}
+              transparent
+              opacity={0.85}
+            />
+          </mesh>
+          {/* Inner Core Wireframe */}
+          <mesh>
+            <icosahedronGeometry args={[0.35, 0]} />
+            <meshStandardMaterial
+              color="#38bdf8"
+              roughness={0.15}
+              metalness={0.8}
+              wireframe
+            />
+          </mesh>
+        </group>
+
+        {/* Counter-Rotating Celestial Rings around Crystal */}
+        <group ref={crystalRingsRef} position={[0, 1.35, 0]}>
+          <mesh rotation={[Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[0.92, 0.015, 8, 36]} />
+            <meshBasicMaterial color="#94a3b8" transparent opacity={0.6} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 4, 0, 0]}>
+            <torusGeometry args={[1.05, 0.012, 8, 36]} />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={0.5} />
+          </mesh>
+        </group>
+
+        {/* Subtle Warm Recessed Downlight */}
+        <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
       </group>
 
-      {/* Subtle Warm Recessed Downlight (3000K Warm White) */}
-      <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
+      {/* ========================================================
+          EXHIBIT 02: MÖBIUS SINGULARITY (West Wing at [-5.5, 0])
+      ======================================================== */}
+      <group position={[-5.5, 0, 0]}>
+        {/* Basalt Pedestal */}
+        <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.1, 0.45, 1.1]} />
+          <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+        </mesh>
+        {/* Plinth Accent Trim */}
+        <mesh position={[0, 0.53, 0]}>
+          <boxGeometry args={[1.14, 0.02, 1.14]} />
+          <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.85} />
+        </mesh>
+        {/* Curatorial Plaque */}
+        <mesh position={[0, 0.3, 0.57]}>
+          <planeGeometry args={[0.48, 0.18]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+        </mesh>
 
-      {/* Minimalist Floating Cantilever Benches */}
-      {[-5.2, 5.2].map((zOffset, i) => (
+        {/* Kinetic Möbius Torus Knot Sculpture */}
+        <group ref={mobiusRef} position={[0, 1.25, 0]}>
+          <mesh castShadow>
+            <torusKnotGeometry args={[0.52, 0.13, 64, 16, 2, 3]} />
+            <meshStandardMaterial
+              color="#f59e0b"
+              roughness={0.2}
+              metalness={0.85}
+              emissive="#b45309"
+              emissiveIntensity={0.25}
+            />
+          </mesh>
+        </group>
+
+        {/* Dedicated Warm Amber Accent Spotlight */}
+        <pointLight position={[0, 0.7, 0]} color="#fef3c7" intensity={1.5} distance={5.5} />
+      </group>
+
+      {/* ========================================================
+          EXHIBIT 03: QUANTUM GYROSCOPE (East Wing at [5.5, 0])
+      ======================================================== */}
+      <group position={[5.5, 0, 0]}>
+        {/* Basalt Pedestal */}
+        <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+          <boxGeometry args={[1.1, 0.45, 1.1]} />
+          <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+        </mesh>
+        {/* Plinth Accent Trim */}
+        <mesh position={[0, 0.53, 0]}>
+          <boxGeometry args={[1.14, 0.02, 1.14]} />
+          <meshStandardMaterial color="#818cf8" roughness={0.2} metalness={0.85} />
+        </mesh>
+        {/* Curatorial Plaque */}
+        <mesh position={[0, 0.3, 0.57]}>
+          <planeGeometry args={[0.48, 0.18]} />
+          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+        </mesh>
+
+        {/* Kinetic 3-Axis Multi-Gimbal Rings */}
+        <group position={[0, 1.25, 0]}>
+          {/* Ring 1 (Outer - X axis) */}
+          <group ref={gyroRing1Ref}>
+            <mesh castShadow>
+              <torusGeometry args={[0.72, 0.026, 16, 48]} />
+              <meshStandardMaterial color="#94a3b8" roughness={0.25} metalness={0.85} />
+            </mesh>
+          </group>
+          {/* Ring 2 (Middle - Y axis) */}
+          <group ref={gyroRing2Ref}>
+            <mesh castShadow>
+              <torusGeometry args={[0.54, 0.024, 16, 48]} />
+              <meshStandardMaterial color="#6366f1" roughness={0.2} metalness={0.9} />
+            </mesh>
+          </group>
+          {/* Ring 3 (Inner - Z axis) */}
+          <group ref={gyroRing3Ref}>
+            <mesh castShadow>
+              <torusGeometry args={[0.38, 0.02, 16, 48]} />
+              <meshStandardMaterial color="#a5b4fc" roughness={0.15} metalness={0.95} />
+            </mesh>
+          </group>
+          {/* Central Levitating Obsidian Core */}
+          <mesh ref={gyroCoreRef} castShadow>
+            <sphereGeometry args={[0.22, 24, 24]} />
+            <meshStandardMaterial color="#090d16" roughness={0.08} metalness={0.95} />
+          </mesh>
+        </group>
+
+        {/* Dedicated Soft Indigo Accent Spotlight */}
+        <pointLight position={[0, 0.7, 0]} color="#e0e7ff" intensity={1.5} distance={5.5} />
+      </group>
+
+      {/* Minimalist Floating Cantilever Benches (North & South) */}
+      {[-5.8, 5.8].map((zOffset, i) => (
         <group key={`gallery-bench-${i}`} position={[0, 0.28, zOffset]}>
-          {/* Bench Slab */}
           <mesh castShadow receiveShadow>
             <boxGeometry args={[3.2, 0.12, 0.7]} />
             <meshStandardMaterial color="#1e293b" roughness={0.5} metalness={0.3} />
           </mesh>
-          {/* Bench Dark Steel Supports */}
           {[-1.1, 1.1].map((xOffset, j) => (
             <mesh key={`gallery-leg-${j}`} position={[xOffset, -0.1, 0]}>
               <boxGeometry args={[0.15, 0.22, 0.55]} />
               <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
             </mesh>
           ))}
-          {/* Recessed Warm Underbench Glow */}
           <pointLight position={[0, -0.1, 0]} color="#fed7aa" intensity={0.5} distance={2.5} />
         </group>
       ))}
@@ -1014,7 +1339,13 @@ function ZenGardenCorner({ position }: { position: [number, number, number] }) {
 /* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
-function CyberMetaverseArena() {
+function CyberMetaverseArena({
+  carRef,
+  onNearbyArtwork,
+}: {
+  carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
+  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+}) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
   const haloRingsRef = useRef<THREE.Group>(null);
 
@@ -1056,7 +1387,11 @@ function CyberMetaverseArena() {
 
       {/* 3. Four Minimalist Themed Corner Arenas */}
       {/* Corner 1: Minimalist Zen Gallery / Apple-Style Digital Pavilion (North-West) */}
-      <ZenGalleryCorner position={[-32, 0, -32]} />
+      <ZenGalleryCorner
+        position={[-32, 0, -32]}
+        carRef={carRef}
+        onNearbyArtwork={onNearbyArtwork}
+      />
 
       {/* Corner 2: Floating Monolith Courtyard / Stargazer Sky Platform (North-East) */}
       <SkyPlatformCorner position={[32, 0, -32]} />
@@ -2416,6 +2751,7 @@ type MobileControls = {
 
 function World({
   onActiveLandmark,
+  onNearbyArtwork,
   mobileControls,
   localPlayer,
   remotePlayers,
@@ -2429,6 +2765,7 @@ function World({
   triggerEmote,
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
+  onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
   mobileControls: MobileControls;
   localPlayer: {
     id: string;
@@ -2913,7 +3250,10 @@ function World({
       />
       <primitive object={sunTarget} />
 
-      <CyberMetaverseArena />
+      <CyberMetaverseArena
+        carRef={carState}
+        onNearbyArtwork={onNearbyArtwork}
+      />
 
       {/* Teleport Station di Lokasi Bekas Tower (z: -14.5) */}
       <CyberTeleportStation
@@ -2996,6 +3336,12 @@ function WorldHero() {
   const [selectedColor, setSelectedColor] = useState(localPlayer.color);
   const [selectedAccent, setSelectedAccent] = useState(localPlayer.accentColor);
 
+  // Zen Gallery Artwork Inspection State
+  const [nearbyArtwork, setNearbyArtwork] = useState<"prism" | "mobius" | "gyroscope" | null>(null);
+  const [activeCuratorNote, setActiveCuratorNote] = useState<ZenGalleryArtwork | null>(null);
+  const nearbyArtworkRef = useRef(nearbyArtwork);
+  nearbyArtworkRef.current = nearbyArtwork;
+
   // Auto show pop-up on first arrival if custom name not yet chosen
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -3026,6 +3372,13 @@ function WorldHero() {
       if (k === "f") {
         e.preventDefault();
         triggerPunch();
+      } else if (k === "e") {
+        if (nearbyArtworkRef.current) {
+          e.preventDefault();
+          setActiveCuratorNote(ZEN_GALLERY_ARTWORKS[nearbyArtworkRef.current]);
+        }
+      } else if (e.key === "Escape") {
+        setActiveCuratorNote(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -3073,6 +3426,7 @@ function WorldHero() {
       >
         <World
           onActiveLandmark={setActiveLandmark}
+          onNearbyArtwork={setNearbyArtwork}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
           remotePlayers={remotePlayers}
@@ -3251,6 +3605,98 @@ function WorldHero() {
             <span>Jump to Section</span>
             <span aria-hidden="true">&rarr;</span>
           </a>
+        </div>
+      )}
+
+      {/* Zen Gallery Museum Exhibition Inspector HUD Prompt */}
+      {nearbyArtwork && !activeCuratorNote && (
+        <div className="absolute inset-x-3 bottom-32 sm:bottom-28 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-sky-400/30 bg-neutral-950/90 p-3 sm:p-4 shadow-2xl backdrop-blur-xl md:bottom-24 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/15 px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold tracking-wider text-sky-300">
+                  🏛️ EXHIBIT {ZEN_GALLERY_ARTWORKS[nearbyArtwork].exhibitNumber}
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono">Zen Digital Gallery</span>
+              </div>
+              <h4 className="mt-1 text-sm sm:text-base font-bold text-white truncate">
+                {ZEN_GALLERY_ARTWORKS[nearbyArtwork].title}
+              </h4>
+              <p className="text-[11px] text-neutral-400 truncate">
+                {ZEN_GALLERY_ARTWORKS[nearbyArtwork].subtitle}
+              </p>
+            </div>
+            <button
+              onClick={() => setActiveCuratorNote(ZEN_GALLERY_ARTWORKS[nearbyArtwork])}
+              className="shrink-0 flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-400/20 hover:bg-sky-400/30 px-3.5 py-2 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
+            >
+              <span>Inspect [E]</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Zen Gallery Curatorial Essay Modal */}
+      {activeCuratorNote && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/20 bg-neutral-950/95 p-6 sm:p-7 shadow-2xl backdrop-blur-2xl">
+            {/* Close Button */}
+            <button
+              onClick={() => setActiveCuratorNote(null)}
+              className="absolute right-5 top-5 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label="Close Note"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            {/* Header Badge */}
+            <div className="flex items-center gap-2">
+              <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${activeCuratorNote.accent}`}>
+                Exhibit {activeCuratorNote.exhibitNumber} &bull; {activeCuratorNote.year}
+              </span>
+              <span className="text-xs text-neutral-500 font-mono">Zen Digital Gallery</span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <h3 className="mt-3 text-xl sm:text-2xl font-black text-white tracking-tight">
+              {activeCuratorNote.title}
+            </h3>
+            <p className="mt-0.5 text-xs font-medium text-cyan-400">
+              {activeCuratorNote.subtitle}
+            </p>
+
+            {/* Medium tag */}
+            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2">
+              <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold block">
+                Medium / Technique
+              </span>
+              <span className="text-xs text-neutral-300 font-mono">
+                {activeCuratorNote.medium}
+              </span>
+            </div>
+
+            {/* Curatorial Essay */}
+            <div className="mt-4 space-y-2.5">
+              <p className="text-xs sm:text-sm leading-relaxed text-neutral-300">
+                {activeCuratorNote.description}
+              </p>
+              <div className="border-l-2 border-sky-400/50 pl-3.5 py-1.5 bg-sky-500/5 rounded-r-lg">
+                <p className="text-xs italic text-neutral-400">
+                  &ldquo;{activeCuratorNote.philosophy}&rdquo;
+                </p>
+              </div>
+            </div>
+
+            {/* Action Footer */}
+            <div className="mt-6 flex items-center justify-end gap-3">
+              <button
+                onClick={() => setActiveCuratorNote(null)}
+                className="w-full sm:w-auto rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Close Exhibition Card (Esc)
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
