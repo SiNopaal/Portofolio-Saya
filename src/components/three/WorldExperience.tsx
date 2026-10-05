@@ -514,75 +514,6 @@ function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
 }
 
 /* ============================================================
-   CINEMATIC ATMOSPHERE & LIGHTING PRESETS
-============================================================ */
-export type AtmosphereMood = "midnight" | "sunset" | "studio";
-
-export interface AtmosphereConfig {
-  id: AtmosphereMood;
-  label: string;
-  shortLabel: string;
-  icon: string;
-  description: string;
-  ambientColor: string;
-  ambientIntensity: number;
-  sunColor: string;
-  sunIntensity: number;
-  sunPosition: [number, number, number];
-  fogColor: string;
-  fogNear: number;
-  fogFar: number;
-}
-
-export const ATMOSPHERE_PRESETS: Record<AtmosphereMood, AtmosphereConfig> = {
-  midnight: {
-    id: "midnight",
-    label: "Midnight Stealth",
-    shortLabel: "Midnight",
-    icon: "🌙",
-    description: "Deep cosmos starlight with cool cyan moonlight",
-    ambientColor: "#1e293b",
-    ambientIntensity: 0.70,
-    sunColor: "#e0f2fe",
-    sunIntensity: 2.7,
-    sunPosition: [7, 14, 5],
-    fogColor: "#020617",
-    fogNear: 35,
-    fogFar: 140,
-  },
-  sunset: {
-    id: "sunset",
-    label: "Cyber Sunset",
-    shortLabel: "Sunset",
-    icon: "🌅",
-    description: "Low-angle golden amber sun with dramatic studio shadows",
-    ambientColor: "#331626",
-    ambientIntensity: 0.76,
-    sunColor: "#f97316",
-    sunIntensity: 3.5,
-    sunPosition: [19, 5.8, 14],
-    fogColor: "#16071e",
-    fogNear: 30,
-    fogFar: 135,
-  },
-  studio: {
-    id: "studio",
-    label: "Studio Dawn",
-    shortLabel: "Studio",
-    icon: "🏛️",
-    description: "Architectural gallery diffuse daylight with soft contrast",
-    ambientColor: "#e2e8f0",
-    ambientIntensity: 1.05,
-    sunColor: "#ffffff",
-    sunIntensity: 2.1,
-    sunPosition: [0, 18, 2],
-    fogColor: "#090d16",
-    fogNear: 40,
-    fogFar: 150,
-  },
-};
-
-/* ============================================================
    CYBER METAVERSE ARENA (Floating Island, Cosmic Dust & Nexus)
 ============================================================ */
 function CyberMetaverseArena() {
@@ -1110,7 +1041,6 @@ function CyberCharacter({
   isRemote = false,
   isPunching = false,
   isHit = false,
-  isSitting = false,
 }: {
   carRef: React.MutableRefObject<{
     pos: THREE.Vector3;
@@ -1127,7 +1057,6 @@ function CyberCharacter({
   isRemote?: boolean;
   isPunching?: boolean;
   isHit?: boolean;
-  isSitting?: boolean;
 }) {
   const blobTex = useMemo(() => getBlobTexture(), []);
 
@@ -1153,7 +1082,6 @@ function CyberCharacter({
 
   const walkPhaseRef = useRef<number>(0);
   const walkWeightRef = useRef<number>(0);
-  const sitWeightRef = useRef<number>(0);
 
   const spotRef = useRef<THREE.SpotLight>(null);
   const spotTarget = useMemo(() => {
@@ -1195,11 +1123,6 @@ function CyberCharacter({
     }
     wasAirborneRef.current = isAirborne;
 
-    // Smooth sitting blend weight (relaxed posture at cliff edge)
-    const targetSitWeight = isSitting && !isAirborne && !isMoving ? 1.0 : 0.0;
-    sitWeightRef.current = THREE.MathUtils.damp(sitWeightRef.current, targetSitWeight, 9.0, delta);
-    const sitWeight = sitWeightRef.current;
-
     if (isAirborne) {
       if (flipProgressRef.current < 1.0) {
         flipProgressRef.current = Math.min(1.0, flipProgressRef.current + delta * 1.55);
@@ -1230,10 +1153,6 @@ function CyberCharacter({
         } else {
           flipPivotRef.current.rotation.x = 0;
         }
-
-        // Lower hips when sitting down on cliff edge
-        flipPivotRef.current.position.y = THREE.MathUtils.lerp(0.85, 0.42, sitWeight);
-        flipPivotRef.current.position.z = THREE.MathUtils.lerp(0, 0.08, sitWeight);
       }
     }
 
@@ -1250,7 +1169,7 @@ function CyberCharacter({
     }
 
     // Smoothly blend walking animation in & out
-    const targetWalkWeight = isMoving && !isAirborne && sitWeight < 0.2 ? 1.0 : 0.0;
+    const targetWalkWeight = isMoving && !isAirborne ? 1.0 : 0.0;
     walkWeightRef.current = THREE.MathUtils.damp(walkWeightRef.current, targetWalkWeight, 12, delta);
     const walkWeight = walkWeightRef.current;
 
@@ -1308,16 +1227,6 @@ function CyberCharacter({
 
         leftArmRef.current.rotation.z = isSprinting ? 0.22 : 0.1;
         rightArmRef.current.rotation.z = isSprinting ? -0.22 : -0.1;
-
-        // Relaxed resting arms when sitting on cliff edge
-        if (sitWeight > 0.001) {
-          leftArmRef.current.rotation.x = THREE.MathUtils.lerp(leftArmRef.current.rotation.x, -0.18, sitWeight);
-          rightArmRef.current.rotation.x = THREE.MathUtils.lerp(rightArmRef.current.rotation.x, -0.18, sitWeight);
-          leftArmRef.current.rotation.z = THREE.MathUtils.lerp(leftArmRef.current.rotation.z, 0.26, sitWeight);
-          rightArmRef.current.rotation.z = THREE.MathUtils.lerp(rightArmRef.current.rotation.z, -0.26, sitWeight);
-          leftForearmRef.current.rotation.x = THREE.MathUtils.lerp(leftForearmRef.current.rotation.x, -0.52, sitWeight);
-          rightForearmRef.current.rotation.x = THREE.MathUtils.lerp(rightForearmRef.current.rotation.x, -0.52, sitWeight);
-        }
       }
     }
 
@@ -1347,20 +1256,6 @@ function CyberCharacter({
         const rightKneeBend = Math.max(0, Math.sin(phase)) * (isSprinting ? 1.15 : 0.78) * stride;
         leftShinRef.current.rotation.x = leftKneeBend;
         rightShinRef.current.rotation.x = rightKneeBend;
-
-        // Relaxed cliff-edge sit: Thighs forward horizontal & shins dangling down into void
-        if (sitWeight > 0.001) {
-          leftLegRef.current.rotation.x = THREE.MathUtils.lerp(leftLegRef.current.rotation.x, -1.54, sitWeight);
-          rightLegRef.current.rotation.x = THREE.MathUtils.lerp(rightLegRef.current.rotation.x, -1.54, sitWeight);
-          leftLegRef.current.rotation.z = THREE.MathUtils.lerp(leftLegRef.current.rotation.z, 0.08, sitWeight);
-          rightLegRef.current.rotation.z = THREE.MathUtils.lerp(rightLegRef.current.rotation.z, -0.08, sitWeight);
-
-          const t = state.clock.elapsedTime;
-          const dangleL = Math.sin(t * 1.6) * 0.09;
-          const dangleR = Math.sin(t * 1.6 + 1.1) * 0.09;
-          leftShinRef.current.rotation.x = THREE.MathUtils.lerp(leftShinRef.current.rotation.x, 1.54 + dangleL, sitWeight);
-          rightShinRef.current.rotation.x = THREE.MathUtils.lerp(rightShinRef.current.rotation.x, 1.54 + dangleR, sitWeight);
-        }
       }
     }
 
@@ -1390,12 +1285,6 @@ function CyberCharacter({
         // Dynamic forward lean
         const forwardLean = THREE.MathUtils.clamp(speed * 0.024, -0.1, isSprinting ? 0.32 : 0.18);
         bodyGroup.current.rotation.x = THREE.MathUtils.damp(bodyGroup.current.rotation.x, forwardLean, 10, delta);
-
-        // Relaxed slight recline when sitting at cliff edge
-        if (sitWeight > 0.001) {
-          bodyGroup.current.rotation.x = THREE.MathUtils.lerp(bodyGroup.current.rotation.x, -0.14, sitWeight);
-          bodyGroup.current.position.y = THREE.MathUtils.lerp(bodyGroup.current.position.y, 0, sitWeight);
-        }
       }
     }
 
@@ -1409,10 +1298,6 @@ function CyberCharacter({
       );
       if (tuck > 0.05) {
         headGroup.current.rotation.x = THREE.MathUtils.lerp(0, 0.35, tuck);
-      } else if (sitWeight > 0.01) {
-        const gaze = Math.sin(state.clock.elapsedTime * 0.7) * 0.08;
-        headGroup.current.rotation.y = THREE.MathUtils.lerp(headGroup.current.rotation.y, gaze, sitWeight);
-        headGroup.current.rotation.x = THREE.MathUtils.lerp(headGroup.current.rotation.x, 0.04, sitWeight);
       } else {
         headGroup.current.rotation.x = 0;
       }
@@ -1436,8 +1321,7 @@ function CyberCharacter({
     // Floating AI Companion Drone
     if (droneRef.current) {
       const t = state.clock.elapsedTime;
-      const droneBaseY = THREE.MathUtils.lerp(1.62, 1.20, sitWeight);
-      droneRef.current.position.y = droneBaseY + Math.sin(t * 3.4) * 0.10;
+      droneRef.current.position.y = 1.62 + Math.sin(t * 3.4) * 0.12;
       droneRef.current.position.x = 0.58 + Math.cos(t * 1.8) * 0.08;
       droneRef.current.position.z = -0.28 + Math.sin(t * 1.8) * 0.08;
       droneRef.current.rotation.y += delta * 2.2;
@@ -2007,7 +1891,6 @@ function RemotePlayerCharacter({ player }: { player: PlayerData }) {
       isRemote={true}
       isPunching={player.isPunching}
       isHit={player.isHit}
-      isSitting={player.isSitting}
     />
   );
 }
@@ -2058,10 +1941,6 @@ function World({
   registerKnockbackHandler,
   hitSparks,
   triggerEmote,
-  atmosphereMood,
-  isSitting,
-  setIsSitting,
-  onCanSitChange,
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   mobileControls: MobileControls;
@@ -2072,8 +1951,7 @@ function World({
     rot: number,
     speed: number,
     isSprinting: boolean,
-    onGround?: boolean,
-    isSitting?: boolean
+    onGround?: boolean
   ) => void;
   currentEmote: string | null;
   isLocalPunching: boolean;
@@ -2087,10 +1965,6 @@ function World({
   registerKnockbackHandler: (fn: (dir: [number, number], force: number) => void) => void;
   hitSparks: HitSpark[];
   triggerEmote: (emoji: string) => void;
-  atmosphereMood: AtmosphereMood;
-  isSitting: boolean;
-  setIsSitting: React.Dispatch<React.SetStateAction<boolean>>;
-  onCanSitChange: (canSit: boolean) => void;
 }) {
   const camera = useThree((s) => s.camera);
 
@@ -2112,20 +1986,6 @@ function World({
 
   // Hit cooldown against targets
   const hitCooldownRef = useRef(new Set<string>());
-
-  // Proximity edge sitting state
-  const canSitRef = useRef<boolean>(false);
-
-  // Smooth atmospheric lighting refs & vectors
-  const ambientRef = useRef<THREE.AmbientLight>(null);
-  const sunRef = useRef<THREE.DirectionalLight>(null);
-  const fogRef = useRef<THREE.Fog>(null);
-  const bgRef = useRef<THREE.Color>(null);
-  const targetAmbientCol = useMemo(() => new THREE.Color(), []);
-  const targetSunCol = useMemo(() => new THREE.Color(), []);
-  const targetSunPos = useMemo(() => new THREE.Vector3(), []);
-  const currentSunPos = useRef(new THREE.Vector3(7, 14, 5));
-  const targetFogCol = useMemo(() => new THREE.Color(), []);
 
   useEffect(() => {
     registerKnockbackHandler((dir, force) => {
@@ -2155,6 +2015,8 @@ function World({
         // Horizontal yaw (kiri/kanan)
         camYawRef.current -= deltaX * 0.005;
         // Vertical pitch (atas/bawah):
+        // Drag mouse ke ATAS (deltaY < 0) -> camera memandang ke ATAS (tengadah)
+        // Drag mouse ke BAWAH (deltaY > 0) -> camera memandang ke BAWAH (menunduk)
         camPitchRef.current = THREE.MathUtils.clamp(
           camPitchRef.current + deltaY * 0.004,
           -0.35, // Sudut bawah (kamera rendah memandang ke atas ke langit)
@@ -2211,6 +2073,7 @@ function World({
     };
   }, []);
 
+  const sunRef = useRef<THREE.DirectionalLight>(null);
   const sunTarget = useMemo(() => {
     const o = new THREE.Object3D();
     o.position.set(0, 0, 0);
@@ -2225,19 +2088,10 @@ function World({
         keys.current.clear();
         return;
       }
-      const k = e.key.toLowerCase();
-      if ([" ", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) {
+      if ([" ", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(e.key.toLowerCase())) {
         e.preventDefault();
       }
-      if (k === "c" || k === "x") {
-        e.preventDefault();
-        if (isSitting) {
-          setIsSitting(false);
-        } else if (canSitRef.current) {
-          setIsSitting(true);
-        }
-      }
-      keys.current.add(k);
+      keys.current.add(e.key.toLowerCase());
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
     window.addEventListener("keydown", down, { passive: false });
@@ -2246,7 +2100,7 @@ function World({
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, [sunTarget, isSitting, setIsSitting]);
+  }, [sunTarget]);
 
   useFrame((_, rawDelta) => {
     const delta = Math.min(rawDelta, 0.05);
@@ -2270,7 +2124,7 @@ function World({
     if (keys.current.has("pageup") || keys.current.has("r")) {
       camPitchRef.current = Math.max(-0.35, camPitchRef.current - 1.4 * delta); // Lihat ke atas
     }
-    if (keys.current.has("pagedown")) {
+    if (keys.current.has("pagedown") || keys.current.has("c")) {
       camPitchRef.current = Math.min(1.20, camPitchRef.current + 1.4 * delta);  // Lihat ke bawah
     }
 
@@ -2487,46 +2341,11 @@ function World({
     camTarget.z = THREE.MathUtils.damp(camTarget.z, car.pos.z, 12.0, delta);
     camera.lookAt(camTarget);
 
-    /* ---- Atmospheric Lighting & Mood Interpolation ---- */
-    const atmosphere = ATMOSPHERE_PRESETS[atmosphereMood];
-    targetAmbientCol.set(atmosphere.ambientColor);
-    targetSunCol.set(atmosphere.sunColor);
-    targetSunPos.set(
-      car.pos.x + atmosphere.sunPosition[0],
-      car.pos.y + atmosphere.sunPosition[1],
-      car.pos.z + atmosphere.sunPosition[2]
-    );
-    targetFogCol.set(atmosphere.fogColor);
-
-    if (ambientRef.current) {
-      ambientRef.current.color.lerp(targetAmbientCol, delta * 3.5);
-      ambientRef.current.intensity = THREE.MathUtils.damp(
-        ambientRef.current.intensity,
-        atmosphere.ambientIntensity,
-        4,
-        delta
-      );
-    }
+    /* ---- Dynamic Sun follows avatar for realistic shadows ---- */
     if (sunRef.current) {
-      sunRef.current.color.lerp(targetSunCol, delta * 3.5);
-      sunRef.current.intensity = THREE.MathUtils.damp(
-        sunRef.current.intensity,
-        atmosphere.sunIntensity,
-        4,
-        delta
-      );
-      currentSunPos.current.lerp(targetSunPos, delta * 2.5);
-      sunRef.current.position.copy(currentSunPos.current);
+      sunRef.current.position.set(car.pos.x + 7, car.pos.y + 14, car.pos.z + 5);
       sunTarget.position.set(car.pos.x, car.pos.y, car.pos.z);
       sunTarget.updateMatrixWorld();
-    }
-    if (fogRef.current) {
-      fogRef.current.color.lerp(targetFogCol, delta * 3.5);
-      fogRef.current.near = THREE.MathUtils.damp(fogRef.current.near, atmosphere.fogNear, 3, delta);
-      fogRef.current.far = THREE.MathUtils.damp(fogRef.current.far, atmosphere.fogFar, 3, delta);
-    }
-    if (bgRef.current) {
-      bgRef.current.lerp(targetFogCol, delta * 3.5);
     }
 
     /* ---- Proximity Zone Trigger ---- */
@@ -2572,86 +2391,23 @@ function World({
       }
     }
 
-    /* ---- Cliff Edge Detection for Sitting ---- */
-    const distToEdgeX = ISLAND_SIZE - Math.abs(car.pos.x);
-    const distToEdgeZ = ISLAND_SIZE - Math.abs(car.pos.z);
-    const distToNearestEdge = Math.min(distToEdgeX, distToEdgeZ);
-    const isAtIslandLip =
-      Math.abs(car.pos.x) <= ISLAND_SIZE + 0.1 &&
-      Math.abs(car.pos.z) <= ISLAND_SIZE + 0.1 &&
-      distToNearestEdge < 3.2;
-    const ableToSit = isAtIslandLip && car.onGround && car.pos.y >= -0.2 && hSpeed < 0.25;
-
-    if (ableToSit !== canSitRef.current) {
-      canSitRef.current = ableToSit;
-      onCanSitChange(ableToSit);
-    }
-
-    // Cancel sitting immediately upon movement input or jump
-    if (isSitting && (hasMoveInput || isJump)) {
-      setIsSitting(false);
-    }
-
-    // When actively sitting: lock to edge & face cosmic void
-    if (isSitting) {
-      let outwardRot = car.rot;
-      let targetEdgeX = car.pos.x;
-      let targetEdgeZ = car.pos.z;
-      const EDGE_LIP = 54.72;
-
-      if (distToEdgeZ < distToEdgeX) {
-        if (car.pos.z < 0) {
-          outwardRot = Math.PI; // North: -Z
-          targetEdgeZ = -EDGE_LIP;
-        } else {
-          outwardRot = 0;       // South: +Z
-          targetEdgeZ = EDGE_LIP;
-        }
-      } else {
-        if (car.pos.x > 0) {
-          outwardRot = Math.PI / 2;  // East: +X
-          targetEdgeX = EDGE_LIP;
-        } else {
-          outwardRot = -Math.PI / 2; // West: -X
-          targetEdgeX = -EDGE_LIP;
-        }
-      }
-
-      // Smoothly rotate character to face the cosmic horizon
-      let rDiff = outwardRot - car.rot;
-      while (rDiff < -Math.PI) rDiff += Math.PI * 2;
-      while (rDiff > Math.PI) rDiff -= Math.PI * 2;
-      car.rot += rDiff * Math.min(1, delta * 9.0);
-
-      // Settle gently right at edge lip
-      car.pos.x = THREE.MathUtils.damp(car.pos.x, targetEdgeX, 10.0, delta);
-      car.pos.z = THREE.MathUtils.damp(car.pos.z, targetEdgeZ, 10.0, delta);
-      vel.current.x = 0;
-      vel.current.z = 0;
-      car.speed = 0;
-      car.onGround = true;
-    }
-
     /* ---- Broadcast Local Avatar State across network ---- */
     broadcastLocalState(
       [car.pos.x, car.pos.y, car.pos.z],
       car.rot,
       car.speed,
       isDriftingRef.current,
-      car.onGround,
-      isSitting
+      car.onGround
     );
   });
 
   return (
     <>
-      <color ref={bgRef} attach="background" args={["#020617"]} />
-      <fog ref={fogRef} attach="fog" args={["#020617", 35, 140]} />
-      <ambientLight ref={ambientRef} intensity={0.7} color="#1e293b" />
+      <ambientLight intensity={0.85} color="#cbd5e1" />
       <directionalLight
         ref={sunRef}
         position={[7, 14, 5]}
-        intensity={2.7}
+        intensity={2.8}
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
@@ -2698,7 +2454,6 @@ function World({
         emote={currentEmote ?? undefined}
         isPunching={isLocalPunching}
         isHit={isLocalHit}
-        isSitting={isSitting}
       />
 
       {/* Remote Players in Metaverse */}
@@ -2714,15 +2469,6 @@ function World({
 ============================================================ */
 function WorldHero() {
   const [activeLandmark, setActiveLandmark] = useState<LandmarkData | null>(null);
-  const [atmosphereMood, setAtmosphereMood] = useState<AtmosphereMood>("midnight");
-  const [isSitting, setIsSitting] = useState<boolean>(false);
-  const [canSit, setCanSit] = useState<boolean>(false);
-
-  const cycleAtmosphere = useCallback(() => {
-    const moods: AtmosphereMood[] = ["midnight", "sunset", "studio"];
-    setAtmosphereMood((prev) => moods[(moods.indexOf(prev) + 1) % moods.length]);
-  }, []);
-
   const [mobileControls, setMobileControls] = useState<MobileControls>({
     forward: false,
     backward: false,
@@ -2845,10 +2591,6 @@ function WorldHero() {
           registerKnockbackHandler={registerKnockbackHandler}
           hitSparks={hitSparks}
           triggerEmote={triggerEmote}
-          atmosphereMood={atmosphereMood}
-          isSitting={isSitting}
-          setIsSitting={setIsSitting}
-          onCanSitChange={setCanSit}
         />
       </Canvas>
 
@@ -2864,60 +2606,31 @@ function WorldHero() {
           <p className="mt-1 sm:mt-2 text-[11px] sm:text-xs leading-relaxed text-neutral-400 hidden xs:block">
             Swipe layar arahkan kamera &bull; Kontrol karakter di bawah.
           </p>
-
-          {/* Mobile Top Row: Visitors Badge & Lighting Switcher */}
-          <div className="flex items-center gap-1.5 mt-2 md:hidden">
-            {/* Mobile Visitor Indicator */}
-            <button
-              onClick={() => {
-                setInputName(localPlayer.name);
-                setSelectedColor(localPlayer.color);
-                setSelectedAccent(localPlayer.accentColor);
-                setShowNameModal(true);
-              }}
-              className="flex items-center gap-1.5 pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-[11px] font-semibold text-emerald-400">
-                {totalOnline}/{maxPlayers || 10}
-              </span>
-              <span className="text-[10px] text-cyan-300 font-mono underline truncate max-w-[70px]">
-                {localPlayer.name}
-              </span>
-            </button>
-
-            {/* Mobile Lighting Switcher */}
-            <button
-              onClick={cycleAtmosphere}
-              className="flex items-center gap-1 pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform text-[11px] font-semibold text-neutral-200 shadow-md"
-              title="Ganti Mode Pencahayaan Studio"
-            >
-              <span>{ATMOSPHERE_PRESETS[atmosphereMood].icon}</span>
-              <span>{ATMOSPHERE_PRESETS[atmosphereMood].shortLabel}</span>
-            </button>
-          </div>
+          {/* Mobile Visitor Indicator */}
+          <button
+            onClick={() => {
+              setInputName(localPlayer.name);
+              setSelectedColor(localPlayer.color);
+              setSelectedAccent(localPlayer.accentColor);
+              setShowNameModal(true);
+            }}
+            className="mt-2 flex items-center gap-1.5 md:hidden pointer-events-auto bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/15 active:scale-95 transition-transform"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="text-[11px] font-semibold text-emerald-400">
+              {totalOnline}/{maxPlayers || 10} Online
+            </span>
+            <span className="text-[10px] text-cyan-300 font-mono underline">
+              {localPlayer.name} ✏️
+            </span>
+          </button>
         </div>
 
         <div className="hidden flex-col items-end gap-2 text-right md:flex pointer-events-auto">
           <div className="flex items-center gap-2">
-            {/* Cinematic Lighting Switcher (Feature 1) */}
-            <button
-              onClick={cycleAtmosphere}
-              title={`Studio Lighting Atmosphere: ${ATMOSPHERE_PRESETS[atmosphereMood].label} - Click to switch`}
-              className="glass flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs text-neutral-200 transition-all hover:border-amber-400/60 hover:bg-white/15 cursor-pointer shadow-lg active:scale-95"
-            >
-              <span className="text-base">{ATMOSPHERE_PRESETS[atmosphereMood].icon}</span>
-              <span className="font-semibold text-white">
-                {ATMOSPHERE_PRESETS[atmosphereMood].shortLabel}
-              </span>
-              <span className="text-[10px] text-neutral-400 font-mono hidden xl:inline">
-                Lighting
-              </span>
-            </button>
-
             {/* Live Visitors Badge & Character Customization Trigger */}
             <button
               onClick={() => {
@@ -2963,26 +2676,6 @@ function WorldHero() {
           </span>
         </div>
       </div>
-
-      {/* Cliff Edge Sit Prompt / Trigger (Desktop) */}
-      {(canSit || isSitting) && (
-        <div className="pointer-events-auto absolute bottom-28 z-20 hidden md:flex items-center justify-center inset-x-0 animate-in fade-in zoom-in-95 duration-200">
-          <button
-            onClick={() => setIsSitting((prev) => !prev)}
-            className={`flex items-center gap-2.5 rounded-full px-5 py-2.5 text-xs font-bold transition-all shadow-2xl active:scale-95 border backdrop-blur-xl ${
-              isSitting
-                ? "bg-cyan-500/25 border-cyan-400 text-cyan-200 hover:bg-cyan-500/35 ring-2 ring-cyan-400/40"
-                : "bg-black/85 border-amber-400/70 text-amber-200 hover:border-amber-300 hover:bg-black/95 animate-pulse"
-            }`}
-          >
-            <span className="text-base">{isSitting ? "🏃" : "🪑"}</span>
-            <span>{isSitting ? "Berdiri [C / WASD]" : "Duduk di Tepi Jurang [C]"}</span>
-            <kbd className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-mono text-white">
-              C
-            </kbd>
-          </button>
-        </div>
-      )}
 
       {/* Desktop Quick Action Bar: Punch & Interactive Live Typing Chat (Hidden on Mobile) */}
       <div className="hidden md:flex pointer-events-auto absolute inset-x-0 bottom-8 z-20 flex-col items-center gap-2">
@@ -3111,24 +2804,8 @@ function WorldHero() {
           </button>
         </div>
 
-        {/* Center: Explore, Cliff Sit & Mobile Chat Trigger */}
+        {/* Center: Explore & Mobile Chat Trigger */}
         <div className="flex flex-col items-center gap-1.5 pb-0.5">
-          {/* Mobile Cliff Edge Sit Button */}
-          {(canSit || isSitting) && (
-            <button
-              type="button"
-              onPointerDown={() => setIsSitting((prev) => !prev)}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[10px] sm:text-[11px] font-bold backdrop-blur-md shadow-xl active:scale-95 transition-all border ${
-                isSitting
-                  ? "bg-cyan-500/30 border-cyan-400 text-cyan-200 ring-2 ring-cyan-400/50"
-                  : "bg-amber-500/25 border-amber-400 text-amber-200 animate-bounce"
-              }`}
-            >
-              <span>{isSitting ? "🏃" : "🪑"}</span>
-              <span>{isSitting ? "Berdiri" : "Duduk di Tepi"}</span>
-            </button>
-          )}
-
           <button
             type="button"
             onClick={() => setMobileChatOpen((v) => !v)}
