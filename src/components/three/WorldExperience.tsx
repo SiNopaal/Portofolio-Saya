@@ -3652,43 +3652,257 @@ function ZenGardenCorner({
 
   return (
     <group position={position}>
-      {/* Dark Charcoal Gravel Sanctuary Bed (16m x 16m x 0.05m) */}
-      <mesh position={[0, 0.025, 0]} receiveShadow>
-        <boxGeometry args={[16, 0.05, 16]} />
-        <meshStandardMaterial color="#111827" roughness={0.9} metalness={0.1} />
+      {/* 1. Engawa Charred-Cedar Perimeter Deck Boardwalk (16.8m x 16.8m outer) */}
+      <group position={[0, 0, 0]}>
+        {/* North Raised Deck */}
+        <mesh position={[0, 0.05, -7.8]} receiveShadow>
+          <boxGeometry args={[16.8, 0.09, 1.2]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.2} />
+        </mesh>
+        {/* South Raised Deck */}
+        <mesh position={[0, 0.05, 7.8]} receiveShadow>
+          <boxGeometry args={[16.8, 0.09, 1.2]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.2} />
+        </mesh>
+        {/* West Raised Deck */}
+        <mesh position={[-7.8, 0.05, 0]} receiveShadow>
+          <boxGeometry args={[1.2, 0.09, 14.4]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.2} />
+        </mesh>
+        {/* East Raised Deck */}
+        <mesh position={[7.8, 0.05, 0]} receiveShadow>
+          <boxGeometry args={[1.2, 0.09, 14.4]} />
+          <meshStandardMaterial color="#18181b" roughness={0.7} metalness={0.2} />
+        </mesh>
+
+        {/* Outer Titanium Trim Lip */}
+        <mesh position={[0, 0.015, 0]}>
+          <boxGeometry args={[17.0, 0.03, 17.0]} />
+          <meshStandardMaterial color="#27272a" roughness={0.4} metalness={0.8} />
+        </mesh>
+
+        {/* Engawa Inner Cove Floor Light Runners (Soft Emerald / Warm Amber glow) */}
+        {[-7.18, 7.18].map((coord, idx) => (
+          <group key={`cove-light-${idx}`}>
+            {/* Horizontal Z cove lines */}
+            <mesh position={[0, 0.098, coord]} rotation={[-Math.PI / 2, 0, 0]}>
+              <planeGeometry args={[14.4, 0.04]} />
+              <meshBasicMaterial color="#10b981" opacity={0.65} transparent />
+            </mesh>
+            {/* Vertical X cove lines */}
+            <mesh position={[coord, 0.098, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+              <planeGeometry args={[14.4, 0.04]} />
+              <meshBasicMaterial color="#10b981" opacity={0.65} transparent />
+            </mesh>
+          </group>
+        ))}
+      </group>
+
+      {/* 2. Sunken Courtyard Dark Basalt Bed (14.6m x 14.6m x 0.04m) */}
+      <mesh position={[0, 0.02, 0]} receiveShadow>
+        <boxGeometry args={[14.6, 0.04, 14.6]} />
+        <meshStandardMaterial color="#0c1220" roughness={0.95} metalness={0.05} />
       </mesh>
 
-      {/* Dark Basalt Timber Border Frame */}
-      <mesh position={[0, 0.035, 0]}>
-        <boxGeometry args={[16.5, 0.07, 16.5]} />
-        <meshStandardMaterial color="#1e293b" roughness={0.6} metalness={0.3} />
-      </mesh>
+      {/* 3. Tatami & Slate Architectural Joint Seams (3x3 Harmonious Grid) */}
+      <group position={[0, 0.042, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[-4.8, -2.4, 0, 2.4, 4.8].map((gridPos, idx) => (
+          <group key={`zen-grid-seam-${idx}`}>
+            <mesh position={[gridPos, 0, 0]}>
+              <planeGeometry args={[0.03, 14.4]} />
+              <meshBasicMaterial color="#1e293b" opacity={0.55} transparent />
+            </mesh>
+            <mesh position={[0, gridPos, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <planeGeometry args={[0.03, 14.4]} />
+              <meshBasicMaterial color="#1e293b" opacity={0.55} transparent />
+            </mesh>
+          </group>
+        ))}
+      </group>
 
-      {/* Concentric Raked Gravel Wave Ripples centered on Hexagonal Core */}
-      <group position={[0, 0.052, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        {[1.8, 3.0, 4.2, 5.5, 6.8].map((radius, idx) => (
-          <mesh key={`zen-ripple-${idx}`}>
-            <ringGeometry args={[radius, radius + 0.04, 48]} />
-            <meshBasicMaterial color="#334155" opacity={0.6} transparent />
+      {/* 4. Concentric Hexagonal Karesansui Raked Waves (Hexagonal Architecture ripples) */}
+      <group position={[0, 0.045, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        {[1.9, 3.1, 4.3, 5.5, 6.7].map((r, idx) => (
+          <mesh key={`hex-ripple-${idx}`}>
+            <ringGeometry args={[r, r + 0.045, 6]} />
+            <meshBasicMaterial
+              color={idx % 2 === 0 ? "#10b981" : "#38bdf8"}
+              opacity={0.35 - idx * 0.04}
+              transparent
+            />
           </mesh>
         ))}
       </group>
 
-      {/* Symmetrical Cardinal Cross Stepping Stones Path */}
-      {[-3.6, -2.4, -1.2, 1.2, 2.4, 3.6].map((offset, idx) => (
-        <group key={`cross-stones-${idx}`}>
-          {/* North-South Axis Stone */}
-          <mesh position={[0, 0.055, offset]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <circleGeometry args={[0.38, 16]} />
-            <meshStandardMaterial color="#1f2937" roughness={0.8} metalness={0.2} />
+      {/* 5. Hexagonal Architecture Ports & Adapters Sacred Geometry Floor Seal (Center) */}
+      <group position={[0, 0.048, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        {/* Outer Hexagon - Ports & Infrastructure Layer */}
+        <mesh>
+          <ringGeometry args={[1.5, 1.54, 6]} />
+          <meshBasicMaterial color="#10b981" opacity={0.7} transparent />
+        </mesh>
+        {/* Middle Hexagon - Application / Use Cases Layer */}
+        <mesh>
+          <ringGeometry args={[1.05, 1.08, 6]} />
+          <meshBasicMaterial color="#f59e0b" opacity={0.65} transparent />
+        </mesh>
+        {/* Inner Hexagon - Domain Entities Core */}
+        <mesh>
+          <ringGeometry args={[0.62, 0.65, 6]} />
+          <meshBasicMaterial color="#34d399" opacity={0.8} transparent />
+        </mesh>
+        {/* Center Obsidian Disc */}
+        <mesh>
+          <circleGeometry args={[0.38, 32]} />
+          <meshStandardMaterial color="#090d16" roughness={0.2} metalness={0.8} />
+        </mesh>
+      </group>
+
+      {/* 6. Elevated Charred Cedar Boardwalk Bridges (North, South, East, West Walkways) */}
+      <group position={[0, 0, 0]}>
+        {/* North & South Cedar Boardwalks */}
+        {[-3.8, -3.2, -2.6, -2.0, 2.0, 2.6, 3.2, 3.8].map((zPos, idx) => (
+          <group key={`plank-ns-${idx}`}>
+            {/* Wooden Slat Plank */}
+            <mesh position={[0, 0.052, zPos]} receiveShadow>
+              <boxGeometry args={[1.35, 0.024, 0.42]} />
+              <meshStandardMaterial color="#292524" roughness={0.75} metalness={0.15} />
+            </mesh>
+            {/* Subtle recessed joint line */}
+            <mesh position={[0, 0.065, zPos]}>
+              <boxGeometry args={[1.36, 0.003, 0.03]} />
+              <meshBasicMaterial color="#1c1917" />
+            </mesh>
+          </group>
+        ))}
+
+        {/* East & West Cedar Boardwalks */}
+        {[-3.8, -3.2, -2.6, -2.0, 2.0, 2.6, 3.2, 3.8].map((xPos, idx) => (
+          <group key={`plank-ew-${idx}`}>
+            <mesh position={[xPos, 0.052, 0]} receiveShadow>
+              <boxGeometry args={[0.42, 0.024, 1.35]} />
+              <meshStandardMaterial color="#292524" roughness={0.75} metalness={0.15} />
+            </mesh>
+            <mesh position={[xPos, 0.065, 0]}>
+              <boxGeometry args={[0.03, 0.003, 1.36]} />
+              <meshBasicMaterial color="#1c1917" />
+            </mesh>
+          </group>
+        ))}
+
+        {/* Walkway Curbs with Micro Accent Glow Lines */}
+        {[-0.72, 0.72].map((xOffset, idx) => (
+          <mesh key={`curb-ns-${idx}`} position={[xOffset, 0.058, 0]}>
+            <boxGeometry args={[0.04, 0.032, 9.2]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.6} roughness={0.3} />
           </mesh>
-          {/* East-West Axis Stone */}
-          <mesh position={[offset, 0.055, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-            <circleGeometry args={[0.38, 16]} />
-            <meshStandardMaterial color="#1f2937" roughness={0.8} metalness={0.2} />
+        ))}
+        {[-0.72, 0.72].map((zOffset, idx) => (
+          <mesh key={`curb-ew-${idx}`} position={[0, 0.058, zOffset]}>
+            <boxGeometry args={[9.2, 0.032, 0.04]} />
+            <meshStandardMaterial color="#1e293b" metalness={0.6} roughness={0.3} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* 7. Tranquil Water Rill Inlays ("Stream of Pure Functions") */}
+      {[-2.2, 2.2].map((xPos, idx) => (
+        <group key={`water-rill-${idx}`} position={[xPos, 0, 0]}>
+          {/* Recessed Basin Trough */}
+          <mesh position={[0, 0.025, 0]}>
+            <boxGeometry args={[0.36, 0.03, 6.8]} />
+            <meshStandardMaterial color="#022c22" roughness={0.3} />
+          </mesh>
+          {/* Translucent Reflective Water Surface */}
+          <mesh position={[0, 0.038, 0]}>
+            <boxGeometry args={[0.32, 0.006, 6.7]} />
+            <meshStandardMaterial
+              color="#0d9488"
+              emissive="#042f2e"
+              roughness={0.08}
+              metalness={0.85}
+              transparent
+              opacity={0.82}
+            />
+          </mesh>
+          {/* Decorative River Pebbles nestled in the water */}
+          {[-2.6, -1.8, -0.9, 0.8, 1.9, 2.7].map((pZ, pIdx) => (
+            <mesh key={`pebble-${pIdx}`} position={[((pIdx % 3) - 1) * 0.07, 0.042, pZ]}>
+              <sphereGeometry args={[0.055 + (pIdx % 3) * 0.015, 8, 8]} />
+              <meshStandardMaterial color="#1f2937" roughness={0.6} metalness={0.3} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
+      {/* 8. San-Zon-Seki: 4 Diagonal Triad Rock Gardens with Lush Velvet Moss Pads */}
+      {[
+        [-5.1, -5.1],
+        [5.1, -5.1],
+        [-5.1, 5.1],
+        [5.1, 5.1],
+      ].map(([mx, mz], idx) => (
+        <group key={`san-zon-seki-${idx}`} position={[mx, 0.04, mz]}>
+          {/* Circular Sand Wave Ripples surrounding the Moss Rock Island */}
+          <group rotation={[-Math.PI / 2, 0, 0]}>
+            <mesh>
+              <ringGeometry args={[1.1, 1.14, 32]} />
+              <meshBasicMaterial color="#10b981" opacity={0.32} transparent />
+            </mesh>
+            <mesh>
+              <ringGeometry args={[1.5, 1.54, 32]} />
+              <meshBasicMaterial color="#334155" opacity={0.4} transparent />
+            </mesh>
+          </group>
+
+          {/* Organic Curved Velvet Moss Mound (Koke) */}
+          <mesh position={[0, 0.03, 0]} receiveShadow>
+            <cylinderGeometry args={[0.85, 1.0, 0.07, 16]} />
+            <meshStandardMaterial color="#065f46" roughness={0.92} metalness={0.05} />
+          </mesh>
+
+          {/* Triad Basalt Rock 1 (Tall Heaven Stone / Shita-Ishi) */}
+          <mesh position={[-0.15, 0.32, -0.1]} rotation={[0.1, 0.4, 0.08]} castShadow receiveShadow>
+            <coneGeometry args={[0.26, 0.62, 5]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.85} metalness={0.25} />
+          </mesh>
+
+          {/* Triad Basalt Rock 2 (Medium Earth Stone) */}
+          <mesh position={[0.25, 0.22, 0.12]} rotation={[-0.15, 0.8, 0.1]} castShadow receiveShadow>
+            <dodecahedronGeometry args={[0.22]} />
+            <meshStandardMaterial color="#334155" roughness={0.8} metalness={0.2} />
+          </mesh>
+
+          {/* Triad Basalt Rock 3 (Flat Human Stone) */}
+          <mesh position={[-0.22, 0.12, 0.24]} rotation={[0, 0.2, -0.1]} castShadow receiveShadow>
+            <boxGeometry args={[0.34, 0.15, 0.28]} />
+            <meshStandardMaterial color="#1e293b" roughness={0.9} metalness={0.15} />
           </mesh>
         </group>
       ))}
+
+      {/* 9. Traditional Tsukubai Stone Water Basin at Entryway Corner */}
+      <group position={[5.8, 0.05, -5.8]}>
+        {/* Basalt Stone Well Plinth */}
+        <mesh position={[0, 0.16, 0]} castShadow receiveShadow>
+          <cylinderGeometry args={[0.42, 0.48, 0.32, 16]} />
+          <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.3} />
+        </mesh>
+        {/* Water Surface inside basin */}
+        <mesh position={[0, 0.28, 0]}>
+          <cylinderGeometry args={[0.34, 0.34, 0.02, 16]} />
+          <meshStandardMaterial color="#0d9488" emissive="#042f2e" roughness={0.05} metalness={0.9} />
+        </mesh>
+        {/* Bamboo Water Spout (Kakehi) */}
+        <mesh position={[-0.18, 0.38, 0.18]} rotation={[0, -Math.PI / 4, Math.PI / 10]} castShadow>
+          <cylinderGeometry args={[0.025, 0.025, 0.38, 12]} />
+          <meshStandardMaterial color="#a16207" roughness={0.5} />
+        </mesh>
+        <mesh position={[-0.32, 0.22, 0.32]} castShadow>
+          <cylinderGeometry args={[0.03, 0.03, 0.44, 12]} />
+          <meshStandardMaterial color="#78350f" roughness={0.5} />
+        </mesh>
+      </group>
 
       {/* 4 Japanese-style Warm Cube Lanterns (Andon / Toro style, placed symmetrically) */}
       {[
