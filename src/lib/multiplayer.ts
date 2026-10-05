@@ -21,6 +21,7 @@ export type PlayerData = {
   onGround?: boolean;
   isPunching?: boolean;
   isHit?: boolean;
+  isSitting?: boolean;
   emote?: string;
   emoteTime?: number;
   lastUpdate: number;
@@ -366,7 +367,8 @@ export function useMultiplayer() {
       rot: number,
       speed: number,
       isSprinting: boolean,
-      onGround?: boolean
+      onGround?: boolean,
+      isSitting?: boolean
     ) => {
       const now = performance.now();
       // Throttle broadcast to ~25Hz (every 40ms) to conserve bandwidth and CPU
@@ -386,6 +388,7 @@ export function useMultiplayer() {
         onGround,
         isPunching: isLocalPunching,
         isHit: isLocalHit,
+        isSitting,
         emote: currentEmote || undefined,
         emoteTime: currentEmote ? Date.now() : undefined,
         lastUpdate: Date.now(),
