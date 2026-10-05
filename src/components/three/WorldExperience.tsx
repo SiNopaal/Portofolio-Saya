@@ -24,10 +24,6 @@ import {
   CyberContactBeacon,
   CyberDJSynthPad,
   CyberTeleportStation,
-  CyberBoxingRing,
-  CyberSkyParkour,
-  CyberSpeedwayAndPlazas,
-  CyberArenaPerimeter,
 } from "./ArenaZones";
 
 /* ============================================================
@@ -121,58 +117,19 @@ const landmarks: LandmarkData[] = [
 ];
 
 const JUMP_PADS = [
-  // Central Ring Launchers
   { id: "pad-1", x: -4.5, z: 4.5, color: "#38bdf8" },
   { id: "pad-2", x: 4.5, z: 4.5, color: "#ec4899" },
   { id: "pad-3", x: -4.5, z: -4.5, color: "#a855f7" },
   { id: "pad-4", x: 4.5, z: -4.5, color: "#f59e0b" },
-
-  // Sektor Utara: Sky Parkour Launchers
-  { id: "pad-north-entry", x: 0.0, z: 23.0, color: "#38bdf8" },
-  { id: "pad-north-mid", x: 0.0, z: 42.0, color: "#a855f7" },
-  { id: "pad-north-summit", x: 0.0, z: 53.5, color: "#ec4899" },
-
-  // Sektor Selatan: Boxing Ring Launchers
-  { id: "pad-south-boxing", x: 0.0, z: -31.5, color: "#ef4444" },
-  { id: "pad-south-ring-exit", x: 0.0, z: -44.5, color: "#f43f5e" },
-
-  // Sektor Barat: Agility & Speedway Launchers
-  { id: "pad-west-in", x: -26.0, z: 0.0, color: "#10b981" },
-  { id: "pad-west-north", x: -40.0, z: 14.0, color: "#34d399" },
-  { id: "pad-west-south", x: -40.0, z: -14.0, color: "#34d399" },
-  { id: "pad-west-out", x: -54.0, z: 0.0, color: "#10b981" },
-
-  // Sektor Timur: Tech Plaza Launchers
-  { id: "pad-east-in", x: 26.0, z: 0.0, color: "#f59e0b" },
-  { id: "pad-east-north", x: 40.0, z: 14.0, color: "#fbbf24" },
-  { id: "pad-east-south", x: 40.0, z: -14.0, color: "#fbbf24" },
-  { id: "pad-east-out", x: 54.0, z: 0.0, color: "#f59e0b" },
 ];
 
 const ELEVATED_PLATFORMS = [
-  // Existing Central Landmarks
   { x: -14.0, z: 0.0, w: 6.5, d: 6.5, h: 0.75, color: "#0e1526", border: "#38bdf8" },
   { x: 14.5, z: 0.0, w: 9.0, d: 8.0, h: 0.75, color: "#0e1526", border: "#ec4899" },
   { x: 0.0, z: -15.0, w: 8.0, d: 5.5, h: 1.1, color: "#0e1526", border: "#a855f7" },
-
-  // Sektor Selatan: Cyber Boxing Ring
-  { x: 0.0, z: -38.0, w: 10.0, d: 10.0, h: 0.9, color: "#0b101d", border: "#ef4444" },
-
-  // Sektor Utara: Cyber Sky Parkour Multi-Tier
-  { x: 0.0, z: 29.0, w: 8.0, d: 7.0, h: 1.6, color: "#0c1527", border: "#38bdf8" },
-  { x: 4.5, z: 35.5, w: 4.5, d: 4.5, h: 2.7, color: "#0c1527", border: "#06b6d4" },
-  { x: -4.5, z: 35.5, w: 4.5, d: 4.5, h: 2.7, color: "#0c1527", border: "#06b6d4" },
-  { x: 0.0, z: 42.0, w: 8.0, d: 7.0, h: 3.8, color: "#0c1527", border: "#a855f7" },
-  { x: 0.0, z: 51.0, w: 9.0, d: 9.0, h: 5.5, color: "#0c1527", border: "#ec4899" },
-
-  // Sektor Barat: West Hyper Runway
-  { x: -40.0, z: 0.0, w: 10.0, d: 10.0, h: 1.0, color: "#0d1b2a", border: "#10b981" },
-
-  // Sektor Timur: East VIP Tech Plaza
-  { x: 40.0, z: 0.0, w: 10.0, d: 10.0, h: 1.0, color: "#1a132f", border: "#f59e0b" },
 ];
 
-const ARENA_BOUND = 70.0;
+const ARENA_BOUND = 36.0;
 const AVATAR_R = 0.55;
 
 interface SolidObstacle {
@@ -218,20 +175,6 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: -8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: 8.5, r: 0.7, minY: 0.0, maxY: 5 },
   { x: 8.5, z: -8.5, r: 0.7, minY: 0.0, maxY: 5 },
-
-  // 5. Sektor Selatan: Cyber Boxing Ring Corner Posts & Sparring Dummies
-  { x: -4.4, z: -33.6, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: 4.4, z: -33.6, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: -4.4, z: -42.4, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: 4.4, z: -42.4, r: 0.25, minY: 0.8, maxY: 3.0 },
-  { x: -2.2, z: -38.0, r: 0.45, minY: 0.8, maxY: 3.0 },
-  { x: 2.2, z: -38.0, r: 0.45, minY: 0.8, maxY: 3.0 },
-
-  // 6. Perimeter Corner Mega Sky Beacons
-  { x: 58.0, z: 58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: -58.0, z: 58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: 58.0, z: -58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
-  { x: -58.0, z: -58.0, r: 2.5, minY: 0.0, maxY: 12.0 },
 ];
 
 /* ============================================================
@@ -427,7 +370,7 @@ function getCyberFloorTexture(): THREE.CanvasTexture {
   const tex = new THREE.CanvasTexture(canvas);
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(28, 28);
+  tex.repeat.set(16, 16);
   textureCache.set(key, tex);
   return tex;
 }
@@ -470,9 +413,9 @@ function CyberMetaverseArena() {
 
   return (
     <group>
-      {/* Endless Cyber Base Floor (Mega 280x280m Dimension) */}
+      {/* Endless Cyber Base Floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-        <planeGeometry args={[280, 280]} />
+        <planeGeometry args={[160, 160]} />
         <meshStandardMaterial map={floorTex} roughness={0.4} metalness={0.6} />
       </mesh>
 
@@ -2342,11 +2285,11 @@ function World({
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={0.5}
-        shadow-camera-far={75}
-        shadow-camera-left={-32}
-        shadow-camera-right={32}
-        shadow-camera-top={32}
-        shadow-camera-bottom={-32}
+        shadow-camera-far={45}
+        shadow-camera-left={-22}
+        shadow-camera-right={22}
+        shadow-camera-top={22}
+        shadow-camera-bottom={-22}
         shadow-bias={-0.0003}
         color="#e0f2fe"
       />
@@ -2363,25 +2306,6 @@ function World({
 
       {/* Kotak Utama: Quick Hire / Contact Beacon */}
       <CyberContactBeacon carState={carState} />
-
-      {/* Sektor Selatan: Cyber Boxing & Sparring Ring */}
-      <CyberBoxingRing
-        carState={carState}
-        isPunching={isLocalPunching}
-        onPunchHit={(target, pushDir, force, sparkPos) => {
-          triggerHit(target, pushDir, force, sparkPos);
-        }}
-      />
-
-      {/* Sektor Utara: Cyber Sky Parkour Multi-Tier */}
-      <CyberSkyParkour />
-
-      {/* Sektor Barat & Timur: Speedway Arches & VIP Tech Plaza */}
-      <CyberSpeedwayAndPlazas />
-
-      {/* Perimeter Boundaries: 4 Mega Sky Beacons & Energy Forcefield */}
-      <CyberArenaPerimeter />
-
       {landmarks.map((lm) => (
         <SciFiMonolith
           key={lm.id}
