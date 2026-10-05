@@ -112,9 +112,46 @@ export function playTeleportSound() {
 }
 
 /**
- * Punch sound synthesizer (backward compatibility)
+ * Procedural Tibetan Singing Bowl / Zen Pentatonic Chime
  */
-export function playPunchSound() {
+export function playZenChimeSound(freq: number = 528) {
+  if (typeof window === "undefined") return;
+  try {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
+
+    // Fundamental pure sine tone
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    osc1.type = "sine";
+    osc1.frequency.setValueAtTime(freq, ctx.currentTime);
+
+    // Harmonic singing bowl overtone (2.76x ratio for bell bronze)
+    osc2.type = "sine";
+    osc2.frequency.setValueAtTime(freq * 2.76, ctx.currentTime);
+
+    // Warm, gentle attack and long, serene exponential decay
+    gainNode.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.16, ctx.currentTime + 0.05);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2.4);
+
+    osc1.connect(gainNode);
+    osc2.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(ctx.currentTime + 2.5);
+    osc2.stop(ctx.currentTime + 2.5);
+  } catch {}
+}
+
+/**
+ * Procedural subtle water droplet ripple sound
+ */
+export function playWaterRippleSound() {
   if (typeof window === "undefined") return;
   try {
     const ctx = getSharedAudioContext();
@@ -122,15 +159,20 @@ export function playPunchSound() {
 
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
+
     osc.type = "sine";
-    osc.frequency.setValueAtTime(150, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.14);
-    gain.gain.setValueAtTime(0.35, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.14);
+    osc.frequency.setValueAtTime(700, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.08);
+
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+
     osc.connect(gain);
     gain.connect(ctx.destination);
+
     osc.start();
-    osc.stop(ctx.currentTime + 0.14);
+    osc.stop(ctx.currentTime + 0.24);
   } catch {}
 }
 

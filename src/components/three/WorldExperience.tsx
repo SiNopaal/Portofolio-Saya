@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { useMultiplayer, PlayerData, HitSpark, PALETTES, CharacterModelType } from "@/lib/multiplayer";
-import { CyberTeleportStation, playTeleportSound } from "./ArenaZones";
+import { CyberTeleportStation, playTeleportSound, playZenChimeSound, playWaterRippleSound } from "./ArenaZones";
 
 
 /* ============================================================
@@ -163,6 +163,7 @@ const SOLID_OBSTACLES: SolidObstacle[] = [
   { x: -32.0, z: -32.0, r: 0.85, minY: 0.0, maxY: 2.5 },
   { x: -37.5, z: -32.0, r: 0.75, minY: 0.0, maxY: 2.0 },
   { x: -26.5, z: -32.0, r: 0.75, minY: 0.0, maxY: 2.0 },
+  { x: -37.5, z: -26.5, r: 0.65, minY: 0.0, maxY: 2.0 },
   { x: -39.0, z: -39.0, r: 0.25, minY: 0.0, maxY: 5.0 },
   { x: -25.0, z: -39.0, r: 0.25, minY: 0.0, maxY: 5.0 },
   { x: -39.0, z: -25.0, r: 0.25, minY: 0.0, maxY: 5.0 },
@@ -593,15 +594,151 @@ export const ZEN_GALLERY_ARTWORKS: Record<"prism" | "mobius" | "gyroscope", ZenG
   },
 };
 
+/* --- Cyber Bonsai Tree (The Digital Pine Bonsai &bull; Organic Harmony) --- */
+function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
+  const foliageRef = useRef<THREE.Group>(null);
+  const pollenRef = useRef<THREE.Points>(null);
+
+  // Procedural drift particles
+  const pollenPositions = useMemo(() => {
+    const arr = new Float32Array(36 * 3);
+    for (let i = 0; i < 36; i++) {
+      arr[i * 3] = (Math.random() - 0.5) * 1.4;
+      arr[i * 3 + 1] = Math.random() * 1.3 + 0.3;
+      arr[i * 3 + 2] = (Math.random() - 0.5) * 1.4;
+    }
+    return arr;
+  }, []);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (foliageRef.current) {
+      foliageRef.current.rotation.y = Math.sin(t * 0.7) * 0.04;
+      foliageRef.current.position.y = Math.sin(t * 1.1) * 0.012;
+    }
+    if (pollenRef.current) {
+      pollenRef.current.rotation.y += delta * 0.12;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Plinth Stand */}
+      <mesh position={[0, 0.22, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.95, 0.44, 0.95]} />
+        <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+      </mesh>
+      {/* Plinth Bronze Accent Lip */}
+      <mesh position={[0, 0.445, 0]}>
+        <boxGeometry args={[0.98, 0.015, 0.98]} />
+        <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.85} />
+      </mesh>
+      {/* Plaque */}
+      <mesh position={[0, 0.22, 0.49]}>
+        <planeGeometry args={[0.42, 0.15]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
+      </mesh>
+
+      {/* Shallow Slate Ceramic Bonsai Pot */}
+      <mesh position={[0, 0.51, 0]} castShadow receiveShadow>
+        <boxGeometry args={[0.72, 0.12, 0.58]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.7} metalness={0.2} />
+      </mesh>
+      {/* Dark Soil Bed */}
+      <mesh position={[0, 0.575, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.66, 0.52]} />
+        <meshStandardMaterial color="#090d16" roughness={0.95} />
+      </mesh>
+
+      {/* S-Curved Graphite Wood Trunk */}
+      <group position={[0, 0.58, 0]}>
+        {/* Base trunk segment angled right */}
+        <mesh position={[0.04, 0.2, 0]} rotation={[0, 0, -0.25]} castShadow>
+          <cylinderGeometry args={[0.065, 0.09, 0.42, 12]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
+        </mesh>
+        {/* Mid trunk curve left */}
+        <mesh position={[-0.04, 0.48, 0.02]} rotation={[0.1, 0, 0.32]} castShadow>
+          <cylinderGeometry args={[0.048, 0.065, 0.38, 12]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
+        </mesh>
+        {/* Main Upper Bough */}
+        <mesh position={[0.05, 0.76, 0]} rotation={[-0.1, 0.2, -0.22]} castShadow>
+          <cylinderGeometry args={[0.035, 0.048, 0.35, 12]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
+        </mesh>
+        {/* Branch 1 Left */}
+        <mesh position={[-0.18, 0.54, 0.05]} rotation={[0, 0, 1.1]} castShadow>
+          <cylinderGeometry args={[0.022, 0.035, 0.32, 8]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
+        </mesh>
+        {/* Branch 2 Right */}
+        <mesh position={[0.22, 0.72, -0.04]} rotation={[0, 0, -1.0]} castShadow>
+          <cylinderGeometry args={[0.02, 0.032, 0.28, 8]} />
+          <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
+        </mesh>
+
+        {/* Sculpted Pine Needle Foliage Clouds */}
+        <group ref={foliageRef}>
+          {/* Main Top Cloud */}
+          <mesh position={[0.12, 0.98, 0]} castShadow>
+            <dodecahedronGeometry args={[0.28, 1]} />
+            <meshStandardMaterial color="#134e4a" roughness={0.85} metalness={0.1} />
+          </mesh>
+          <mesh position={[0.16, 1.05, 0.05]} castShadow>
+            <dodecahedronGeometry args={[0.2, 1]} />
+            <meshStandardMaterial color="#0f766e" roughness={0.8} metalness={0.15} />
+          </mesh>
+          {/* Left Lower Cloud */}
+          <mesh position={[-0.32, 0.62, 0.06]} castShadow>
+            <dodecahedronGeometry args={[0.22, 1]} />
+            <meshStandardMaterial color="#134e4a" roughness={0.85} metalness={0.1} />
+          </mesh>
+          {/* Right Mid Cloud */}
+          <mesh position={[0.36, 0.78, -0.05]} castShadow>
+            <dodecahedronGeometry args={[0.24, 1]} />
+            <meshStandardMaterial color="#0d9488" roughness={0.8} metalness={0.15} />
+          </mesh>
+        </group>
+
+        {/* Floating Zen Pollen Particles */}
+        <points ref={pollenRef}>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[pollenPositions, 3]}
+            />
+          </bufferGeometry>
+          <pointsMaterial size={0.035} color="#5eead4" transparent opacity={0.65} />
+        </points>
+      </group>
+
+      {/* Dedicated Subtle Warm Micro-Spotlight */}
+      <pointLight position={[0, 1.2, 0]} color="#ccfbf1" intensity={0.7} distance={3.5} />
+    </group>
+  );
+}
+
+interface WaterRippleItem {
+  id: number;
+  x: number;
+  z: number;
+  radius: number;
+  maxRadius: number;
+  opacity: number;
+}
+
 /* --- Corner 1: Zen Minimalist Digital Gallery --- */
 function ZenGalleryCorner({
   position,
   carRef,
   onNearbyArtwork,
+  resonancePulseKey = 0,
 }: {
   position: [number, number, number];
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  resonancePulseKey?: number;
 }) {
   const crystalRef = useRef<THREE.Group>(null);
   const crystalRingsRef = useRef<THREE.Group>(null);
@@ -611,33 +748,69 @@ function ZenGalleryCorner({
   const gyroRing3Ref = useRef<THREE.Group>(null);
   const gyroCoreRef = useRef<THREE.Mesh>(null);
   const poolWaterRef = useRef<THREE.Mesh>(null);
+  const flareRingRef = useRef<THREE.Mesh>(null);
   const currentNearbyRef = useRef<"prism" | "mobius" | "gyroscope" | null>(null);
+
+  // Dynamic Footstep Water Ripples State
+  const [ripples, setRipples] = useState<WaterRippleItem[]>([]);
+  const ripplesRef = useRef<WaterRippleItem[]>([]);
+  ripplesRef.current = ripples;
+  const lastFootstepPos = useRef<{ x: number; z: number }>({ x: 0, z: 0 });
+  const lastRippleTime = useRef(0);
+  const hasEnteredRef = useRef(false);
+
+  // Resonance Pulse Energy State
+  const pulseEnergyRef = useRef(0);
+  const lastPulseKeyRef = useRef(resonancePulseKey);
+
+  useEffect(() => {
+    if (resonancePulseKey > 0 && resonancePulseKey !== lastPulseKeyRef.current) {
+      lastPulseKeyRef.current = resonancePulseKey;
+      pulseEnergyRef.current = 4.5; // High burst of rotational kinetic velocity
+    }
+  }, [resonancePulseKey]);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
 
+    // Decay resonance pulse energy
+    if (pulseEnergyRef.current > 0.01) {
+      pulseEnergyRef.current = THREE.MathUtils.lerp(pulseEnergyRef.current, 0, delta * 2.0);
+    }
+    const energyMult = 1.0 + pulseEnergyRef.current;
+
     // 1. Centerpiece Crystal & Outer Gimbal
     if (crystalRef.current) {
-      crystalRef.current.rotation.y += delta * 0.35;
+      crystalRef.current.rotation.y += delta * 0.35 * energyMult;
       crystalRef.current.rotation.x = Math.sin(t * 0.8) * 0.12;
       crystalRef.current.position.y = 1.35 + Math.sin(t * 1.2) * 0.05;
     }
     if (crystalRingsRef.current) {
-      crystalRingsRef.current.rotation.z += delta * 0.25;
-      crystalRingsRef.current.rotation.y -= delta * 0.2;
+      crystalRingsRef.current.rotation.z += delta * 0.25 * energyMult;
+      crystalRingsRef.current.rotation.y -= delta * 0.2 * energyMult;
+    }
+    // Celestial Light Flare Ring during Resonance Pulse
+    if (flareRingRef.current) {
+      if (pulseEnergyRef.current > 0.05) {
+        flareRingRef.current.scale.setScalar(1.0 + (4.5 - pulseEnergyRef.current) * 0.8);
+        (flareRingRef.current.material as THREE.MeshBasicMaterial).opacity = pulseEnergyRef.current * 0.18;
+        flareRingRef.current.visible = true;
+      } else {
+        flareRingRef.current.visible = false;
+      }
     }
 
     // 2. West Wing: Möbius Singularity Kinetic Rotation
     if (mobiusRef.current) {
-      mobiusRef.current.rotation.x += delta * 0.45;
-      mobiusRef.current.rotation.y += delta * 0.6;
+      mobiusRef.current.rotation.x += delta * 0.45 * energyMult;
+      mobiusRef.current.rotation.y += delta * 0.6 * energyMult;
       mobiusRef.current.position.y = 1.25 + Math.sin(t * 1.1 + 0.5) * 0.04;
     }
 
     // 3. East Wing: Quantum Gyroscope Independent 3-Axis Rings
-    if (gyroRing1Ref.current) gyroRing1Ref.current.rotation.x += delta * 0.85;
-    if (gyroRing2Ref.current) gyroRing2Ref.current.rotation.y += delta * 1.15;
-    if (gyroRing3Ref.current) gyroRing3Ref.current.rotation.z += delta * 0.65;
+    if (gyroRing1Ref.current) gyroRing1Ref.current.rotation.x += delta * 0.85 * energyMult;
+    if (gyroRing2Ref.current) gyroRing2Ref.current.rotation.y += delta * 1.15 * energyMult;
+    if (gyroRing3Ref.current) gyroRing3Ref.current.rotation.z += delta * 0.65 * energyMult;
     if (gyroCoreRef.current) {
       gyroCoreRef.current.position.y = 1.25 + Math.sin(t * 1.3) * 0.03;
     }
@@ -650,21 +823,76 @@ function ZenGalleryCorner({
       }
     }
 
-    // 5. Proximity Check for Artwork Inspection
-    if (carRef?.current && onNearbyArtwork) {
+    // 5. Entrance Chime, Footstep Ripples, and Artwork Proximity
+    if (carRef?.current) {
       const carPos = carRef.current.pos;
       const dCenter = Math.hypot(carPos.x - position[0], carPos.z - position[2]);
-      const dWest = Math.hypot(carPos.x - (position[0] - 5.5), carPos.z - position[2]);
-      const dEast = Math.hypot(carPos.x - (position[0] + 5.5), carPos.z - position[2]);
 
-      let detected: "prism" | "mobius" | "gyroscope" | null = null;
-      if (dCenter < 2.9) detected = "prism";
-      else if (dWest < 2.5) detected = "mobius";
-      else if (dEast < 2.5) detected = "gyroscope";
+      // Gallery Entrance Chime (432Hz ambient healing chime)
+      if (dCenter < 12.0 && !hasEnteredRef.current) {
+        hasEnteredRef.current = true;
+        playZenChimeSound(432);
+      } else if (dCenter > 17.0) {
+        hasEnteredRef.current = false;
+      }
 
-      if (detected !== currentNearbyRef.current) {
-        currentNearbyRef.current = detected;
-        onNearbyArtwork(detected);
+      // Footstep Water Ripple check on glass walkway or reflection basin
+      const relX = carPos.x - position[0];
+      const relZ = carPos.z - position[2];
+      const onBridgeOrPool = Math.abs(relX) < 2.4 && relZ >= 0.5 && relZ <= 3.6;
+
+      if (onBridgeOrPool) {
+        const moved = Math.hypot(carPos.x - lastFootstepPos.current.x, carPos.z - lastFootstepPos.current.z);
+        if (moved > 0.42 && t - lastRippleTime.current > 0.28) {
+          lastRippleTime.current = t;
+          lastFootstepPos.current = { x: carPos.x, z: carPos.z };
+          const newRipple: WaterRippleItem = {
+            id: Date.now() + Math.random(),
+            x: relX,
+            z: relZ,
+            radius: 0.12,
+            maxRadius: 2.2,
+            opacity: 0.75,
+          };
+          setRipples((prev) => [...prev.slice(-6), newRipple]);
+          playWaterRippleSound();
+        }
+      }
+
+      // Artwork proximity detection
+      if (onNearbyArtwork) {
+        const dWest = Math.hypot(carPos.x - (position[0] - 5.5), carPos.z - position[2]);
+        const dEast = Math.hypot(carPos.x - (position[0] + 5.5), carPos.z - position[2]);
+
+        let detected: "prism" | "mobius" | "gyroscope" | null = null;
+        if (dCenter < 2.9) detected = "prism";
+        else if (dWest < 2.5) detected = "mobius";
+        else if (dEast < 2.5) detected = "gyroscope";
+
+        if (detected !== currentNearbyRef.current) {
+          currentNearbyRef.current = detected;
+          onNearbyArtwork(detected);
+        }
+      }
+    }
+
+    // 6. Update Active Ripples
+    if (ripplesRef.current.length > 0) {
+      let changed = false;
+      const updated = ripplesRef.current
+        .map((rip) => {
+          const nextRadius = rip.radius + delta * 1.6;
+          const nextOpacity = Math.max(0, 0.75 * (1 - nextRadius / rip.maxRadius));
+          if (nextRadius >= rip.maxRadius) {
+            changed = true;
+            return null;
+          }
+          return { ...rip, radius: nextRadius, opacity: nextOpacity };
+        })
+        .filter((r): r is WaterRippleItem => r !== null);
+
+      if (changed || updated.length > 0) {
+        setRipples(updated);
       }
     }
   });
@@ -772,6 +1000,18 @@ function ZenGalleryCorner({
           <meshStandardMaterial color="#060c18" roughness={0.04} metalness={0.96} />
         </mesh>
 
+        {/* Dynamic Footstep Concentric Water Ripples */}
+        {ripples.map((rip) => (
+          <mesh
+            key={`rip-${rip.id}`}
+            position={[rip.x, 0.014, rip.z]}
+            rotation={[-Math.PI / 2, 0, 0]}
+          >
+            <ringGeometry args={[Math.max(0.01, rip.radius - 0.035), rip.radius, 32]} />
+            <meshBasicMaterial color="#38bdf8" transparent opacity={rip.opacity} depthWrite={false} />
+          </mesh>
+        ))}
+
         {/* Glass Walkway Bridge (Crosses from South Rim z: 2.7m to Center Pedestal z: 0.7m) */}
         <group position={[0, 0.018, 1.7]}>
           {/* Frosted Architectural Glass Deck */}
@@ -844,6 +1084,12 @@ function ZenGalleryCorner({
             />
           </mesh>
         </group>
+
+        {/* Celestial Light Flare Ring during Resonance Pulse */}
+        <mesh ref={flareRingRef} position={[0, 1.35, 0]} rotation={[-Math.PI / 2, 0, 0]} visible={false}>
+          <ringGeometry args={[1.2, 1.45, 36]} />
+          <meshBasicMaterial color="#38bdf8" transparent opacity={0.6} />
+        </mesh>
 
         {/* Counter-Rotating Celestial Rings around Crystal */}
         <group ref={crystalRingsRef} position={[0, 1.35, 0]}>
@@ -952,6 +1198,11 @@ function ZenGalleryCorner({
         {/* Dedicated Soft Indigo Accent Spotlight */}
         <pointLight position={[0, 0.7, 0]} color="#e0e7ff" intensity={1.5} distance={5.5} />
       </group>
+
+      {/* ========================================================
+          EXHIBIT 04: CYBER BONSAI (The Digital Pine Bonsai)
+      ======================================================== */}
+      <CyberBonsaiTree position={[-5.5, 0, -5.5]} />
 
       {/* Minimalist Floating Cantilever Benches (North & South) */}
       {[-5.8, 5.8].map((zOffset, i) => (
@@ -1342,9 +1593,11 @@ function ZenGardenCorner({ position }: { position: [number, number, number] }) {
 function CyberMetaverseArena({
   carRef,
   onNearbyArtwork,
+  resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
   const haloRingsRef = useRef<THREE.Group>(null);
@@ -1391,6 +1644,7 @@ function CyberMetaverseArena({
         position={[-32, 0, -32]}
         carRef={carRef}
         onNearbyArtwork={onNearbyArtwork}
+        resonancePulseKey={resonancePulseKey}
       />
 
       {/* Corner 2: Floating Monolith Courtyard / Stargazer Sky Platform (North-East) */}
@@ -2752,6 +3006,7 @@ type MobileControls = {
 function World({
   onActiveLandmark,
   onNearbyArtwork,
+  resonancePulseKey = 0,
   mobileControls,
   localPlayer,
   remotePlayers,
@@ -2766,6 +3021,7 @@ function World({
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   onNearbyArtwork?: (artwork: "prism" | "mobius" | "gyroscope" | null) => void;
+  resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
     id: string;
@@ -3253,6 +3509,7 @@ function World({
       <CyberMetaverseArena
         carRef={carState}
         onNearbyArtwork={onNearbyArtwork}
+        resonancePulseKey={resonancePulseKey}
       />
 
       {/* Teleport Station di Lokasi Bekas Tower (z: -14.5) */}
@@ -3342,6 +3599,14 @@ function WorldHero() {
   const nearbyArtworkRef = useRef(nearbyArtwork);
   nearbyArtworkRef.current = nearbyArtwork;
 
+  // Zen Gallery Kinetic Resonance Pulse State
+  const [resonancePulseKey, setResonancePulseKey] = useState(0);
+
+  const handleTriggerResonance = () => {
+    setResonancePulseKey((prev) => prev + 1);
+    playZenChimeSound(528);
+  };
+
   // Auto show pop-up on first arrival if custom name not yet chosen
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -3427,6 +3692,7 @@ function WorldHero() {
         <World
           onActiveLandmark={setActiveLandmark}
           onNearbyArtwork={setNearbyArtwork}
+          resonancePulseKey={resonancePulseKey}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
           remotePlayers={remotePlayers}
@@ -3688,7 +3954,13 @@ function WorldHero() {
             </div>
 
             {/* Action Footer */}
-            <div className="mt-6 flex items-center justify-end gap-3">
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
+                onClick={handleTriggerResonance}
+                className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 px-4 py-2.5 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
+              >
+                <span>✨ Harmonic Resonance Pulse</span>
+              </button>
               <button
                 onClick={() => setActiveCuratorNote(null)}
                 className="w-full sm:w-auto rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
