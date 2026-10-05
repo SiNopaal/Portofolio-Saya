@@ -508,7 +508,7 @@ export const QUANTUM_OBSERVATORY_NODES: QuantumObservatoryNode[] = [
     formula: "Throughput: O(1) append-log",
     concept: "Pemisahan produsen dan konsumen data melalui append-only commit log dengan penanganan backpressure.",
     realWorldUsage: "Apache Kafka, AWS Kinesis, RabbitMQ, & microservices event-driven scalability.",
-    position: [3.7, 0, 3.7],
+    position: [0, 0, 5.2],
   },
 ];
 
@@ -2074,287 +2074,329 @@ function QuantumCoreArmillary() {
 
 /* --- 2. Latent Space & Vector Embeddings Station (AI / LLM) --- */
 function VectorSpaceStation({ position }: { position: [number, number, number] }) {
-  const clusterRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
+  const orbRef = useRef<THREE.Group>(null);
+  const ringRef1 = useRef<THREE.Mesh>(null);
+  const ringRef2 = useRef<THREE.Mesh>(null);
 
   const points = useMemo(() => {
     return [
-      [-0.35, 0.25, 0.2],
-      [-0.2, 0.45, -0.15],
-      [0.15, 0.3, 0.35],
-      [0.35, 0.15, -0.25],
-      [-0.1, 0.1, 0.4],
-      [0.25, 0.4, 0.1],
-      [-0.3, -0.1, -0.2],
-      [0.1, -0.15, 0.25],
-      [-0.15, 0.35, 0.15],
-      [0.4, 0.2, 0.15],
-      [-0.25, 0.15, -0.3],
-      [0.05, 0.5, -0.1],
+      [-0.28, 0.2, 0.16],
+      [-0.16, 0.36, -0.12],
+      [0.12, 0.24, 0.28],
+      [0.28, 0.12, -0.2],
+      [-0.08, 0.08, 0.32],
+      [0.2, 0.32, 0.08],
+      [-0.24, -0.08, -0.16],
+      [0.08, -0.12, 0.2],
     ] as [number, number, number][];
   }, []);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    if (clusterRef.current) {
-      clusterRef.current.rotation.y += delta * 0.4;
-      clusterRef.current.position.y = 1.35 + Math.sin(t * 1.3) * 0.04;
+    if (orbRef.current) {
+      orbRef.current.position.y = 1.38 + Math.sin(t * 1.5) * 0.04;
     }
-    if (ringRef.current) {
-      ringRef.current.rotation.z -= delta * 0.5;
-    }
+    if (ringRef1.current) ringRef1.current.rotation.y += delta * 0.45;
+    if (ringRef2.current) ringRef2.current.rotation.x -= delta * 0.35;
   });
 
   return (
     <group position={position}>
-      {/* Basalt Plinth */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.1, 0.38, 1.1]} />
+      {/* Ground Projection Halo Ring */}
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.78, 0.88, 32]} />
+        <meshBasicMaterial color="#a855f7" transparent opacity={0.55} />
+      </mesh>
+      {/* Basalt Octagonal Pedestal Footing */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.72, 0.85, 0.38, 8]} />
         <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
       </mesh>
-      {/* Violet Plinth Accent Rim */}
-      <mesh position={[0, 0.45, 0]}>
-        <boxGeometry args={[1.14, 0.02, 1.14]} />
+      {/* Plinth Accent Trim in Violet */}
+      <mesh position={[0, 0.39, 0]}>
+        <cylinderGeometry args={[0.75, 0.75, 0.025, 8]} />
         <meshStandardMaterial color="#a855f7" roughness={0.2} metalness={0.9} emissive="#7e22ce" emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Floating Holographic Vector Cluster */}
-      <group ref={clusterRef} position={[0, 1.35, 0]}>
-        {/* Outer Coordinate Lens Ring */}
-        <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
-          <torusGeometry args={[0.62, 0.015, 12, 32]} />
-          <meshStandardMaterial color="#c084fc" transparent opacity={0.65} />
+      {/* Consistent Celestial Kinetic Orb */}
+      <group ref={orbRef} position={[0, 1.38, 0]}>
+        {/* Gimbal Ring 1 */}
+        <mesh ref={ringRef1} rotation={[0.3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.018, 16, 36]} />
+          <meshStandardMaterial color="#c084fc" roughness={0.2} metalness={0.9} emissive="#a855f7" emissiveIntensity={0.3} />
+        </mesh>
+        {/* Gimbal Ring 2 */}
+        <mesh ref={ringRef2} rotation={[-0.3, 0, Math.PI / 4]}>
+          <torusGeometry args={[0.54, 0.014, 16, 36]} />
+          <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.9} />
         </mesh>
 
-        {/* 12 Embedding Vector Nodes */}
+        {/* Central Violet Octahedron Vector Core */}
+        <mesh castShadow>
+          <octahedronGeometry args={[0.22, 0]} />
+          <meshStandardMaterial color="#d8b4fe" emissive="#a855f7" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+        </mesh>
+
+        {/* Orbiting Semantic Vector Nodes */}
         {points.map((p, idx) => (
           <mesh key={`vec-${idx}`} position={p}>
-            <sphereGeometry args={[0.04, 12, 12]} />
-            <meshStandardMaterial color="#d8b4fe" emissive="#a855f7" emissiveIntensity={0.7} />
+            <sphereGeometry args={[0.035, 12, 12]} />
+            <meshStandardMaterial color="#f3e8ff" emissive="#c084fc" emissiveIntensity={0.7} />
           </mesh>
         ))}
-
-        {/* Semantic Connecting Vector Axis */}
-        <mesh rotation={[0, 0, Math.PI / 4]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.9, 6]} />
-          <meshBasicMaterial color="#a855f7" transparent opacity={0.4} />
-        </mesh>
-        <mesh rotation={[Math.PI / 4, 0, 0]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.9, 6]} />
-          <meshBasicMaterial color="#c084fc" transparent opacity={0.4} />
-        </mesh>
       </group>
 
       {/* Soft Violet Point Light */}
-      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.2} distance={4.5} />
+      <pointLight position={[0, 1.38, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
     </group>
   );
 }
 
 /* --- 3. Orbital Mesh & Raft Consensus Station (Distributed Systems) --- */
 function RaftMeshStation({ position }: { position: [number, number, number] }) {
-  const meshGroupRef = useRef<THREE.Group>(null);
-  const leaderRef = useRef<THREE.Mesh>(null);
+  const orbRef = useRef<THREE.Group>(null);
+  const ringRef1 = useRef<THREE.Mesh>(null);
+  const ringRef2 = useRef<THREE.Mesh>(null);
+  const satellitesRef = useRef<THREE.Group>(null);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    if (meshGroupRef.current) {
-      meshGroupRef.current.rotation.y += delta * 0.55;
-      meshGroupRef.current.position.y = 1.35 + Math.sin(t * 1.4 + 1) * 0.04;
+    if (orbRef.current) {
+      orbRef.current.position.y = 1.38 + Math.sin(t * 1.5 + 0.8) * 0.04;
     }
-    if (leaderRef.current) {
-      const s = 1.0 + Math.sin(t * 4.0) * 0.12;
-      leaderRef.current.scale.set(s, s, s);
-    }
+    if (ringRef1.current) ringRef1.current.rotation.y += delta * 0.45;
+    if (ringRef2.current) ringRef2.current.rotation.z -= delta * 0.35;
+    if (satellitesRef.current) satellitesRef.current.rotation.y -= delta * 0.6;
   });
 
   return (
     <group position={position}>
-      {/* Basalt Plinth */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.1, 0.38, 1.1]} />
+      {/* Ground Projection Halo Ring */}
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.78, 0.88, 32]} />
+        <meshBasicMaterial color="#f59e0b" transparent opacity={0.55} />
+      </mesh>
+      {/* Basalt Octagonal Pedestal Footing */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.72, 0.85, 0.38, 8]} />
         <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
       </mesh>
-      {/* Amber Plinth Accent Rim */}
-      <mesh position={[0, 0.45, 0]}>
-        <boxGeometry args={[1.14, 0.02, 1.14]} />
+      {/* Plinth Accent Trim in Amber */}
+      <mesh position={[0, 0.39, 0]}>
+        <cylinderGeometry args={[0.75, 0.75, 0.025, 8]} />
         <meshStandardMaterial color="#f59e0b" roughness={0.2} metalness={0.9} emissive="#b45309" emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Floating Orbital Consensus Nodes */}
-      <group ref={meshGroupRef} position={[0, 1.35, 0]}>
-        {/* Consensus Quorum Outer Orbit Ring */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.54, 0.57, 32]} />
-          <meshBasicMaterial color="#f59e0b" transparent opacity={0.5} side={THREE.DoubleSide} />
+      {/* Consistent Celestial Kinetic Orb */}
+      <group ref={orbRef} position={[0, 1.38, 0]}>
+        {/* Gimbal Ring 1 */}
+        <mesh ref={ringRef1} rotation={[0.3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.018, 16, 36]} />
+          <meshStandardMaterial color="#fbbf24" roughness={0.2} metalness={0.9} emissive="#f59e0b" emissiveIntensity={0.3} />
+        </mesh>
+        {/* Gimbal Ring 2 */}
+        <mesh ref={ringRef2} rotation={[-0.3, 0, Math.PI / 4]}>
+          <torusGeometry args={[0.54, 0.014, 16, 36]} />
+          <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.9} />
         </mesh>
 
-        {/* Elected Leader Node (Center) */}
-        <mesh ref={leaderRef} position={[0, 0, 0]} castShadow>
-          <octahedronGeometry args={[0.16, 0]} />
-          <meshStandardMaterial color="#fbbf24" emissive="#f59e0b" emissiveIntensity={0.8} metalness={0.9} />
+        {/* Central Amber Dodecahedron Leader Core */}
+        <mesh castShadow>
+          <dodecahedronGeometry args={[0.2, 0]} />
+          <meshStandardMaterial color="#fde68a" emissive="#f59e0b" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
         </mesh>
 
-        {/* 3 Replicated Follower Nodes in Orbital Ring */}
-        {[0, (2 * Math.PI) / 3, (4 * Math.PI) / 3].map((angle, idx) => {
-          const sx = Math.cos(angle) * 0.55;
-          const sz = Math.sin(angle) * 0.55;
-          return (
-            <group key={`sat-${idx}`} position={[sx, 0, sz]}>
-              <mesh castShadow>
-                <boxGeometry args={[0.1, 0.1, 0.1]} />
-                <meshStandardMaterial color="#1e293b" roughness={0.2} metalness={0.9} />
-              </mesh>
-              {/* Solar / Mesh Panels */}
-              <mesh position={[0.08, 0, 0]}>
-                <boxGeometry args={[0.07, 0.015, 0.14]} />
-                <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
-              </mesh>
-              <mesh position={[-0.08, 0, 0]}>
-                <boxGeometry args={[0.07, 0.015, 0.14]} />
-                <meshStandardMaterial color="#0284c7" emissive="#0369a1" emissiveIntensity={0.5} />
-              </mesh>
-              {/* Heartbeat Laser Line connecting to Leader */}
-              <mesh position={[-sx * 0.5, 0, -sz * 0.5]}>
-                <cylinderGeometry args={[0.006, 0.006, 0.55, 6]} />
-                <meshBasicMaterial color="#f59e0b" transparent opacity={0.6} />
-              </mesh>
-            </group>
-          );
-        })}
+        {/* 3 Orbiting Consensus Follower Satellites with Laser Links */}
+        <group ref={satellitesRef}>
+          {[0, (2 * Math.PI) / 3, (4 * Math.PI) / 3].map((angle, idx) => {
+            const sx = Math.cos(angle) * 0.42;
+            const sz = Math.sin(angle) * 0.42;
+            return (
+              <group key={`raft-sat-${idx}`} position={[sx, 0, sz]}>
+                <mesh castShadow>
+                  <octahedronGeometry args={[0.055, 0]} />
+                  <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
+                </mesh>
+                <mesh position={[-sx * 0.5, 0, -sz * 0.5]}>
+                  <cylinderGeometry args={[0.005, 0.005, 0.42, 6]} />
+                  <meshBasicMaterial color="#f59e0b" transparent opacity={0.65} />
+                </mesh>
+              </group>
+            );
+          })}
+        </group>
       </group>
 
       {/* Dedicated Amber Point Light */}
-      <pointLight position={[0, 1.35, 0]} color="#f59e0b" intensity={1.3} distance={4.5} />
+      <pointLight position={[0, 1.38, 0]} color="#f59e0b" intensity={1.3} distance={4.5} />
     </group>
   );
 }
 
 /* --- 4. The Celestial DAG & Graph Theory Station --- */
 function DagGraphStation({ position }: { position: [number, number, number] }) {
+  const orbRef = useRef<THREE.Group>(null);
+  const ringRef1 = useRef<THREE.Mesh>(null);
+  const ringRef2 = useRef<THREE.Mesh>(null);
   const dagGroupRef = useRef<THREE.Group>(null);
 
   const vertices = useMemo(() => [
-    { pos: [0, 0.45, 0], label: "Root" },
-    { pos: [-0.32, 0.15, 0.15], label: "B1" },
-    { pos: [0.32, 0.15, -0.15], label: "B2" },
-    { pos: [-0.4, -0.2, 0], label: "C1" },
-    { pos: [0, -0.2, 0.25], label: "C2" },
-    { pos: [0.4, -0.2, -0.1], label: "C3" },
+    { pos: [0, 0.32, 0], label: "Root" },
+    { pos: [-0.22, 0.08, 0.1], label: "B1" },
+    { pos: [0.22, 0.08, -0.1], label: "B2" },
+    { pos: [-0.28, -0.18, 0], label: "C1" },
+    { pos: [0, -0.18, 0.18], label: "C2" },
+    { pos: [0.28, -0.18, -0.08], label: "C3" },
   ] as { pos: [number, number, number]; label: string }[], []);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    if (dagGroupRef.current) {
-      dagGroupRef.current.rotation.y += delta * 0.35;
-      dagGroupRef.current.position.y = 1.35 + Math.sin(t * 1.2 + 2) * 0.04;
+    if (orbRef.current) {
+      orbRef.current.position.y = 1.38 + Math.sin(t * 1.5 + 1.6) * 0.04;
     }
+    if (ringRef1.current) ringRef1.current.rotation.y += delta * 0.45;
+    if (ringRef2.current) ringRef2.current.rotation.x -= delta * 0.35;
+    if (dagGroupRef.current) dagGroupRef.current.rotation.y += delta * 0.25;
   });
 
   return (
     <group position={position}>
-      {/* Basalt Plinth */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.1, 0.38, 1.1]} />
+      {/* Ground Projection Halo Ring */}
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.78, 0.88, 32]} />
+        <meshBasicMaterial color="#10b981" transparent opacity={0.55} />
+      </mesh>
+      {/* Basalt Octagonal Pedestal Footing */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.72, 0.85, 0.38, 8]} />
         <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
       </mesh>
-      {/* Emerald Plinth Accent Rim */}
-      <mesh position={[0, 0.45, 0]}>
-        <boxGeometry args={[1.14, 0.02, 1.14]} />
+      {/* Plinth Accent Trim in Emerald */}
+      <mesh position={[0, 0.39, 0]}>
+        <cylinderGeometry args={[0.75, 0.75, 0.025, 8]} />
         <meshStandardMaterial color="#10b981" roughness={0.2} metalness={0.9} emissive="#059669" emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Floating 3D DAG Graph Structure */}
-      <group ref={dagGroupRef} position={[0, 1.35, 0]}>
-        {/* Vertices */}
-        {vertices.map((v, idx) => (
-          <mesh key={`v-${idx}`} position={v.pos}>
-            <octahedronGeometry args={[0.07, 0]} />
-            <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.7} metalness={0.85} />
-          </mesh>
-        ))}
+      {/* Consistent Celestial Kinetic Orb */}
+      <group ref={orbRef} position={[0, 1.38, 0]}>
+        {/* Gimbal Ring 1 */}
+        <mesh ref={ringRef1} rotation={[0.3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.018, 16, 36]} />
+          <meshStandardMaterial color="#34d399" roughness={0.2} metalness={0.9} emissive="#10b981" emissiveIntensity={0.3} />
+        </mesh>
+        {/* Gimbal Ring 2 */}
+        <mesh ref={ringRef2} rotation={[-0.3, 0, Math.PI / 4]}>
+          <torusGeometry args={[0.54, 0.014, 16, 36]} />
+          <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.9} />
+        </mesh>
 
-        {/* Connecting Directed Graph Edges (Beams) */}
-        {[
-          { from: vertices[0].pos, to: vertices[1].pos },
-          { from: vertices[0].pos, to: vertices[2].pos },
-          { from: vertices[1].pos, to: vertices[3].pos },
-          { from: vertices[1].pos, to: vertices[4].pos },
-          { from: vertices[2].pos, to: vertices[4].pos },
-          { from: vertices[2].pos, to: vertices[5].pos },
-        ].map((edge, idx) => {
-          const midX = (edge.from[0] + edge.to[0]) / 2;
-          const midY = (edge.from[1] + edge.to[1]) / 2;
-          const midZ = (edge.from[2] + edge.to[2]) / 2;
-          const len = Math.hypot(edge.to[0] - edge.from[0], edge.to[1] - edge.from[1], edge.to[2] - edge.from[2]);
-          return (
-            <group key={`edge-${idx}`} position={[midX, midY, midZ]}>
-              <mesh>
-                <boxGeometry args={[0.015, len, 0.015]} />
-                <meshStandardMaterial color="#34d399" transparent opacity={0.65} emissive="#10b981" emissiveIntensity={0.4} />
-              </mesh>
-            </group>
-          );
-        })}
+        {/* Central Emerald Icosahedron Graph Core */}
+        <mesh castShadow>
+          <icosahedronGeometry args={[0.18, 0]} />
+          <meshStandardMaterial color="#a7f3d0" emissive="#10b981" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+        </mesh>
+
+        {/* 3D DAG Vertices & Directed Laser Edges */}
+        <group ref={dagGroupRef}>
+          {vertices.map((v, idx) => (
+            <mesh key={`v-${idx}`} position={v.pos}>
+              <octahedronGeometry args={[0.045, 0]} />
+              <meshStandardMaterial color="#6ee7b7" emissive="#10b981" emissiveIntensity={0.7} metalness={0.85} />
+            </mesh>
+          ))}
+          {[
+            { from: vertices[0].pos, to: vertices[1].pos },
+            { from: vertices[0].pos, to: vertices[2].pos },
+            { from: vertices[1].pos, to: vertices[3].pos },
+            { from: vertices[1].pos, to: vertices[4].pos },
+            { from: vertices[2].pos, to: vertices[4].pos },
+            { from: vertices[2].pos, to: vertices[5].pos },
+          ].map((edge, idx) => {
+            const midX = (edge.from[0] + edge.to[0]) / 2;
+            const midY = (edge.from[1] + edge.to[1]) / 2;
+            const midZ = (edge.from[2] + edge.to[2]) / 2;
+            const len = Math.hypot(edge.to[0] - edge.from[0], edge.to[1] - edge.from[1], edge.to[2] - edge.from[2]);
+            return (
+              <group key={`dag-edge-${idx}`} position={[midX, midY, midZ]}>
+                <mesh>
+                  <boxGeometry args={[0.01, len, 0.01]} />
+                  <meshStandardMaterial color="#34d399" transparent opacity={0.65} emissive="#10b981" emissiveIntensity={0.5} />
+                </mesh>
+              </group>
+            );
+          })}
+        </group>
       </group>
 
       {/* Dedicated Emerald Point Light */}
-      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.2} distance={4.5} />
+      <pointLight position={[0, 1.38, 0]} color="#10b981" intensity={1.3} distance={4.5} />
     </group>
   );
 }
 
 /* --- 5. Reactive Streams & Event Pipeline Station --- */
 function EventStreamStation({ position }: { position: [number, number, number] }) {
-  const streamRef = useRef<THREE.Group>(null);
+  const orbRef = useRef<THREE.Group>(null);
   const ringRef1 = useRef<THREE.Mesh>(null);
   const ringRef2 = useRef<THREE.Mesh>(null);
+  const conduitRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
-    if (streamRef.current) {
-      streamRef.current.position.y = 1.35 + Math.sin(t * 1.5 + 3) * 0.04;
+    if (orbRef.current) {
+      orbRef.current.position.y = 1.38 + Math.sin(t * 1.5 + 2.4) * 0.04;
     }
-    if (ringRef1.current) ringRef1.current.rotation.z += delta * 1.6;
-    if (ringRef2.current) ringRef2.current.rotation.z -= delta * 1.4;
+    if (ringRef1.current) ringRef1.current.rotation.y += delta * 0.45;
+    if (ringRef2.current) ringRef2.current.rotation.x -= delta * 0.35;
+    if (conduitRef.current) conduitRef.current.rotation.z += delta * 1.8;
   });
 
   return (
     <group position={position}>
-      {/* Basalt Plinth */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
-        <boxGeometry args={[1.1, 0.38, 1.1]} />
+      {/* Ground Projection Halo Ring */}
+      <mesh position={[0, 0.012, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.78, 0.88, 32]} />
+        <meshBasicMaterial color="#ec4899" transparent opacity={0.55} />
+      </mesh>
+      {/* Basalt Octagonal Pedestal Footing */}
+      <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.72, 0.85, 0.38, 8]} />
         <meshStandardMaterial color="#0f172a" roughness={0.35} metalness={0.8} />
       </mesh>
-      {/* Magenta Plinth Accent Rim */}
-      <mesh position={[0, 0.45, 0]}>
-        <boxGeometry args={[1.14, 0.02, 1.14]} />
+      {/* Plinth Accent Trim in Magenta */}
+      <mesh position={[0, 0.39, 0]}>
+        <cylinderGeometry args={[0.75, 0.75, 0.025, 8]} />
         <meshStandardMaterial color="#ec4899" roughness={0.2} metalness={0.9} emissive="#be185d" emissiveIntensity={0.5} />
       </mesh>
 
-      {/* Floating Event Conduit Particle Accelerator */}
-      <group ref={streamRef} position={[0, 1.35, 0]}>
-        {/* Ring 1 (Horizontal Event Pipe) */}
-        <mesh ref={ringRef1} rotation={[Math.PI / 4, 0, 0]}>
-          <torusGeometry args={[0.55, 0.025, 16, 36]} />
-          <meshStandardMaterial color="#f472b6" roughness={0.2} metalness={0.9} emissive="#ec4899" emissiveIntensity={0.5} />
+      {/* Consistent Celestial Kinetic Orb */}
+      <group ref={orbRef} position={[0, 1.38, 0]}>
+        {/* Gimbal Ring 1 */}
+        <mesh ref={ringRef1} rotation={[0.3, 0, 0]}>
+          <torusGeometry args={[0.62, 0.018, 16, 36]} />
+          <meshStandardMaterial color="#f472b6" roughness={0.2} metalness={0.9} emissive="#ec4899" emissiveIntensity={0.3} />
+        </mesh>
+        {/* Gimbal Ring 2 */}
+        <mesh ref={ringRef2} rotation={[-0.3, 0, Math.PI / 4]}>
+          <torusGeometry args={[0.54, 0.014, 16, 36]} />
+          <meshStandardMaterial color="#334155" roughness={0.25} metalness={0.9} />
         </mesh>
 
-        {/* Ring 2 (Vertical Reactive Pipe) */}
-        <mesh ref={ringRef2} rotation={[-Math.PI / 4, 0, 0]}>
-          <torusGeometry args={[0.42, 0.02, 16, 36]} />
-          <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.5} />
-        </mesh>
-
-        {/* Center Buffer Queue Sphere */}
+        {/* Central Magenta Spherical Event Core */}
         <mesh castShadow>
-          <sphereGeometry args={[0.15, 16, 16]} />
-          <meshStandardMaterial color="#f43f5e" emissive="#e11d48" emissiveIntensity={0.7} metalness={0.9} />
+          <sphereGeometry args={[0.18, 24, 24]} />
+          <meshStandardMaterial color="#fbcfe8" emissive="#ec4899" emissiveIntensity={0.85} roughness={0.1} metalness={0.9} />
+        </mesh>
+
+        {/* High-Speed Event Stream Conduit Pipe */}
+        <mesh ref={conduitRef} rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[0.38, 0.018, 12, 32]} />
+          <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.6} />
         </mesh>
       </group>
 
       {/* Dedicated Magenta Point Light */}
-      <pointLight position={[0, 1.35, 0]} color="#ec4899" intensity={1.2} distance={4.5} />
+      <pointLight position={[0, 1.38, 0]} color="#ec4899" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -2542,8 +2584,8 @@ function SkyPlatformCorner({
       {/* Station 3: The Celestial DAG & Graph Theory (North) */}
       <DagGraphStation position={[0, 0, -5.2]} />
 
-      {/* Station 4: Reactive Streams & Event Pipeline (South-East) */}
-      <EventStreamStation position={[3.7, 0, 3.7]} />
+      {/* Station 4: Reactive Streams & Event Pipeline (South) */}
+      <EventStreamStation position={[0, 0, 5.2]} />
 
       {/* Floating Software Engineering & AI Formula Runes */}
       <FloatingQuantumRunesCloud count={32} />
