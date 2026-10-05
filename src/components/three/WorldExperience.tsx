@@ -401,119 +401,117 @@ function getBlobTexture(): THREE.CanvasTexture {
   return tex;
 }
 
-function getCodePlateTexture(pillarKey: "prism" | "mobius" | "gyroscope" | "bonsai"): THREE.CanvasTexture {
-  const key = `code-plate-${pillarKey}`;
+/* ============================================================
+   PROGRAMMING LANGUAGES & TECH ECOSYSTEM DATA
+============================================================ */
+export interface TechPillarData {
+  id: string;
+  name: string;
+  badge: string;
+  category: string;
+  desc: string;
+  color: string;
+  border: string;
+}
+
+export const TECH_PILLARS: TechPillarData[] = [
+  { id: "ts", name: "TypeScript", badge: "TS", category: "LANGUAGE", desc: "Static typing, scalable contracts & strict interfaces", color: "#38bdf8", border: "#60a5fa" },
+  { id: "py", name: "Python", badge: "PY", category: "AI / SCRIPT", desc: "Machine learning, AsyncIO & rapid scientific compute", color: "#f59e0b", border: "#fbbf24" },
+  { id: "rs", name: "Rust", badge: "RS", category: "SYSTEMS", desc: "Memory safety without GC, zero-cost abstractions & Tokio", color: "#f97316", border: "#fb923c" },
+  { id: "go", name: "Go", badge: "GO", category: "CONCURRENCY", desc: "High-throughput Goroutines, CSP channels & cloud microservices", color: "#00add8", border: "#38bdf8" },
+  { id: "cpp", name: "C++20", badge: "C++", category: "PERF / CORE", desc: "Low-latency engines, deterministic memory & SIMD", color: "#60a5fa", border: "#93c5fd" },
+  { id: "wasm", name: "WebAssembly", badge: "WASM", category: "BYTECODE", desc: "Near-native binary execution & sandboxed VM on the web", color: "#a855f7", border: "#c084fc" },
+  { id: "webgpu", name: "WebGPU", badge: "GPU", category: "GRAPHICS", desc: "Direct-to-metal parallel compute & modern shader pipelines", color: "#10b981", border: "#34d399" },
+  { id: "next", name: "Next.js / React", badge: "REACT", category: "UI / SSR", desc: "Declarative UI, Server Components & streaming runtime", color: "#06b6d4", border: "#67e8f9" },
+  { id: "linux", name: "Linux", badge: "LINUX", category: "KERNEL / OS", desc: "POSIX syscalls, epoll, namespaces & cloud infrastructure", color: "#facc15", border: "#fde047" },
+  { id: "docker", name: "Docker", badge: "DOCKER", category: "CONTAINER", desc: "Process isolation, container virtualization & microservices", color: "#38bdf8", border: "#7dd3fc" },
+  { id: "postgres", name: "PostgreSQL", badge: "SQL", category: "DATABASE", desc: "ACID compliance, relational calculus & complex indexing", color: "#818cf8", border: "#a5b4fc" },
+  { id: "pytorch", name: "PyTorch", badge: "TORCH", category: "DEEP LEARNING", desc: "Tensors, dynamic autograd computation graphs & CUDA", color: "#f43f5e", border: "#fb7185" },
+  { id: "redis", name: "Redis", badge: "REDIS", category: "IN-MEMORY", desc: "Sub-millisecond data structures, cache & pub/sub brokers", color: "#ef4444", border: "#f87171" },
+  { id: "graphql", name: "GraphQL / gRPC", badge: "PROTOCOLS", category: "PROTOCOLS", desc: "Strongly typed APIs, binary Protobuf & multiplexed streams", color: "#ec4899", border: "#f472b6" },
+  { id: "three", name: "Three.js / R3F", badge: "3D WEB", category: "SPATIAL", desc: "Matrix transformations, shaders & interactive 3D WebGL", color: "#2dd4bf", border: "#5eead4" },
+  { id: "git", name: "Git", badge: "GIT", category: "VCS", desc: "Distributed DAG snapshots & atomic cryptographical commits", color: "#fb923c", border: "#fdba74" },
+];
+
+function getTechBadgeTexture(item: TechPillarData): THREE.CanvasTexture {
+  const key = `tech-badge-${item.id}`;
   const cached = textureCache.get(key);
   if (cached) return cached;
 
-  const W = 512;
-  const H = 768;
+  const S = 256;
   const canvas = document.createElement("canvas");
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = S;
+  canvas.height = S;
   const ctx = canvas.getContext("2d")!;
-  ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0, 0, S, S);
 
-  // Background
-  roundedRect(ctx, 10, 10, W - 20, H - 20, 24);
-  ctx.fillStyle = "rgba(11, 16, 28, 0.94)";
+  // Dark translucent background with subtle metallic border
+  roundedRect(ctx, 8, 8, S - 16, S - 16, 24);
+  ctx.fillStyle = "rgba(10, 15, 26, 0.94)";
   ctx.fill();
   ctx.lineWidth = 3;
-  ctx.strokeStyle = "rgba(56, 189, 248, 0.4)";
+  ctx.strokeStyle = item.border;
   ctx.stroke();
 
-  // Window titlebar
-  roundedRect(ctx, 10, 10, W - 20, 52, 24);
-  ctx.fillStyle = "rgba(15, 23, 42, 0.98)";
+  // Top category badge pill
+  roundedRect(ctx, 32, 22, S - 64, 28, 8);
+  ctx.fillStyle = "rgba(30, 41, 59, 0.9)";
   ctx.fill();
+  ctx.fillStyle = item.border;
+  ctx.font = "bold 12px Consolas, monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(item.category, S / 2, 41);
 
-  // Dots
-  ctx.fillStyle = "#ef4444";
+  // Large center monogram / symbol
+  ctx.fillStyle = item.color;
+  ctx.font = "900 52px Consolas, sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText(item.badge, S / 2, 126);
+
+  // Tech name at bottom
+  ctx.fillStyle = "#f8fafc";
+  ctx.font = "bold 20px Consolas, monospace";
+  ctx.fillText(item.name, S / 2, 185);
+
+  // Subtle accent line
+  ctx.strokeStyle = item.border;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.arc(36, 36, 7, 0, Math.PI * 2);
+  ctx.moveTo(56, 205);
+  ctx.lineTo(S - 56, 205);
+  ctx.stroke();
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  textureCache.set(key, tex);
+  return tex;
+}
+
+function getCodeRuneTexture(glyph: string, color: string): THREE.CanvasTexture {
+  const key = `code-rune-${glyph}-${color}`;
+  const cached = textureCache.get(key);
+  if (cached) return cached;
+
+  const S = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = S;
+  canvas.height = S;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, S, S);
+
+  // Soft glowing glyph on dark transparent glass badge
+  roundedRect(ctx, 4, 4, S - 8, S - 8, 16);
+  ctx.fillStyle = "rgba(10, 15, 26, 0.78)";
   ctx.fill();
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = color;
+  ctx.stroke();
 
-  ctx.fillStyle = "#f59e0b";
-  ctx.beginPath();
-  ctx.arc(58, 36, 7, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#10b981";
-  ctx.beginPath();
-  ctx.arc(80, 36, 7, 0, Math.PI * 2);
-  ctx.fill();
-
-  // File tab title
-  const titles = {
-    prism: "fixed_timestep.ts",
-    mobius: "resilient_worker.py",
-    gyroscope: "spatial_hash.ts",
-    bonsai: "clean_architecture.ts",
-  };
-  ctx.fillStyle = "#cbd5e1";
-  ctx.font = "600 20px Consolas, monospace";
-  ctx.textAlign = "left";
-  ctx.fillText(titles[pillarKey], 108, 43);
-
-  // Code lines sample
-  const codeLines: Record<string, { text: string; color: string }[]> = {
-    prism: [
-      { text: "// Fixed Timestep vs Render Loop", color: "#64748b" },
-      { text: "// Solves High-Speed Tunneling Trap", color: "#38bdf8" },
-      { text: "const FIXED_STEP = 1 / 60;", color: "#e2e8f0" },
-      { text: "state.accum += Math.min(dt, 0.2);", color: "#38bdf8" },
-      { text: "while (state.accum >= FIXED_STEP) {", color: "#f59e0b" },
-      { text: "  physicsWorld.step(FIXED_STEP);", color: "#34d399" },
-      { text: "  state.accum -= FIXED_STEP;", color: "#e2e8f0" },
-      { text: "}", color: "#f59e0b" },
-      { text: "const alpha = state.accum / STEP;", color: "#a78bfa" },
-      { text: "interpolateTransforms(alpha);", color: "#34d399" },
-      { text: "// Deterministik di Semua Monitor", color: "#64748b" },
-    ],
-    mobius: [
-      { text: "# Resilient Async Event Loop", color: "#64748b" },
-      { text: "# Backoff + Jitter: No Thundering", color: "#f59e0b" },
-      { text: "class ResilientWorker:", color: "#38bdf8" },
-      { text: "  async def run_event_loop(self):", color: "#38bdf8" },
-      { text: "    while True:", color: "#f59e0b" },
-      { text: "      task = await queue.pop()", color: "#e2e8f0" },
-      { text: "      try:", color: "#f59e0b" },
-      { text: "        await execute_idempotent(task)", color: "#34d399" },
-      { text: "      except RateLimitError:", color: "#ef4444" },
-      { text: "        delay = calc_jitter_backoff()", color: "#a78bfa" },
-      { text: "        await asyncio.sleep(delay)", color: "#38bdf8" },
-    ],
-    gyroscope: [
-      { text: "// Spatial Hashing: O(N²) -> O(1)", color: "#64748b" },
-      { text: "// Discrete Coordinate Partitioning", color: "#818cf8" },
-      { text: "function hash(x, z, cellSize) {", color: "#818cf8" },
-      { text: "  const cx = Math.floor(x / cellSize);", color: "#e2e8f0" },
-      { text: "  const cz = Math.floor(z / cellSize);", color: "#e2e8f0" },
-      { text: "  return ((cx * P1) ^ (cz * P2)) >>> 0;", color: "#34d399" },
-      { text: "}", color: "#818cf8" },
-      { text: "const nearby = grid.query(x, z);", color: "#38bdf8" },
-      { text: "// Cek 4 tetangga, bukan 2.000 objek!", color: "#64748b" },
-    ],
-    bonsai: [
-      { text: "// Software Zen: Pruning Debt", color: "#64748b" },
-      { text: "const ArchitectureHealth = {", color: "#34d399" },
-      { text: "  singleResponsibility: 1.0,", color: "#38bdf8" },
-      { text: "  cyclomaticComplexity: '<= 4',", color: "#38bdf8" },
-      { text: "  deadCodePercentage: 0.0,", color: "#38bdf8" },
-      { text: "  pruneUnusedAbstractions: true,", color: "#f59e0b" },
-      { text: "  looselyCoupled: true,", color: "#34d399" },
-      { text: "} as const;", color: "#34d399" },
-    ],
-  };
-
-  const lines = codeLines[pillarKey] || [];
-  let y = 105;
-  for (const line of lines) {
-    ctx.fillStyle = line.color;
-    ctx.font = "500 24px Consolas, monospace";
-    ctx.fillText(line.text, 28, y);
-    y += 40;
-  }
+  ctx.fillStyle = color;
+  ctx.font = "bold 38px Consolas, monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(glyph, S / 2, S / 2);
 
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
@@ -906,6 +904,310 @@ export function evaluateEngineeringZen(metrics: SoftwareArchitectureHealth): str
   },
 };
 
+/* --- Surrounding Floating Tech Ecosystem Artifact --- */
+function TechMonolithPillar({
+  item,
+  position,
+  index = 0,
+}: {
+  item: TechPillarData;
+  position: [number, number, number];
+  index?: number;
+}) {
+  const floatingGroupRef = useRef<THREE.Group>(null);
+  const orbitGroupRef = useRef<THREE.Group>(null);
+  const badgeTex = useMemo(() => getTechBadgeTexture(item), [item]);
+
+  // Staggered levitation height so the constellation feels dynamic, undulating, and layered
+  const baseY = useMemo(() => 1.85 + ((index * 3) % 4) * 0.32, [index]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (floatingGroupRef.current) {
+      // Gentle floating bobbing in the air
+      floatingGroupRef.current.position.y =
+        baseY + Math.sin(t * 1.5 + index * 0.8) * 0.15;
+      // Continuous smooth yaw rotation
+      floatingGroupRef.current.rotation.y += delta * 0.45;
+      // Floating pitch/roll wobble
+      floatingGroupRef.current.rotation.x = Math.sin(t * 1.1 + index) * 0.06;
+      floatingGroupRef.current.rotation.z = Math.cos(t * 1.3 + index) * 0.06;
+    }
+    if (orbitGroupRef.current) {
+      orbitGroupRef.current.rotation.y -= delta * 0.85;
+      orbitGroupRef.current.rotation.x += delta * 0.4;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Sleek Anti-Gravity Ground Projector Disk */}
+      <mesh position={[0, 0.03, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[0.26, 0.32, 0.06, 16]} />
+        <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.85} />
+      </mesh>
+      {/* Ground Projection Halo Ring in Brand Color */}
+      <mesh position={[0, 0.062, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.24, 0.34, 24]} />
+        <meshBasicMaterial color={item.color} transparent opacity={0.65} />
+      </mesh>
+
+      {/* Ethereal Levitating Light Beam */}
+      <mesh position={[0, baseY * 0.5, 0]}>
+        <cylinderGeometry args={[0.015, 0.04, baseY, 8]} />
+        <meshBasicMaterial
+          color={item.color}
+          transparent
+          opacity={0.18}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      {/* Floating Kinetic Tech Artifact (Berterbangan di Udara) */}
+      <group ref={floatingGroupRef} position={[0, baseY, 0]}>
+        {/* Double-Sided Floating Glass Badge Display */}
+        <mesh>
+          <planeGeometry args={[0.62, 0.62]} />
+          <meshStandardMaterial
+            map={badgeTex}
+            transparent
+            opacity={0.96}
+            roughness={0.1}
+            metalness={0.2}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+
+        {/* Diamond Outer Crystalline Frame */}
+        <mesh rotation={[0, 0, Math.PI / 4]}>
+          <ringGeometry args={[0.46, 0.49, 16]} />
+          <meshBasicMaterial color={item.border} transparent opacity={0.7} side={THREE.DoubleSide} />
+        </mesh>
+
+        {/* Orbiting Satellite Micro-Runes / Nodes */}
+        <group ref={orbitGroupRef}>
+          <mesh position={[0.54, 0, 0]}>
+            <octahedronGeometry args={[0.045, 0]} />
+            <meshStandardMaterial
+              color={item.color}
+              roughness={0.2}
+              metalness={0.9}
+              emissive={item.color}
+              emissiveIntensity={0.6}
+            />
+          </mesh>
+          <mesh position={[-0.54, 0, 0]}>
+            <octahedronGeometry args={[0.035, 0]} />
+            <meshStandardMaterial color="#f8fafc" roughness={0.2} metalness={0.9} />
+          </mesh>
+        </group>
+      </group>
+
+      {/* Soft Ambient Brand Glow Light */}
+      <pointLight position={[0, baseY, 0]} color={item.color} intensity={0.85} distance={3.8} />
+    </group>
+  );
+}
+
+/* --- Exhibit 05: Neural Matrix Hypercube (AI & High-Performance Compute • Northeast Quad) --- */
+function NeuralMatrixExhibit({ position }: { position: [number, number, number] }) {
+  const outerCubeRef = useRef<THREE.Group>(null);
+  const innerCubeRef = useRef<THREE.Group>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+  const orbitGroupRef = useRef<THREE.Group>(null);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    if (outerCubeRef.current) {
+      outerCubeRef.current.rotation.x += delta * 0.4;
+      outerCubeRef.current.rotation.y += delta * 0.55;
+      outerCubeRef.current.position.y = 1.35 + Math.sin(t * 1.3) * 0.04;
+    }
+    if (innerCubeRef.current) {
+      innerCubeRef.current.rotation.x -= delta * 0.6;
+      innerCubeRef.current.rotation.z += delta * 0.45;
+    }
+    if (coreRef.current) {
+      const scale = 1.0 + Math.sin(t * 3.0) * 0.08;
+      coreRef.current.scale.set(scale, scale, scale);
+    }
+    if (orbitGroupRef.current) {
+      orbitGroupRef.current.rotation.y += delta * 0.8;
+      orbitGroupRef.current.rotation.x += delta * 0.3;
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Basalt Pedestal (Matching Cyber Bonsai) */}
+      <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+        <boxGeometry args={[1.1, 0.45, 1.1]} />
+        <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.6} />
+      </mesh>
+      {/* Plinth Accent Trim in Electric Cyan-Violet */}
+      <mesh position={[0, 0.53, 0]}>
+        <boxGeometry args={[1.14, 0.02, 1.14]} />
+        <meshStandardMaterial color="#06b6d4" roughness={0.2} metalness={0.85} />
+      </mesh>
+
+      {/* Levitating 4D Neural Hypercube */}
+      <group position={[0, 1.35, 0]}>
+        {/* Outer Rotating Wireframe Cube */}
+        <group ref={outerCubeRef}>
+          <mesh castShadow>
+            <boxGeometry args={[0.72, 0.72, 0.72]} />
+            <meshStandardMaterial
+              color="#06b6d4"
+              wireframe
+              roughness={0.2}
+              metalness={0.9}
+              emissive="#0891b2"
+              emissiveIntensity={0.4}
+            />
+          </mesh>
+        </group>
+
+        {/* Inner Counter-Rotating Nested Octahedron */}
+        <group ref={innerCubeRef}>
+          <mesh castShadow>
+            <octahedronGeometry args={[0.42, 0]} />
+            <meshStandardMaterial
+              color="#a855f7"
+              wireframe
+              roughness={0.2}
+              metalness={0.85}
+              emissive="#7e22ce"
+              emissiveIntensity={0.5}
+            />
+          </mesh>
+        </group>
+
+        {/* Pulsing Quantum Neural Core */}
+        <mesh ref={coreRef} castShadow>
+          <sphereGeometry args={[0.18, 24, 24]} />
+          <meshStandardMaterial
+            color="#ec4899"
+            roughness={0.1}
+            metalness={0.95}
+            emissive="#db2777"
+            emissiveIntensity={0.7}
+          />
+        </mesh>
+
+        {/* Orbiting Synapse Node Micro-Spheres */}
+        <group ref={orbitGroupRef}>
+          {[
+            [0.55, 0.2, 0],
+            [-0.55, -0.2, 0],
+            [0, 0.55, 0.2],
+            [0, -0.55, -0.2],
+          ].map((pos, idx) => (
+            <mesh key={`synapse-${idx}`} position={pos as [number, number, number]}>
+              <sphereGeometry args={[0.035, 12, 12]} />
+              <meshBasicMaterial color="#67e8f9" />
+            </mesh>
+          ))}
+        </group>
+      </group>
+
+      {/* Dedicated Soft Micro-Spotlight */}
+      <pointLight position={[0, 0.7, 0]} color="#06b6d4" intensity={1.5} distance={5.5} />
+    </group>
+  );
+}
+
+/* --- Floating Code Runes Cloud (Syntax Tokens Berterbangan di Udara) --- */
+const CODE_GLYPHS = [
+  { glyph: "{ }", color: "#38bdf8" },
+  { glyph: "=>", color: "#f59e0b" },
+  { glyph: "</>", color: "#34d399" },
+  { glyph: "λ", color: "#a855f7" },
+  { glyph: "01", color: "#06b6d4" },
+  { glyph: "fn", color: "#ec4899" },
+  { glyph: "async", color: "#fb923c" },
+  { glyph: "::", color: "#818cf8" },
+  { glyph: "*ptr", color: "#60a5fa" },
+  { glyph: "type", color: "#facc15" },
+  { glyph: "[]", color: "#2dd4bf" },
+  { glyph: "&ref", color: "#f43f5e" },
+];
+
+function FloatingCodeRunesCloud({ count = 36 }: { count?: number }) {
+  const runeItems = useMemo(() => {
+    return Array.from({ length: count }, (_, i) => {
+      const g = CODE_GLYPHS[i % CODE_GLYPHS.length];
+      const radius = 1.4 + Math.random() * 5.6;
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        id: i,
+        glyph: g.glyph,
+        color: g.color,
+        baseX: Math.cos(angle) * radius,
+        baseZ: Math.sin(angle) * radius,
+        y: 0.6 + Math.random() * 3.4,
+        speed: 0.22 + Math.random() * 0.26,
+        swaySpeed: 0.8 + Math.random() * 0.7,
+        swayAmp: 0.15 + Math.random() * 0.18,
+        rotSpeed: (Math.random() - 0.5) * 0.6,
+        seed: Math.random() * 10,
+        scale: 0.26 + Math.random() * 0.1,
+      };
+    });
+  }, [count]);
+
+  const refs = useRef<(THREE.Group | null)[]>([]);
+
+  useFrame((state, delta) => {
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < runeItems.length; i++) {
+      const item = runeItems[i];
+      const el = refs.current[i];
+      if (!el) continue;
+
+      item.y += delta * item.speed;
+      if (item.y > 4.2) {
+        item.y = 0.5;
+      }
+
+      el.position.y = item.y;
+      el.position.x = item.baseX + Math.sin(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.position.z = item.baseZ + Math.cos(t * item.swaySpeed + item.seed) * item.swayAmp;
+      el.rotation.y += delta * item.rotSpeed;
+    }
+  });
+
+  return (
+    <group>
+      {runeItems.map((item, i) => {
+        const tex = getCodeRuneTexture(item.glyph, item.color);
+        return (
+          <group
+            key={`code-rune-${i}`}
+            ref={(r) => {
+              refs.current[i] = r;
+            }}
+            position={[item.baseX, item.y, item.baseZ]}
+          >
+            <mesh>
+              <planeGeometry args={[item.scale, item.scale]} />
+              <meshStandardMaterial
+                map={tex}
+                transparent
+                opacity={0.82}
+                roughness={0.2}
+                metalness={0.1}
+                side={THREE.DoubleSide}
+                depthWrite={false}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
 /* --- Cyber Bonsai Tree (The Digital Pine Bonsai &bull; Organic Harmony) --- */
 function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
   const foliageRef = useRef<THREE.Group>(null);
@@ -944,11 +1246,6 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
       <mesh position={[0, 0.445, 0]}>
         <boxGeometry args={[0.98, 0.015, 0.98]} />
         <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.85} />
-      </mesh>
-      {/* Plaque */}
-      <mesh position={[0, 0.22, 0.49]}>
-        <planeGeometry args={[0.42, 0.15]} />
-        <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
       </mesh>
 
       {/* Shallow Slate Ceramic Bonsai Pot */}
@@ -1025,25 +1322,6 @@ function CyberBonsaiTree({ position }: { position: [number, number, number] }) {
         </points>
       </group>
 
-      {/* 3D Vertical Frameless Glass Syntax Code Terminal Plate */}
-      <group position={[0, 0.95, -0.52]}>
-        <mesh>
-          <planeGeometry args={[0.85, 1.25]} />
-          <meshStandardMaterial
-            map={getCodePlateTexture("bonsai")}
-            transparent
-            opacity={0.92}
-            roughness={0.1}
-            metalness={0.2}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-        <mesh position={[0, 0, -0.01]}>
-          <boxGeometry args={[0.88, 1.28, 0.015]} />
-          <meshStandardMaterial color="#0f766e" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
-        </mesh>
-      </group>
-
       {/* Dedicated Subtle Warm Micro-Spotlight */}
       <pointLight position={[0, 1.2, 0]} color="#ccfbf1" intensity={0.7} distance={3.5} />
     </group>
@@ -1064,11 +1342,13 @@ function ZenGalleryCorner({
   position,
   carRef,
   onNearbyArtwork,
+  onNearbyTech,
   resonancePulseKey = 0,
 }: {
   position: [number, number, number];
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
+  onNearbyTech?: (tech: TechPillarData | null) => void;
   resonancePulseKey?: number;
 }) {
   const crystalRef = useRef<THREE.Group>(null);
@@ -1081,6 +1361,7 @@ function ZenGalleryCorner({
   const poolWaterRef = useRef<THREE.Mesh>(null);
   const flareRingRef = useRef<THREE.Mesh>(null);
   const currentNearbyRef = useRef<ZenPillarId | null>(null);
+  const currentNearbyTechRef = useRef<TechPillarData | null>(null);
 
   // Dynamic Footstep Water Ripples State
   const [ripples, setRipples] = useState<WaterRippleItem[]>([]);
@@ -1187,6 +1468,27 @@ function ZenGalleryCorner({
           };
           setRipples((prev) => [...prev.slice(-6), newRipple]);
           playWaterRippleSound();
+        }
+      }
+
+      // Tech Monolith proximity detection
+      if (onNearbyTech) {
+        let nearbyNode: TechPillarData | null = null;
+        let minD = 2.4;
+        for (let i = 0; i < TECH_PILLARS.length; i++) {
+          const tPillar = TECH_PILLARS[i];
+          const ang = (i / TECH_PILLARS.length) * Math.PI * 2;
+          const tx = position[0] + Math.cos(ang) * 7.4;
+          const tz = position[2] + Math.sin(ang) * 7.4;
+          const d = Math.hypot(carPos.x - tx, carPos.z - tz);
+          if (d < minD) {
+            minD = d;
+            nearbyNode = tPillar;
+          }
+        }
+        if (nearbyNode?.id !== currentNearbyTechRef.current?.id) {
+          currentNearbyTechRef.current = nearbyNode;
+          onNearbyTech(nearbyNode);
         }
       }
 
@@ -1387,11 +1689,6 @@ function ZenGalleryCorner({
           <boxGeometry args={[1.34, 0.02, 1.34]} />
           <meshStandardMaterial color="#cbd5e1" roughness={0.2} metalness={0.85} />
         </mesh>
-        {/* Curatorial Plaque on Pedestal Face (South-facing) */}
-        <mesh position={[0, 0.35, 0.67]}>
-          <planeGeometry args={[0.55, 0.22]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
-        </mesh>
 
         {/* Floating Pristine Crystal Geometry */}
         <group ref={crystalRef} position={[0, 1.35, 0]}>
@@ -1438,25 +1735,6 @@ function ZenGalleryCorner({
 
         {/* Subtle Warm Recessed Downlight */}
         <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
-
-        {/* 3D Vertical Syntax Code Plate */}
-        <group position={[0, 1.15, -0.62]}>
-          <mesh>
-            <planeGeometry args={[0.95, 1.4]} />
-            <meshStandardMaterial
-              map={getCodePlateTexture("prism")}
-              transparent
-              opacity={0.92}
-              roughness={0.1}
-              metalness={0.2}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-          <mesh position={[0, 0, -0.01]}>
-            <boxGeometry args={[0.98, 1.43, 0.015]} />
-            <meshStandardMaterial color="#0284c7" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
-          </mesh>
-        </group>
       </group>
 
       {/* ========================================================
@@ -1472,11 +1750,6 @@ function ZenGalleryCorner({
         <mesh position={[0, 0.53, 0]}>
           <boxGeometry args={[1.14, 0.02, 1.14]} />
           <meshStandardMaterial color="#d97706" roughness={0.2} metalness={0.85} />
-        </mesh>
-        {/* Curatorial Plaque */}
-        <mesh position={[0, 0.3, 0.57]}>
-          <planeGeometry args={[0.48, 0.18]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
         </mesh>
 
         {/* Kinetic Möbius Torus Knot Sculpture */}
@@ -1495,25 +1768,6 @@ function ZenGalleryCorner({
 
         {/* Dedicated Warm Amber Accent Spotlight */}
         <pointLight position={[0, 0.7, 0]} color="#fef3c7" intensity={1.5} distance={5.5} />
-
-        {/* 3D Vertical Syntax Code Plate */}
-        <group position={[0, 1.1, -0.55]}>
-          <mesh>
-            <planeGeometry args={[0.9, 1.35]} />
-            <meshStandardMaterial
-              map={getCodePlateTexture("mobius")}
-              transparent
-              opacity={0.92}
-              roughness={0.1}
-              metalness={0.2}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-          <mesh position={[0, 0, -0.01]}>
-            <boxGeometry args={[0.93, 1.38, 0.015]} />
-            <meshStandardMaterial color="#d97706" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
-          </mesh>
-        </group>
       </group>
 
       {/* ========================================================
@@ -1529,11 +1783,6 @@ function ZenGalleryCorner({
         <mesh position={[0, 0.53, 0]}>
           <boxGeometry args={[1.14, 0.02, 1.14]} />
           <meshStandardMaterial color="#818cf8" roughness={0.2} metalness={0.85} />
-        </mesh>
-        {/* Curatorial Plaque */}
-        <mesh position={[0, 0.3, 0.57]}>
-          <planeGeometry args={[0.48, 0.18]} />
-          <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
         </mesh>
 
         {/* Kinetic 3-Axis Multi-Gimbal Rings */}
@@ -1568,31 +1817,45 @@ function ZenGalleryCorner({
 
         {/* Dedicated Soft Indigo Accent Spotlight */}
         <pointLight position={[0, 0.7, 0]} color="#e0e7ff" intensity={1.5} distance={5.5} />
-
-        {/* 3D Vertical Syntax Code Plate */}
-        <group position={[0, 1.1, -0.55]}>
-          <mesh>
-            <planeGeometry args={[0.9, 1.35]} />
-            <meshStandardMaterial
-              map={getCodePlateTexture("gyroscope")}
-              transparent
-              opacity={0.92}
-              roughness={0.1}
-              metalness={0.2}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-          <mesh position={[0, 0, -0.01]}>
-            <boxGeometry args={[0.93, 1.38, 0.015]} />
-            <meshStandardMaterial color="#6366f1" transparent opacity={0.35} roughness={0.1} metalness={0.8} />
-          </mesh>
-        </group>
       </group>
 
       {/* ========================================================
-          EXHIBIT 04: CYBER BONSAI (The Digital Pine Bonsai)
+          SURROUNDING PROGRAMMING & TECH ECOSYSTEM RING (16 NODES)
       ======================================================== */}
-      <CyberBonsaiTree position={[-5.5, 0, -5.5]} />
+      {/* Outer Perimeter Tech Constellation Ring Line */}
+      <mesh position={[0, 0.084, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[7.32, 7.48, 64]} />
+        <meshBasicMaterial color="#38bdf8" opacity={0.3} transparent />
+      </mesh>
+
+      {TECH_PILLARS.map((tech, idx) => {
+        const angle = (idx / TECH_PILLARS.length) * Math.PI * 2;
+        const x = Math.cos(angle) * 7.4;
+        const z = Math.sin(angle) * 7.4;
+        return (
+          <TechMonolithPillar
+            key={tech.id}
+            item={tech}
+            position={[x, 0, z]}
+            index={idx}
+          />
+        );
+      })}
+
+      {/* ========================================================
+          EXHIBIT 04: CYBER BONSAI (The Digital Pine Bonsai - Northwest Quad)
+      ======================================================== */}
+      <CyberBonsaiTree position={[-5.2, 0, -5.2]} />
+
+      {/* ========================================================
+          EXHIBIT 05: NEURAL MATRIX HYPERCUBE (AI & Deep Systems - Northeast Quad)
+      ======================================================== */}
+      <NeuralMatrixExhibit position={[5.2, 0, -5.2]} />
+
+      {/* ========================================================
+          AMBIENT FLOATING CODE RUNES & SYNTAX ATMOSPHERE (Berterbangan di Area)
+      ======================================================== */}
+      <FloatingCodeRunesCloud count={36} />
 
       {/* Minimalist Floating Cantilever Benches (North & South) */}
       {[-5.8, 5.8].map((zOffset, i) => (
@@ -1983,10 +2246,12 @@ function ZenGardenCorner({ position }: { position: [number, number, number] }) {
 function CyberMetaverseArena({
   carRef,
   onNearbyArtwork,
+  onNearbyTech,
   resonancePulseKey = 0,
 }: {
   carRef?: React.MutableRefObject<{ pos: THREE.Vector3 }>;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
+  onNearbyTech?: (tech: TechPillarData | null) => void;
   resonancePulseKey?: number;
 }) {
   const nexusTex = useMemo(() => getCentralNexusTexture(), []);
@@ -2034,6 +2299,7 @@ function CyberMetaverseArena({
         position={[-32, 0, -32]}
         carRef={carRef}
         onNearbyArtwork={onNearbyArtwork}
+        onNearbyTech={onNearbyTech}
         resonancePulseKey={resonancePulseKey}
       />
 
@@ -3396,6 +3662,7 @@ type MobileControls = {
 function World({
   onActiveLandmark,
   onNearbyArtwork,
+  onNearbyTech,
   resonancePulseKey = 0,
   mobileControls,
   localPlayer,
@@ -3411,6 +3678,7 @@ function World({
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
+  onNearbyTech?: (tech: TechPillarData | null) => void;
   resonancePulseKey?: number;
   mobileControls: MobileControls;
   localPlayer: {
@@ -3899,6 +4167,7 @@ function World({
       <CyberMetaverseArena
         carRef={carState}
         onNearbyArtwork={onNearbyArtwork}
+        onNearbyTech={onNearbyTech}
         resonancePulseKey={resonancePulseKey}
       />
 
@@ -3983,20 +4252,8 @@ function WorldHero() {
   const [selectedColor, setSelectedColor] = useState(localPlayer.color);
   const [selectedAccent, setSelectedAccent] = useState(localPlayer.accentColor);
 
-  // Zen Gallery Artwork Inspection State
-  const [nearbyArtwork, setNearbyArtwork] = useState<ZenPillarId | null>(null);
-  const [activeCuratorNote, setActiveCuratorNote] = useState<ZenGalleryArtwork | null>(null);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const nearbyArtworkRef = useRef(nearbyArtwork);
-  nearbyArtworkRef.current = nearbyArtwork;
-
-  const handleCopyCode = (code: string) => {
-    if (typeof navigator !== "undefined" && navigator.clipboard) {
-      navigator.clipboard.writeText(code);
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-    }
-  };
+  // Surrounding Tech Ecosystem Ring State
+  const [nearbyTech, setNearbyTech] = useState<TechPillarData | null>(null);
 
   // Zen Gallery Kinetic Resonance Pulse State
   const [resonancePulseKey, setResonancePulseKey] = useState(0);
@@ -4036,13 +4293,6 @@ function WorldHero() {
       if (k === "f") {
         e.preventDefault();
         triggerPunch();
-      } else if (k === "e") {
-        if (nearbyArtworkRef.current) {
-          e.preventDefault();
-          setActiveCuratorNote(ZEN_GALLERY_ARTWORKS[nearbyArtworkRef.current]);
-        }
-      } else if (e.key === "Escape") {
-        setActiveCuratorNote(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -4090,7 +4340,7 @@ function WorldHero() {
       >
         <World
           onActiveLandmark={setActiveLandmark}
-          onNearbyArtwork={setNearbyArtwork}
+          onNearbyTech={setNearbyTech}
           resonancePulseKey={resonancePulseKey}
           mobileControls={mobileControls}
           localPlayer={localPlayer}
@@ -4273,206 +4523,41 @@ function WorldHero() {
         </div>
       )}
 
-      {/* Zen Gallery CS & Architecture Lab HUD Prompt */}
-      {nearbyArtwork && !activeCuratorNote && (
-        <div className="absolute inset-x-3 bottom-32 sm:bottom-28 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-sky-400/30 bg-neutral-950/90 p-3 sm:p-4 shadow-2xl backdrop-blur-xl md:bottom-24 animate-in fade-in slide-in-from-bottom-2 duration-200">
-          <div className="flex items-center justify-between gap-3">
+      {/* Zen Gallery Surrounding Tech Ecosystem HUD Floating Pill */}
+      {nearbyTech && (
+        <div className="pointer-events-none absolute inset-x-3 bottom-24 sm:bottom-20 z-30 mx-auto max-w-sm sm:max-w-md rounded-2xl border border-white/10 bg-neutral-950/85 p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border font-mono font-black text-sm tracking-wider shadow-inner"
+              style={{
+                borderColor: `${nearbyTech.color}55`,
+                backgroundColor: `${nearbyTech.color}15`,
+                color: nearbyTech.color,
+                boxShadow: `0 0 16px ${nearbyTech.color}25`,
+              }}
+            >
+              {nearbyTech.badge}
+            </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/15 px-2.5 py-0.5 text-[9px] sm:text-[10px] font-bold tracking-wider text-sky-300">
-                  🏛️ EXHIBIT {ZEN_GALLERY_ARTWORKS[nearbyArtwork].exhibitNumber}
+                <span
+                  className="rounded-full px-2 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase border"
+                  style={{
+                    borderColor: `${nearbyTech.color}40`,
+                    backgroundColor: `${nearbyTech.color}10`,
+                    color: nearbyTech.color,
+                  }}
+                >
+                  {nearbyTech.category}
                 </span>
-                <span className="text-[10px] text-neutral-400 font-mono truncate">
-                  {ZEN_GALLERY_ARTWORKS[nearbyArtwork].categoryBadge}
-                </span>
+                <span className="text-[10px] text-neutral-400 font-mono">Zen Tech Ring</span>
               </div>
-              <h4 className="mt-1 text-sm sm:text-base font-bold text-white truncate">
-                {ZEN_GALLERY_ARTWORKS[nearbyArtwork].title}
+              <h4 className="mt-0.5 text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5">
+                <span>{nearbyTech.name}</span>
               </h4>
-              <p className="text-[11px] text-neutral-400 truncate">
-                {ZEN_GALLERY_ARTWORKS[nearbyArtwork].subtitle}
+              <p className="text-[11px] text-neutral-300 font-mono truncate">
+                {nearbyTech.desc}
               </p>
-            </div>
-            <button
-              onClick={() => setActiveCuratorNote(ZEN_GALLERY_ARTWORKS[nearbyArtwork])}
-              className="shrink-0 flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-400/20 hover:bg-sky-400/30 px-3.5 py-2 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
-            >
-              <span>Pelajari [E]</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Zen Gallery Interactive Computer Science & Architecture Learning Lab Modal */}
-      {activeCuratorNote && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-white/20 bg-neutral-950/95 p-5 sm:p-7 shadow-2xl backdrop-blur-2xl overflow-hidden">
-            {/* Close Button */}
-            <button
-              onClick={() => setActiveCuratorNote(null)}
-              className="absolute right-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
-              aria-label="Close Note"
-            >
-              <X className="h-4 w-4" />
-            </button>
-
-            {/* Scrollable Body Container */}
-            <div className="flex-1 overflow-y-auto pr-1 space-y-4">
-              {/* Header Badges */}
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={`inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${activeCuratorNote.accent}`}>
-                  Exhibit {activeCuratorNote.exhibitNumber}
-                </span>
-                <span className="rounded-full border border-neutral-700 bg-neutral-800/60 px-2.5 py-0.5 text-[10px] text-neutral-300 font-mono">
-                  {activeCuratorNote.categoryBadge}
-                </span>
-                <span className="rounded-full border border-neutral-700 bg-neutral-800/60 px-2.5 py-0.5 text-[10px] text-neutral-400 font-mono">
-                  {activeCuratorNote.language === "typescript" ? "TypeScript 5.x" : "Python 3.11+"}
-                </span>
-              </div>
-
-              {/* Title & Subtitle */}
-              <div>
-                <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight leading-snug">
-                  {activeCuratorNote.title}
-                </h3>
-                <p className="mt-1 text-xs sm:text-sm font-medium text-cyan-400">
-                  {activeCuratorNote.subtitle}
-                </p>
-              </div>
-
-              {/* Core Concept Box */}
-              <div className="rounded-2xl border border-sky-500/25 bg-sky-500/10 p-3.5 sm:p-4">
-                <div className="flex items-center gap-2 text-sky-300 font-bold text-xs uppercase tracking-wider">
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>Konsep Inti Rekayasa (Core Concept)</span>
-                </div>
-                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-sky-100">
-                  {activeCuratorNote.coreConcept}
-                </p>
-              </div>
-
-              {/* The Real-World Bottleneck / Problem Box */}
-              <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 p-3.5 sm:p-4">
-                <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
-                  <Zap className="h-3.5 w-3.5" />
-                  <span>Tantangan & Masalah di Dunia Nyata (The Problem)</span>
-                </div>
-                <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-amber-100">
-                  {activeCuratorNote.problemSolved}
-                </p>
-              </div>
-
-              {/* Benchmark Metrics Bar */}
-              <div className="grid grid-cols-3 gap-2 rounded-2xl border border-neutral-800 bg-neutral-900/50 p-2.5">
-                {activeCuratorNote.metrics.map((m, i) => (
-                  <div key={i} className="text-center">
-                    <span className="block text-[9px] uppercase tracking-wider text-neutral-400 font-medium truncate">
-                      {m.label}
-                    </span>
-                    <span className="block text-xs sm:text-sm font-bold text-sky-300 font-mono truncate">
-                      {m.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Syntax Code Editor Window */}
-              <div className="rounded-2xl border border-neutral-800 bg-[#0b101c] overflow-hidden shadow-inner">
-                {/* Editor Titlebar */}
-                <div className="flex items-center justify-between border-b border-neutral-800/80 bg-neutral-900/80 px-3.5 py-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
-                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                    </div>
-                    <div className="ml-2 flex items-center gap-1.5 text-xs font-mono text-neutral-300">
-                      <Code2 className="h-3.5 w-3.5 text-sky-400" />
-                      <span>{activeCuratorNote.filename}</span>
-                    </div>
-                  </div>
-
-                  {/* Copy Code Button */}
-                  <button
-                    onClick={() => handleCopyCode(activeCuratorNote.codeSnippet)}
-                    className="flex items-center gap-1 rounded-md border border-white/10 bg-white/5 hover:bg-white/10 px-2 py-1 text-[11px] font-mono text-neutral-300 transition-colors"
-                  >
-                    {copiedCode ? (
-                      <>
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
-                        <span className="text-emerald-400">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="h-3.5 w-3.5 text-neutral-400" />
-                        <span>Copy Code</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                {/* Code Body */}
-                <pre className="overflow-x-auto p-4 text-[11px] sm:text-xs font-mono leading-relaxed text-neutral-200 select-all max-h-60">
-                  <code>{activeCuratorNote.codeSnippet}</code>
-                </pre>
-              </div>
-
-              {/* Key Educational Takeaways / Best Practices */}
-              <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-300 mb-2.5 flex items-center gap-1.5">
-                  <Check className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>Prinsip & Pelajaran Kunci untuk Pengembang</span>
-                </h4>
-                <ul className="space-y-2">
-                  {activeCuratorNote.educationalTakeaways.map((point, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-xs sm:text-sm text-neutral-300">
-                      <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400" />
-                      <span className="leading-relaxed">{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Curatorial Context & Philosophy */}
-              <div className="space-y-2">
-                <p className="text-xs sm:text-sm leading-relaxed text-neutral-400">
-                  {activeCuratorNote.description}
-                </p>
-                <div className="border-l-2 border-sky-400/50 pl-3.5 py-1.5 bg-sky-500/5 rounded-r-lg">
-                  <p className="text-xs italic text-neutral-300">
-                    &ldquo;{activeCuratorNote.philosophy}&rdquo;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Footer */}
-            <div className="mt-4 pt-3 border-t border-neutral-800 flex flex-wrap items-center justify-between gap-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={handleTriggerResonance}
-                  className="flex items-center gap-1.5 rounded-xl border border-sky-400/40 bg-sky-500/20 hover:bg-sky-500/30 px-3.5 py-2 text-xs font-bold text-sky-200 transition-all hover:scale-105 active:scale-95 shadow-md"
-                >
-                  <span>✨ Simulasi Resonansi Kinetik</span>
-                </button>
-                <a
-                  href={activeCuratorNote.learnMoreUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-xl border border-neutral-700 bg-neutral-800/80 hover:bg-neutral-700 px-3.5 py-2 text-xs font-bold text-neutral-200 transition-all hover:scale-105 active:scale-95 shadow-md"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span>Pelajari Referensi CS</span>
-                </a>
-              </div>
-
-              <button
-                onClick={() => setActiveCuratorNote(null)}
-                className="rounded-xl bg-white px-4 py-2 text-xs font-bold text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Tutup (Esc)
-              </button>
             </div>
           </div>
         </div>
