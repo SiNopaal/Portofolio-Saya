@@ -138,9 +138,12 @@ export function KineticCore() {
     };
     window.addEventListener("resize", onResize);
 
-    // Animation Loop
-    let animId: number;
+    // Animation Loop with Visibility Culling (Pause when offscreen)
+    let animId: number = 0;
+    let isVisible = false;
+
     const animate = () => {
+      if (!isVisible) return;
       animId = requestAnimationFrame(animate);
 
       if (!isDragging) {
@@ -159,9 +162,23 @@ export function KineticCore() {
 
       renderer.render(scene, camera);
     };
-    animate();
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          cancelAnimationFrame(animId);
+          animId = requestAnimationFrame(animate);
+        } else {
+          cancelAnimationFrame(animId);
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
 
     return () => {
+      observer.disconnect();
       cancelAnimationFrame(animId);
       container.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mousemove", onMouseMove);
