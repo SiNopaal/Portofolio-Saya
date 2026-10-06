@@ -8,7 +8,7 @@ const kanit = Kanit({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
-const siteUrl = "https://github.com/SiNopaal";
+const siteUrl = "https://naufalmauu.software";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

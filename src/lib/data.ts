@@ -167,6 +167,7 @@ export const timeline = [
 ];
 
 export const socials = {
+  website: "https://naufalmauu.software",
   email: "mailto:naufalmaulana806@gmail.com",
   github: "https://github.com/SiNopaal",
   linkedin: "https://www.linkedin.com/in/naufalmaulanaizzuddin",
