@@ -309,27 +309,29 @@ export function useMultiplayer() {
     try {
       const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
       const host = window.location.hostname || "localhost";
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || `${protocol}//${host}:3001`;
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || (host === "localhost" || host === "127.0.0.1" ? `${protocol}//${host}:3001` : null);
 
-      ws = new WebSocket(wsUrl);
-      socketRef.current = ws;
+      if (wsUrl) {
+        ws = new WebSocket(wsUrl);
+        socketRef.current = ws;
 
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          handleIncomingMessage(data);
-        } catch {
-          // ignore parsing error
-        }
-      };
+        ws.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            handleIncomingMessage(data);
+          } catch {
+            // ignore parsing error
+          }
+        };
 
-      ws.onerror = () => {
-        // Safe silent fallback: when deployed without WS backend, gracefully fall back to BroadcastChannel
-      };
+        ws.onerror = () => {
+          // Safe silent fallback: when deployed without WS backend, gracefully fall back to BroadcastChannel
+        };
 
-      ws.onclose = () => {
-        socketRef.current = null;
-      };
+        ws.onclose = () => {
+          socketRef.current = null;
+        };
+      }
     } catch {
       // WebSocket server fallback to BroadcastChannel
     }

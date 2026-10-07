@@ -1526,27 +1526,27 @@ function CyberBonsaiTree({
       {/* S-Curved Graphite Wood Trunk */}
       <group position={[0, 0.58, 0]}>
         {/* Base trunk segment angled right */}
-        <mesh position={[0.04, 0.2, 0]} rotation={[0, 0, -0.25]} castShadow>
+        <mesh position={[0.04, 0.2, 0]} rotation={[0, 0, -0.25]}>
           <cylinderGeometry args={[0.065, 0.09, 0.42, 12]} />
           <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
         </mesh>
         {/* Mid trunk curve left */}
-        <mesh position={[-0.04, 0.48, 0.02]} rotation={[0.1, 0, 0.32]} castShadow>
+        <mesh position={[-0.04, 0.48, 0.02]} rotation={[0.1, 0, 0.32]}>
           <cylinderGeometry args={[0.048, 0.065, 0.38, 12]} />
           <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
         </mesh>
         {/* Main Upper Bough */}
-        <mesh position={[0.05, 0.76, 0]} rotation={[-0.1, 0.2, -0.22]} castShadow>
+        <mesh position={[0.05, 0.76, 0]} rotation={[-0.1, 0.2, -0.22]}>
           <cylinderGeometry args={[0.035, 0.048, 0.35, 12]} />
           <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
         </mesh>
         {/* Branch 1 Left */}
-        <mesh position={[-0.18, 0.54, 0.05]} rotation={[0, 0, 1.1]} castShadow>
+        <mesh position={[-0.18, 0.54, 0.05]} rotation={[0, 0, 1.1]}>
           <cylinderGeometry args={[0.022, 0.035, 0.32, 8]} />
           <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
         </mesh>
         {/* Branch 2 Right */}
-        <mesh position={[0.22, 0.72, -0.04]} rotation={[0, 0, -1.0]} castShadow>
+        <mesh position={[0.22, 0.72, -0.04]} rotation={[0, 0, -1.0]}>
           <cylinderGeometry args={[0.02, 0.032, 0.28, 8]} />
           <meshStandardMaterial color="#1c1917" roughness={0.8} metalness={0.3} />
         </mesh>
@@ -1554,21 +1554,21 @@ function CyberBonsaiTree({
         {/* Sculpted Pine Needle Foliage Clouds */}
         <group ref={foliageRef}>
           {/* Main Top Cloud */}
-          <mesh position={[0.12, 0.98, 0]} castShadow>
+          <mesh position={[0.12, 0.98, 0]}>
             <dodecahedronGeometry args={[0.28, 1]} />
             <meshStandardMaterial color={accentColor} roughness={0.65} metalness={0.2} emissive={accentColor} emissiveIntensity={0.25} />
           </mesh>
-          <mesh position={[0.16, 1.05, 0.05]} castShadow>
+          <mesh position={[0.16, 1.05, 0.05]}>
             <dodecahedronGeometry args={[0.2, 1]} />
             <meshStandardMaterial color={glowColor} roughness={0.5} metalness={0.3} emissive={glowColor} emissiveIntensity={0.35} />
           </mesh>
           {/* Left Lower Cloud */}
-          <mesh position={[-0.32, 0.62, 0.06]} castShadow>
+          <mesh position={[-0.32, 0.62, 0.06]}>
             <dodecahedronGeometry args={[0.22, 1]} />
             <meshStandardMaterial color={accentColor} roughness={0.65} metalness={0.2} emissive={accentColor} emissiveIntensity={0.2} />
           </mesh>
           {/* Right Mid Cloud */}
-          <mesh position={[0.36, 0.78, -0.05]} castShadow>
+          <mesh position={[0.36, 0.78, -0.05]}>
             <dodecahedronGeometry args={[0.24, 1]} />
             <meshStandardMaterial color={glowColor} roughness={0.6} metalness={0.2} emissive={glowColor} emissiveIntensity={0.3} />
           </mesh>
@@ -7279,6 +7279,7 @@ function World({
   triggerEmote,
   playerPoseRef,
   teleportTargetRef,
+  isMobile = false,
 }: {
   onActiveLandmark: (landmark: LandmarkData | null) => void;
   onNearbyArtwork?: (artwork: ZenPillarId | null) => void;
@@ -7317,6 +7318,7 @@ function World({
   triggerEmote: (emoji: string) => void;
   playerPoseRef?: React.MutableRefObject<{ x: number; y: number; z: number; rot: number; speed: number }>;
   teleportTargetRef?: React.MutableRefObject<[number, number, number] | null>;
+  isMobile?: boolean;
 }) {
   const camera = useThree((s) => s.camera);
 
@@ -7703,10 +7705,14 @@ function World({
     camera.lookAt(camTarget);
 
     /* ---- Dynamic Sun follows avatar for realistic shadows ---- */
-    if (sunRef.current) {
-      sunRef.current.position.set(car.pos.x + 7, car.pos.y + 14, car.pos.z + 5);
-      sunTarget.position.set(car.pos.x, car.pos.y, car.pos.z);
-      sunTarget.updateMatrixWorld();
+    if (sunRef.current && !isMobile) {
+      const dx = car.pos.x - sunTarget.position.x;
+      const dz = car.pos.z - sunTarget.position.z;
+      if (dx * dx + dz * dz > 1.2) {
+        sunRef.current.position.set(car.pos.x + 7, car.pos.y + 14, car.pos.z + 5);
+        sunTarget.position.set(car.pos.x, car.pos.y, car.pos.z);
+        sunTarget.updateMatrixWorld();
+      }
     }
 
     /* ---- Proximity Zone Trigger ---- */
@@ -7776,13 +7782,13 @@ function World({
 
   return (
     <>
-      <ambientLight intensity={0.85} color="#cbd5e1" />
+      <ambientLight intensity={isMobile ? 1.05 : 0.85} color="#cbd5e1" />
       <directionalLight
         ref={sunRef}
         position={[7, 14, 5]}
         intensity={2.8}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
+        castShadow={!isMobile}
+        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
         shadow-camera-near={0.5}
         shadow-camera-far={45}
         shadow-camera-left={-22}
@@ -7849,7 +7855,21 @@ function World({
 /* ============================================================
    WORLD HERO (Canvas, Mobile Controls & HUD)
 ============================================================ */
-function WorldHero() {
+function WorldHero({ isInView = true }: { isInView?: boolean }) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      setIsMobile(
+        window.innerWidth < 768 ||
+        (navigator.maxTouchPoints > 1 && window.innerWidth < 1024)
+      );
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const [activeLandmark, setActiveLandmark] = useState<LandmarkData | null>(null);
   const [mobileControls, setMobileControls] = useState<MobileControls>({
     forward: false,
@@ -7995,13 +8015,22 @@ function WorldHero() {
       onPointerUp={handlePointerUp}
     >
       <Canvas
-        shadows={{ type: THREE.PCFShadowMap }}
-        dpr={[1, 1.2]}
-        gl={{ antialias: true, powerPreference: "high-performance", stencil: false, alpha: false }}
-        camera={{ position: [0, 4.6, -7.2], fov: 48 }}
+        frameloop={isInView ? "always" : "never"}
+        shadows={isMobile ? false : { type: THREE.PCFShadowMap }}
+        dpr={isMobile ? [1, 1] : [1, 1.2]}
+        gl={{
+          antialias: !isMobile,
+          powerPreference: "high-performance",
+          stencil: false,
+          alpha: false,
+          depth: true,
+          precision: isMobile ? "mediump" : "highp",
+        }}
+        camera={{ position: [0, 4.6, -7.2], fov: isMobile ? 54 : 48 }}
         className="absolute inset-0 cursor-crosshair touch-none"
       >
         <World
+          isMobile={isMobile}
           onActiveLandmark={setActiveLandmark}
           onNearbyTech={setNearbyTech}
           onNearbyQuantumNode={setNearbyQuantumNode}
@@ -8703,23 +8732,39 @@ function StaticFallback() {
    MAIN EXPORT
 ============================================================ */
 export function WorldExperience() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isInView, setIsInView] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [supported, setSupported] = useState(false);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setMounted(true);
-      setSupported(hasWebGL());
-    }, 60);
-    return () => window.clearTimeout(timer);
+    setMounted(true);
+    setSupported(hasWebGL());
   }, []);
 
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.02 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [mounted]);
+
   return (
-    <section id="top" className="relative h-svh min-h-[620px] w-full overflow-hidden bg-[#0b0e18]">
+    <section
+      ref={sectionRef}
+      id="top"
+      className="relative h-svh min-h-[620px] w-full overflow-hidden bg-[#0b0e18]"
+    >
       {!mounted ? (
         <div className="absolute inset-0 bg-[#0b0e18]" />
       ) : supported ? (
-        <WorldHero />
+        <WorldHero isInView={isInView} />
       ) : (
         <StaticFallback />
       )}
