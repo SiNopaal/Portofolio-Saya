@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, Component, ReactNode } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -35,7 +35,12 @@ import {
   getMetaverseAudioMuted,
   updateMetaverseSpatialAudio,
 } from "./ArenaZones";
-
+import {
+  safeGetLocalStorage,
+  safeSetLocalStorage,
+  safeGetSessionStorage,
+  safeSetSessionStorage,
+} from "@/lib/safeStorage";
 
 /* ============================================================
    WEBGL DETECTION
@@ -44,11 +49,14 @@ function hasWebGL(): boolean {
   if (typeof window === "undefined") return false;
   try {
     const canvas = document.createElement("canvas");
-    return !!(
+    const gl =
       canvas.getContext("webgl2") ||
       canvas.getContext("webgl") ||
-      canvas.getContext("experimental-webgl")
-    );
+      canvas.getContext("experimental-webgl");
+    if (!gl) return false;
+    const ext = (gl as WebGLRenderingContext).getExtension?.("WEBGL_lose_context");
+    ext?.loseContext();
+    return true;
   } catch {
     return false;
   }
@@ -903,8 +911,11 @@ function FloatingDigitalIsland({ size = 55.0 }: { size?: number }) {
         <meshBasicMaterial color="#38bdf8" wireframe />
       </mesh>
 
-      {/* 4. Soft Underside Void Ambient Glow */}
-      <pointLight color="#0284c7" intensity={8} distance={38} position={[0, -8, 0]} />
+      {/* 4. Soft Underside Void Ambient Accent */}
+      <mesh position={[0, -3.6, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[sideLen * 0.8, sideLen * 0.8]} />
+        <meshBasicMaterial color="#0284c7" transparent opacity={0.2} depthWrite={false} />
+      </mesh>
     </group>
   );
 }
@@ -1259,9 +1270,6 @@ function TechMonolithPillar({
           </mesh>
         </group>
       </group>
-
-      {/* Soft Ambient Brand Glow Light */}
-      <pointLight position={[0, baseY, 0]} color={item.color} intensity={0.85} distance={3.8} />
     </group>
   );
 }
@@ -1366,9 +1374,6 @@ function NeuralMatrixExhibit({ position }: { position: [number, number, number] 
           ))}
         </group>
       </group>
-
-      {/* Dedicated Soft Micro-Spotlight */}
-      <pointLight position={[0, 0.7, 0]} color="#06b6d4" intensity={1.5} distance={5.5} />
     </group>
   );
 }
@@ -1585,9 +1590,6 @@ function CyberBonsaiTree({
           <pointsMaterial size={0.035} color={glowColor} transparent opacity={0.65} />
         </points>
       </group>
-
-      {/* Dedicated Subtle Warm Micro-Spotlight */}
-      <pointLight position={[0, 1.2, 0]} color={glowColor} intensity={0.7} distance={3.5} />
     </group>
   );
 }
@@ -1879,9 +1881,6 @@ function ZenGalleryCorner({
             <meshStandardMaterial color="#1e293b" roughness={0.4} metalness={0.7} />
           </mesh>
         ))}
-
-        {/* Concealed Warm Cove Downlight Strip beneath Canopy Perimeter */}
-        <pointLight position={[0, -0.3, 0]} color="#fffbeb" intensity={2.2} distance={15} />
       </group>
 
       {/* ========================================================
@@ -1934,8 +1933,6 @@ function ZenGalleryCorner({
             <boxGeometry args={[0.04, 0.035, 2.1]} />
             <meshStandardMaterial color="#475569" roughness={0.2} metalness={0.9} />
           </mesh>
-          {/* Subtle Underside Warm Edge Glow */}
-          <pointLight position={[0, -0.05, 0]} color="#fef3c7" intensity={0.6} distance={2.5} />
         </group>
       </group>
 
@@ -1996,9 +1993,6 @@ function ZenGalleryCorner({
             <meshBasicMaterial color="#38bdf8" transparent opacity={0.5} />
           </mesh>
         </group>
-
-        {/* Subtle Warm Recessed Downlight */}
-        <pointLight position={[0, 0.8, 0]} color="#fffbeb" intensity={1.8} distance={7} />
       </group>
 
       {/* ========================================================
@@ -2029,9 +2023,6 @@ function ZenGalleryCorner({
             />
           </mesh>
         </group>
-
-        {/* Dedicated Warm Amber Accent Spotlight */}
-        <pointLight position={[0, 0.7, 0]} color="#fef3c7" intensity={1.5} distance={5.5} />
       </group>
 
       {/* ========================================================
@@ -2078,9 +2069,6 @@ function ZenGalleryCorner({
             <meshStandardMaterial color="#090d16" roughness={0.08} metalness={0.95} />
           </mesh>
         </group>
-
-        {/* Dedicated Soft Indigo Accent Spotlight */}
-        <pointLight position={[0, 0.7, 0]} color="#e0e7ff" intensity={1.5} distance={5.5} />
       </group>
 
       {/* ========================================================
@@ -2134,7 +2122,6 @@ function ZenGalleryCorner({
               <meshStandardMaterial color="#0f172a" roughness={0.3} metalness={0.8} />
             </mesh>
           ))}
-          <pointLight position={[0, -0.1, 0]} color="#fed7aa" intensity={0.5} distance={2.5} />
         </group>
       ))}
 
@@ -2250,9 +2237,6 @@ function QuantumCoreArmillary() {
           />
         </mesh>
       </group>
-
-      {/* Gentle Starlight Ambient Core Light */}
-      <pointLight position={[0, 2.1, 0]} color="#38bdf8" intensity={1.8} distance={7} />
     </group>
   );
 }
@@ -2330,9 +2314,6 @@ function VectorSpaceStation({ position }: { position: [number, number, number] }
           </mesh>
         ))}
       </group>
-
-      {/* Soft Violet Point Light */}
-      <pointLight position={[0, 1.38, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -2411,9 +2392,6 @@ function RaftMeshStation({ position }: { position: [number, number, number] }) {
           })}
         </group>
       </group>
-
-      {/* Dedicated Amber Point Light */}
-      <pointLight position={[0, 1.38, 0]} color="#f59e0b" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -2512,9 +2490,6 @@ function DagGraphStation({ position }: { position: [number, number, number] }) {
           })}
         </group>
       </group>
-
-      {/* Dedicated Emerald Point Light */}
-      <pointLight position={[0, 1.38, 0]} color="#10b981" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -2579,9 +2554,6 @@ function EventStreamStation({ position }: { position: [number, number, number] }
           <meshStandardMaterial color="#38bdf8" roughness={0.2} metalness={0.9} emissive="#0284c7" emissiveIntensity={0.6} />
         </mesh>
       </group>
-
-      {/* Dedicated Magenta Point Light */}
-      <pointLight position={[0, 1.38, 0]} color="#ec4899" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -2978,7 +2950,6 @@ function CiCdPipelineStation({ position }: { position: [number, number, number] 
           </mesh>
         </group>
       </StandardDevOpsPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#38bdf8" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3018,7 +2989,6 @@ function K8sMeshStation({ position }: { position: [number, number, number] }) {
           </group>
         </group>
       </StandardDevOpsPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#3b82f6" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3052,7 +3022,6 @@ function IacGitopsStation({ position }: { position: [number, number, number] }) 
           ))}
         </group>
       </StandardDevOpsPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3094,7 +3063,6 @@ function SreTelemetryStation({ position }: { position: [number, number, number] 
           </mesh>
         </group>
       </StandardDevOpsPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3157,8 +3125,11 @@ function OrbitalDeployShuttlePad({
             <meshStandardMaterial color="#334155" roughness={0.3} metalness={0.9} />
           </mesh>
         ))}
-        {/* Thruster exhaust halo */}
-        <pointLight position={[0, 0, 1.4]} color="#f59e0b" intensity={0.7} distance={3.0} />
+        {/* Fuselage thruster accent */}
+        <mesh position={[0, 0, 1.35]}>
+          <circleGeometry args={[0.08, 16]} />
+          <meshBasicMaterial color="#f59e0b" />
+        </mesh>
       </group>
     </group>
   );
@@ -3464,8 +3435,6 @@ function HexagonalCoreStation({ position }: { position: [number, number, number]
           <meshStandardMaterial color="#fbbf24" roughness={0.2} metalness={0.9} emissive="#f59e0b" emissiveIntensity={0.4} />
         </mesh>
       </group>
-
-      <pointLight position={[0, 1.38, 0]} color="#f59e0b" intensity={1.4} distance={5.0} />
     </group>
   );
 }
@@ -3504,7 +3473,6 @@ function SolidPrinciplesStation({ position }: { position: [number, number, numbe
           </mesh>
         </group>
       </StandardZenPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#38bdf8" intensity={1.2} distance={4.5} />
     </group>
   );
 }
@@ -3541,7 +3509,6 @@ function ZeroTrustVaultStation({ position }: { position: [number, number, number
           </mesh>
         </group>
       </StandardZenPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#ef4444" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3584,7 +3551,6 @@ function BigOHarmonyStation({ position }: { position: [number, number, number] }
           </group>
         </group>
       </StandardZenPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#10b981" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3620,7 +3586,6 @@ function CraftsmanshipStation({ position }: { position: [number, number, number]
           </mesh>
         </group>
       </StandardZenPedestal>
-      <pointLight position={[0, 1.35, 0]} color="#a855f7" intensity={1.3} distance={4.5} />
     </group>
   );
 }
@@ -3947,8 +3912,6 @@ function ZenGardenCorner({
             <coneGeometry args={[0.42, 0.22, 4]} />
             <meshStandardMaterial color="#1e293b" roughness={0.7} metalness={0.3} />
           </mesh>
-          {/* Soft 2700K Warm Ambient Radiance */}
-          <pointLight position={[0, 0.4, 0]} color="#fde68a" intensity={0.9} distance={4.5} />
         </group>
       ))}
 
@@ -4352,21 +4315,21 @@ function GrandAncientCyberTree({ position = [0, 0, 3.8] }: { position?: [number,
   return (
     <group position={position}>
       {/* Root Base & Buttress Flare */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.25, 0]}>
         <coneGeometry args={[1.2, 0.55, 10]} />
         <meshStandardMaterial color="#1c1917" roughness={0.9} />
       </mesh>
 
       {/* Massive Ancient Tree Trunk Segments (Gnarled, twisting posture) */}
-      <mesh position={[0, 1.1, 0]} rotation={[0.08, 0.2, -0.05]} castShadow>
+      <mesh position={[0, 1.1, 0]} rotation={[0.08, 0.2, -0.05]}>
         <cylinderGeometry args={[0.62, 0.85, 1.6, 12]} />
         <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
       </mesh>
-      <mesh position={[-0.1, 2.4, 0.1]} rotation={[-0.12, 0.4, 0.1]} castShadow>
+      <mesh position={[-0.1, 2.4, 0.1]} rotation={[-0.12, 0.4, 0.1]}>
         <cylinderGeometry args={[0.48, 0.62, 1.5, 12]} />
         <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
       </mesh>
-      <mesh position={[-0.15, 3.6, -0.1]} rotation={[0.15, 0.1, -0.14]} castShadow>
+      <mesh position={[-0.15, 3.6, -0.1]} rotation={[0.15, 0.1, -0.14]}>
         <cylinderGeometry args={[0.36, 0.48, 1.4, 10]} />
         <meshStandardMaterial color="#27272a" roughness={0.85} metalness={0.15} />
       </mesh>
@@ -4582,7 +4545,6 @@ function CelestialMoonFountain() {
   const moonOrbRef = useRef<THREE.Mesh>(null);
   const gyroRing1Ref = useRef<THREE.Group>(null);
   const gyroRing2Ref = useRef<THREE.Group>(null);
-  const lightRef = useRef<THREE.PointLight>(null);
   const stardustRef = useRef<THREE.Points>(null);
 
   const stardustPositions = useMemo(() => {
@@ -4608,9 +4570,6 @@ function CelestialMoonFountain() {
     if (gyroRing2Ref.current) {
       gyroRing2Ref.current.rotation.y -= delta * 0.9;
       gyroRing2Ref.current.rotation.z = Math.PI / 6 + Math.cos(t * 1.4) * 0.1;
-    }
-    if (lightRef.current) {
-      lightRef.current.intensity = 2.0 + Math.sin(t * 2.2) * 0.3;
     }
     if (stardustRef.current) {
       stardustRef.current.rotation.y += delta * 0.35;
@@ -4679,9 +4638,6 @@ function CelestialMoonFountain() {
         </bufferGeometry>
         <pointsMaterial size={0.06} color="#7dd3fc" transparent opacity={0.85} blending={THREE.AdditiveBlending} />
       </points>
-
-      {/* Moonlight PointLight */}
-      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#38bdf8" intensity={2.2} distance={10} />
     </group>
   );
 }
@@ -4783,39 +4739,39 @@ function GrandSilverWillowTree({ position = [0, 0, 3.4] }: { position?: [number,
   return (
     <group position={position}>
       {/* Root Base Flare */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.25, 0]}>
         <coneGeometry args={[1.2, 0.55, 10]} />
         <meshStandardMaterial color="#0f172a" roughness={0.85} />
       </mesh>
 
       {/* Massive Silver-Weathered Willow Trunk */}
-      <mesh position={[0, 1.1, 0]} rotation={[-0.06, -0.2, 0.08]} castShadow>
+      <mesh position={[0, 1.1, 0]} rotation={[-0.06, -0.2, 0.08]}>
         <cylinderGeometry args={[0.58, 0.82, 1.6, 12]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
       </mesh>
-      <mesh position={[0.1, 2.4, -0.1]} rotation={[0.1, -0.3, -0.08]} castShadow>
+      <mesh position={[0.1, 2.4, -0.1]} rotation={[0.1, -0.3, -0.08]}>
         <cylinderGeometry args={[0.46, 0.58, 1.5, 12]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
       </mesh>
-      <mesh position={[0.15, 3.6, 0.1]} rotation={[-0.12, -0.1, 0.12]} castShadow>
+      <mesh position={[0.15, 3.6, 0.1]} rotation={[-0.12, -0.1, 0.12]}>
         <cylinderGeometry args={[0.34, 0.46, 1.4, 10]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} metalness={0.2} />
       </mesh>
 
       {/* Arching High Willow Branches spreading outward and drooping */}
-      <mesh position={[0, 3.8, -1.2]} rotation={[-0.85, 0, 0]} castShadow>
+      <mesh position={[0, 3.8, -1.2]} rotation={[-0.85, 0, 0]}>
         <cylinderGeometry args={[0.16, 0.28, 2.4, 8]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} />
       </mesh>
-      <mesh position={[-1.3, 3.9, 0.1]} rotation={[0.2, 0.3, 0.9]} castShadow>
+      <mesh position={[-1.3, 3.9, 0.1]} rotation={[0.2, 0.3, 0.9]}>
         <cylinderGeometry args={[0.15, 0.26, 2.3, 8]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} />
       </mesh>
-      <mesh position={[1.3, 3.8, 0.0]} rotation={[-0.15, -0.35, -0.88]} castShadow>
+      <mesh position={[1.3, 3.8, 0.0]} rotation={[-0.15, -0.35, -0.88]}>
         <cylinderGeometry args={[0.15, 0.26, 2.2, 8]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} />
       </mesh>
-      <mesh position={[0, 4.2, 1.1]} rotation={[0.75, 0, 0]} castShadow>
+      <mesh position={[0, 4.2, 1.1]} rotation={[0.75, 0, 0]}>
         <cylinderGeometry args={[0.15, 0.25, 2.0, 8]} />
         <meshStandardMaterial color="#1e293b" roughness={0.8} />
       </mesh>
@@ -4823,11 +4779,11 @@ function GrandSilverWillowTree({ position = [0, 0, 3.4] }: { position?: [number,
       {/* Weeping Willow Umbrella Crown & Cascading Drapery Curtains */}
       <group ref={foliageRef}>
         {/* Top Slender Umbrella Dome */}
-        <mesh position={[0, 5.2, -0.2]} castShadow>
+        <mesh position={[0, 5.2, -0.2]}>
           <sphereGeometry args={[2.2, 20, 10, 0, Math.PI * 2, 0, Math.PI * 0.45]} />
           <meshStandardMaterial color="#38bdf8" emissive="#0284c7" emissiveIntensity={0.3} roughness={0.65} side={THREE.DoubleSide} />
         </mesh>
-        <mesh position={[0, 5.6, -0.2]} castShadow>
+        <mesh position={[0, 5.6, -0.2]}>
           <sphereGeometry args={[1.5, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.4]} />
           <meshStandardMaterial color="#bae6fd" emissive="#0369a1" emissiveIntensity={0.35} roughness={0.6} side={THREE.DoubleSide} />
         </mesh>
@@ -4990,7 +4946,6 @@ function KineticCairnTeaTable() {
   const rock2Ref = useRef<THREE.Mesh>(null);
   const rock3Ref = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
-  const lightRef = useRef<THREE.PointLight>(null);
   const mistRef = useRef<THREE.Points>(null);
 
   const mistPositions = useMemo(() => {
@@ -5020,9 +4975,6 @@ function KineticCairnTeaTable() {
     if (ringRef.current) {
       ringRef.current.rotation.z += delta * 1.4;
       ringRef.current.rotation.x = Math.PI / 4 + Math.sin(t * 1.1) * 0.15;
-    }
-    if (lightRef.current) {
-      lightRef.current.intensity = 2.1 + Math.sin(t * 2.5) * 0.25;
     }
     if (mistRef.current) {
       mistRef.current.rotation.y += delta * 0.35;
@@ -5080,9 +5032,6 @@ function KineticCairnTeaTable() {
         </bufferGeometry>
         <pointsMaterial size={0.065} color="#34d399" transparent opacity={0.8} blending={THREE.AdditiveBlending} />
       </points>
-
-      {/* Soothing Emerald Glow */}
-      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#10b981" intensity={2.2} distance={10} />
     </group>
   );
 }
@@ -5184,42 +5133,42 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
   return (
     <group position={position}>
       {/* Root Base Flare */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.25, 0]}>
         <coneGeometry args={[1.25, 0.55, 10]} />
         <meshStandardMaterial color="#1c1917" roughness={0.9} />
       </mesh>
 
       {/* Massive S-Curved Angular Japanese Pine Trunk (Muscular Niwaki silhouette) */}
-      <mesh position={[0, 0.9, 0]} rotation={[0.22, 0.1, -0.32]} castShadow>
+      <mesh position={[0, 0.9, 0]} rotation={[0.22, 0.1, -0.32]}>
         <cylinderGeometry args={[0.58, 0.88, 1.4, 10]} />
         <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
       </mesh>
-      <mesh position={[-0.32, 2.0, 0.18]} rotation={[-0.28, 0.25, 0.35]} castShadow>
+      <mesh position={[-0.32, 2.0, 0.18]} rotation={[-0.28, 0.25, 0.35]}>
         <cylinderGeometry args={[0.46, 0.58, 1.4, 10]} />
         <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
       </mesh>
-      <mesh position={[-0.05, 3.1, -0.1]} rotation={[0.3, -0.18, -0.22]} castShadow>
+      <mesh position={[-0.05, 3.1, -0.1]} rotation={[0.3, -0.18, -0.22]}>
         <cylinderGeometry args={[0.34, 0.46, 1.3, 8]} />
         <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
       </mesh>
-      <mesh position={[0.18, 4.1, 0.05]} rotation={[-0.15, 0.2, 0.18]} castShadow>
+      <mesh position={[0.18, 4.1, 0.05]} rotation={[-0.15, 0.2, 0.18]}>
         <cylinderGeometry args={[0.24, 0.34, 1.2, 8]} />
         <meshStandardMaterial color="#1c1917" roughness={0.92} metalness={0.08} />
       </mesh>
 
       {/* Muscular Stepped Horizontal Pine Branches */}
       {/* 1. Low sweeping bough reaching over tea hearth */}
-      <mesh position={[0, 2.9, -1.2]} rotation={[-1.2, 0.2, 0]} castShadow>
+      <mesh position={[0, 2.9, -1.2]} rotation={[-1.2, 0.2, 0]}>
         <cylinderGeometry args={[0.16, 0.26, 2.2, 8]} />
         <meshStandardMaterial color="#1c1917" roughness={0.9} />
       </mesh>
       {/* 2. Left cantilever bough */}
-      <mesh position={[-1.4, 3.4, 0.3]} rotation={[0.1, 0.2, 1.25]} castShadow>
+      <mesh position={[-1.4, 3.4, 0.3]} rotation={[0.1, 0.2, 1.25]}>
         <cylinderGeometry args={[0.15, 0.24, 2.1, 8]} />
         <meshStandardMaterial color="#1c1917" roughness={0.9} />
       </mesh>
       {/* 3. Right stepped bough */}
-      <mesh position={[1.3, 3.6, -0.2]} rotation={[-0.1, -0.3, -1.2]} castShadow>
+      <mesh position={[1.3, 3.6, -0.2]} rotation={[-0.1, -0.3, -1.2]}>
         <cylinderGeometry args={[0.14, 0.22, 2.0, 8]} />
         <meshStandardMaterial color="#1c1917" roughness={0.9} />
       </mesh>
@@ -5228,7 +5177,7 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
       <group ref={foliageRef}>
         {/* Tier 1: Low Front Cloud Pad (Sheltering over tea table) */}
         <group position={[0, 3.3, -2.1]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[1.5, 1.7, 0.28, 16]} />
             <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.35} roughness={0.8} />
           </mesh>
@@ -5240,7 +5189,7 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
 
         {/* Tier 2: Left Stepped Cloud Pad */}
         <group position={[-2.4, 3.8, 0.4]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[1.3, 1.5, 0.26, 16]} />
             <meshStandardMaterial color="#047857" emissive="#065f46" emissiveIntensity={0.3} roughness={0.8} />
           </mesh>
@@ -5252,7 +5201,7 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
 
         {/* Tier 3: Right Stepped Cloud Pad */}
         <group position={[2.3, 4.0, -0.3]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[1.4, 1.6, 0.26, 16]} />
             <meshStandardMaterial color="#059669" emissive="#047857" emissiveIntensity={0.32} roughness={0.8} />
           </mesh>
@@ -5264,7 +5213,7 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
 
         {/* Tier 4: Crown Zenith Cloud Pad (Top flattened plateau) */}
         <group position={[0.2, 4.9, 0.1]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[1.6, 1.85, 0.3, 18]} />
             <meshStandardMaterial color="#10b981" emissive="#059669" emissiveIntensity={0.4} roughness={0.75} />
           </mesh>
@@ -5276,7 +5225,7 @@ function GrandCyberMatsuPineTree({ position = [0, 0, 3.4] }: { position?: [numbe
 
         {/* Tier 5: High Rear Cloud Cushion */}
         <group position={[-0.6, 4.4, 1.5]}>
-          <mesh castShadow>
+          <mesh>
             <cylinderGeometry args={[1.1, 1.3, 0.24, 14]} />
             <meshStandardMaterial color="#047857" emissive="#065f46" emissiveIntensity={0.28} roughness={0.8} />
           </mesh>
@@ -5394,7 +5343,6 @@ function CyberZenTeaPavilion({ position = [-32, 0, 0] }: { position?: [number, n
 function AuroraPrismMonolith() {
   const prismRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
-  const lightRef = useRef<THREE.PointLight>(null);
   const dustRef = useRef<THREE.Points>(null);
   const orbitShard1Ref = useRef<THREE.Mesh>(null);
   const orbitShard2Ref = useRef<THREE.Mesh>(null);
@@ -5432,9 +5380,6 @@ function AuroraPrismMonolith() {
       orbitShard2Ref.current.position.z = Math.sin(a) * 0.44;
       orbitShard2Ref.current.position.y = 0.56 + Math.cos(t * 2.1) * 0.05;
       orbitShard2Ref.current.rotation.y -= delta * 2.0;
-    }
-    if (lightRef.current) {
-      lightRef.current.intensity = 2.4 + Math.sin(t * 2.4) * 0.3;
     }
     if (dustRef.current) {
       dustRef.current.rotation.y += delta * 0.35;
@@ -5497,9 +5442,6 @@ function AuroraPrismMonolith() {
         </bufferGeometry>
         <pointsMaterial size={0.065} color="#c084fc" transparent opacity={0.85} blending={THREE.AdditiveBlending} />
       </points>
-
-      {/* Violet Aurora Light */}
-      <pointLight ref={lightRef} position={[0, 0.65, 0]} color="#a855f7" intensity={2.4} distance={11} />
     </group>
   );
 }
@@ -5601,7 +5543,7 @@ function GrandAuroraWisteriaTree({ position = [0, 0, 3.4] }: { position?: [numbe
   return (
     <group position={position}>
       {/* Root Base Flare */}
-      <mesh position={[0, 0.25, 0]} castShadow receiveShadow>
+      <mesh position={[0, 0.25, 0]}>
         <coneGeometry args={[1.2, 0.55, 10]} />
         <meshStandardMaterial color="#18181b" roughness={0.9} />
       </mesh>
@@ -5609,48 +5551,48 @@ function GrandAuroraWisteriaTree({ position = [0, 0, 3.4] }: { position?: [numbe
       {/* Massive Braided Multi-Stem Wisteria Vine Trunk (Spiraling twin vines) */}
       <group position={[0, 0, 0]}>
         {/* Vine Stem A (Spiraling left-to-right) */}
-        <mesh position={[-0.12, 1.1, 0.05]} rotation={[0.14, 0.4, -0.1]} castShadow>
+        <mesh position={[-0.12, 1.1, 0.05]} rotation={[0.14, 0.4, -0.1]}>
           <cylinderGeometry args={[0.38, 0.52, 1.6, 10]} />
           <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
         </mesh>
-        <mesh position={[0.08, 2.4, -0.06]} rotation={[-0.15, -0.3, 0.12]} castShadow>
+        <mesh position={[0.08, 2.4, -0.06]} rotation={[-0.15, -0.3, 0.12]}>
           <cylinderGeometry args={[0.32, 0.42, 1.5, 10]} />
           <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
         </mesh>
-        <mesh position={[-0.06, 3.6, 0.08]} rotation={[0.18, 0.25, -0.14]} castShadow>
+        <mesh position={[-0.06, 3.6, 0.08]} rotation={[0.18, 0.25, -0.14]}>
           <cylinderGeometry args={[0.26, 0.35, 1.4, 8]} />
           <meshStandardMaterial color="#262626" roughness={0.85} metalness={0.15} />
         </mesh>
 
         {/* Vine Stem B (Intertwined companion vine twisting counter-spiral) */}
-        <mesh position={[0.14, 1.05, -0.06]} rotation={[-0.12, -0.35, 0.15]} castShadow>
+        <mesh position={[0.14, 1.05, -0.06]} rotation={[-0.12, -0.35, 0.15]}>
           <cylinderGeometry args={[0.34, 0.48, 1.5, 10]} />
           <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
         </mesh>
-        <mesh position={[-0.1, 2.35, 0.08]} rotation={[0.16, 0.25, -0.14]} castShadow>
+        <mesh position={[-0.1, 2.35, 0.08]} rotation={[0.16, 0.25, -0.14]}>
           <cylinderGeometry args={[0.28, 0.38, 1.5, 10]} />
           <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
         </mesh>
-        <mesh position={[0.08, 3.55, -0.06]} rotation={[-0.15, -0.2, 0.12]} castShadow>
+        <mesh position={[0.08, 3.55, -0.06]} rotation={[-0.15, -0.2, 0.12]}>
           <cylinderGeometry args={[0.22, 0.3, 1.4, 8]} />
           <meshStandardMaterial color="#1f1f1f" roughness={0.9} metalness={0.1} />
         </mesh>
       </group>
 
       {/* Overhead Spreading Arbor Boughs supporting the flower trellis */}
-      <mesh position={[0, 4.0, -1.2]} rotation={[-0.8, 0, 0]} castShadow>
+      <mesh position={[0, 4.0, -1.2]} rotation={[-0.8, 0, 0]}>
         <cylinderGeometry args={[0.16, 0.24, 2.4, 8]} />
         <meshStandardMaterial color="#262626" roughness={0.85} />
       </mesh>
-      <mesh position={[-1.3, 4.1, 0.2]} rotation={[0.15, 0.2, 0.95]} castShadow>
+      <mesh position={[-1.3, 4.1, 0.2]} rotation={[0.15, 0.2, 0.95]}>
         <cylinderGeometry args={[0.15, 0.22, 2.3, 8]} />
         <meshStandardMaterial color="#262626" roughness={0.85} />
       </mesh>
-      <mesh position={[1.3, 4.0, -0.1]} rotation={[-0.12, -0.25, -0.92]} castShadow>
+      <mesh position={[1.3, 4.0, -0.1]} rotation={[-0.12, -0.25, -0.92]}>
         <cylinderGeometry args={[0.15, 0.22, 2.2, 8]} />
         <meshStandardMaterial color="#262626" roughness={0.85} />
       </mesh>
-      <mesh position={[0, 4.2, 1.1]} rotation={[0.78, 0, 0]} castShadow>
+      <mesh position={[0, 4.2, 1.1]} rotation={[0.78, 0, 0]}>
         <cylinderGeometry args={[0.14, 0.22, 2.1, 8]} />
         <meshStandardMaterial color="#262626" roughness={0.85} />
       </mesh>
@@ -5658,7 +5600,7 @@ function GrandAuroraWisteriaTree({ position = [0, 0, 3.4] }: { position?: [numbe
       {/* Overhead Wisteria Trellis Canopy & Cascading Floral Racemes */}
       <group ref={foliageRef}>
         {/* Overhead Horizontal Foliage Trellis Mat */}
-        <mesh position={[0, 4.8, -0.2]} castShadow>
+        <mesh position={[0, 4.8, -0.2]}>
           <cylinderGeometry args={[2.5, 2.8, 0.35, 24]} />
           <meshStandardMaterial color="#7e22ce" emissive="#581c87" emissiveIntensity={0.3} roughness={0.75} />
         </mesh>
@@ -6337,14 +6279,6 @@ function SciFiMonolith({
           <meshStandardMaterial color="#0e1726" metalness={0.92} roughness={0.2} />
         </mesh>
       </group>
-
-      {/* Proximity Beacon Point Light */}
-      <pointLight
-        color={landmark.color}
-        intensity={isNearby ? 4.5 : 1.5}
-        distance={6}
-        position={[0, 2.5, 0.8]}
-      />
     </group>
   );
 }
@@ -6407,16 +6341,7 @@ function CyberCharacter({
   const walkPhaseRef = useRef<number>(0);
   const walkWeightRef = useRef<number>(0);
 
-  const spotRef = useRef<THREE.SpotLight>(null);
-  const spotTarget = useMemo(() => {
-    const o = new THREE.Object3D();
-    o.position.set(0, 0.4, 12);
-    return o;
-  }, []);
 
-  useEffect(() => {
-    if (spotRef.current) spotRef.current.target = spotTarget;
-  }, [spotTarget]);
 
   useFrame((state, delta) => {
     const player = carRef.current;
@@ -6897,22 +6822,6 @@ function CyberCharacter({
                   <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={3.8} />
                 </mesh>
               </group>
-
-              {!isRemote && (
-                <>
-                  <spotLight
-                    ref={spotRef}
-                    position={[0, 0.05, 0.2]}
-                    angle={0.52}
-                    penumbra={0.6}
-                    intensity={22}
-                    distance={22}
-                    decay={1.3}
-                    color="#bae6fd"
-                  />
-                  <primitive object={spotTarget} />
-                </>
-              )}
             </group>
 
             {/* Left Arm with High-Poly Pauldron & Gauntlet */}
@@ -7154,7 +7063,6 @@ function CyberCharacter({
           <torusGeometry args={[0.18, 0.012, 16, 36]} />
           <meshStandardMaterial color={color} emissive={accentColor} emissiveIntensity={2.8} />
         </mesh>
-        <pointLight color={accentColor} intensity={2.4} distance={4.5} />
       </group>
 
       {/* Sprint Aura */}
@@ -7782,12 +7690,12 @@ function World({
 
   return (
     <>
-      <ambientLight intensity={0.9} color="#cbd5e1" />
+      <ambientLight intensity={isMobile ? 1.15 : 0.95} color="#cbd5e1" />
       <directionalLight
         ref={sunRef}
         position={[7, 14, 5]}
         intensity={2.8}
-        castShadow
+        castShadow={!isMobile}
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
@@ -7949,17 +7857,15 @@ function WorldHero() {
 
   // Auto show pop-up on first arrival if custom name not yet chosen
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hasSaved = localStorage.getItem("portfolio_custom_username");
-      if (!hasSaved) {
-        const t = setTimeout(() => {
-          setInputName(localPlayer.name);
-          setSelectedColor(localPlayer.color);
-          setSelectedAccent(localPlayer.accentColor);
-          setShowNameModal(true);
-        }, 700);
-        return () => clearTimeout(t);
-      }
+    const hasSaved = safeGetLocalStorage("portfolio_custom_username");
+    if (!hasSaved) {
+      const t = setTimeout(() => {
+        setInputName(localPlayer.name);
+        setSelectedColor(localPlayer.color);
+        setSelectedAccent(localPlayer.accentColor);
+        setShowNameModal(true);
+      }, 700);
+      return () => clearTimeout(t);
     }
   }, [localPlayer.name, localPlayer.color, localPlayer.accentColor]);
 
@@ -8016,10 +7922,10 @@ function WorldHero() {
       onPointerUp={handlePointerUp}
     >
       <Canvas
-        shadows={{ type: THREE.PCFShadowMap }}
-        dpr={[1, 1.25]}
+        shadows={!isMobile ? { type: THREE.PCFShadowMap } : false}
+        dpr={isMobile ? [1, 1] : [1, 1.25]}
         gl={{
-          antialias: true,
+          antialias: !isMobile,
           powerPreference: "high-performance",
           stencil: false,
           alpha: false,
@@ -8048,6 +7954,7 @@ function WorldHero() {
           triggerEmote={triggerEmote}
           playerPoseRef={playerPoseRef}
           teleportTargetRef={teleportTargetRef}
+          isMobile={isMobile}
         />
       </Canvas>
 
@@ -8607,7 +8514,7 @@ function WorldHero() {
                 e.preventDefault();
                 if (inputName.trim()) {
                   updateLocalPlayerProfile(inputName.trim(), selectedColor, selectedAccent);
-                  sessionStorage.setItem("portfolio_name_set", "true");
+                  safeSetSessionStorage("portfolio_name_set", "true");
                   setShowNameModal(false);
                 }
               }}
@@ -8668,7 +8575,7 @@ function WorldHero() {
                 >
                   🚀 Masuk &amp; Simpan Karakter
                 </button>
-                {typeof window !== "undefined" && localStorage.getItem("portfolio_custom_username") && (
+                {safeGetLocalStorage("portfolio_custom_username") && (
                   <button
                     type="button"
                     onClick={() => setShowNameModal(false)}
@@ -8727,6 +8634,29 @@ function StaticFallback() {
 }
 
 /* ============================================================
+   ERROR BOUNDARY
+============================================================ */
+class WorldErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; fallback: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.warn("WorldHero rendering failed:", error);
+  }
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+/* ============================================================
    MAIN EXPORT
 ============================================================ */
 export function WorldExperience() {
@@ -8746,7 +8676,9 @@ export function WorldExperience() {
       {!mounted ? (
         <div className="absolute inset-0 bg-[#0b0e18]" />
       ) : supported ? (
-        <WorldHero />
+        <WorldErrorBoundary fallback={<StaticFallback />}>
+          <WorldHero />
+        </WorldErrorBoundary>
       ) : (
         <StaticFallback />
       )}

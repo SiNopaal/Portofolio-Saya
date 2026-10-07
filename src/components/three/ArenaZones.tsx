@@ -49,7 +49,10 @@ class MetaverseSpatialAmbientEngine {
 
   constructor() {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("portfolio_audio_muted");
+      let saved: string | null = null;
+      try {
+        saved = localStorage.getItem("portfolio_audio_muted");
+      } catch {}
       // Default to muted (true) to satisfy modern browser autoplay policies
       this.isMuted = saved === "0" ? false : true;
     }

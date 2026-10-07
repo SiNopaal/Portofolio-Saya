@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import {
+  safeGetLocalStorage,
+  safeSetLocalStorage,
+  safeGetSessionStorage,
+  safeSetSessionStorage,
+} from "./safeStorage";
 
 export type HitSpark = {
   id: string;
@@ -58,27 +64,27 @@ function getOrCreateLocalPlayer(): {
     };
   }
 
-  // Use sessionStorage / localStorage
-  let id = sessionStorage.getItem("portfolio_player_id");
-  let customName = localStorage.getItem("portfolio_custom_username");
-  let sessionName = sessionStorage.getItem("portfolio_player_name");
-  let paletteIdxStr = sessionStorage.getItem("portfolio_player_palette");
-  let savedModel = (localStorage.getItem("portfolio_character_model") ||
-    sessionStorage.getItem("portfolio_character_model")) as CharacterModelType;
+  // Use safe sessionStorage / localStorage
+  let id = safeGetSessionStorage("portfolio_player_id");
+  let customName = safeGetLocalStorage("portfolio_custom_username");
+  let sessionName = safeGetSessionStorage("portfolio_player_name");
+  let paletteIdxStr = safeGetSessionStorage("portfolio_player_palette");
+  let savedModel = (safeGetLocalStorage("portfolio_character_model") ||
+    safeGetSessionStorage("portfolio_character_model")) as CharacterModelType;
   let modelType: CharacterModelType = savedModel === "female_casual" ? "female_casual" : "male_hoodie";
 
   let paletteIdx = 0;
   if (!id) {
     id = "p_" + Math.random().toString(36).substring(2, 8);
-    sessionStorage.setItem("portfolio_player_id", id);
+    safeSetSessionStorage("portfolio_player_id", id);
     paletteIdx = Math.floor(Math.random() * PALETTES.length);
-    sessionStorage.setItem("portfolio_player_palette", paletteIdx.toString());
+    safeSetSessionStorage("portfolio_player_palette", paletteIdx.toString());
   } else {
     paletteIdx = parseInt(paletteIdxStr || "0", 10) % PALETTES.length;
   }
 
   const finalName = customName || sessionName || `${PALETTES[paletteIdx].name} #${id.slice(-3).toUpperCase()}`;
-  sessionStorage.setItem("portfolio_player_name", finalName);
+  safeSetSessionStorage("portfolio_player_name", finalName);
 
   return {
     id,
@@ -437,13 +443,13 @@ export function useMultiplayer() {
           modelType: newModel || prev.modelType || "male_hoodie",
         };
         if (typeof window !== "undefined") {
-          sessionStorage.setItem("portfolio_player_name", updated.name);
-          localStorage.setItem("portfolio_custom_username", updated.name);
-          if (newColor) sessionStorage.setItem("portfolio_player_color", newColor);
-          if (newAccent) sessionStorage.setItem("portfolio_player_accent", newAccent);
+          safeSetSessionStorage("portfolio_player_name", updated.name);
+          safeSetLocalStorage("portfolio_custom_username", updated.name);
+          if (newColor) safeSetSessionStorage("portfolio_player_color", newColor);
+          if (newAccent) safeSetSessionStorage("portfolio_player_accent", newAccent);
           if (newModel) {
-            localStorage.setItem("portfolio_character_model", newModel);
-            sessionStorage.setItem("portfolio_character_model", newModel);
+            safeSetLocalStorage("portfolio_character_model", newModel);
+            safeSetSessionStorage("portfolio_character_model", newModel);
           }
         }
         return updated;

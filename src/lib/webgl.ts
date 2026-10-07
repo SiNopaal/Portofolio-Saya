@@ -11,8 +11,11 @@ function subscribe(callback: () => void) {
   };
 }
 
+let cachedWebGLSupport: boolean | null = null;
+
 function checkWebGL(): boolean {
   if (typeof window === "undefined") return false;
+  if (cachedWebGLSupport !== null) return cachedWebGLSupport;
   try {
     const canvas = document.createElement("canvas");
     const gl =
@@ -24,8 +27,10 @@ function checkWebGL(): boolean {
       const loseExt = (gl as WebGLRenderingContext).getExtension?.("WEBGL_lose_context");
       loseExt?.loseContext();
     }
+    cachedWebGLSupport = supported;
     return supported;
   } catch {
+    cachedWebGLSupport = false;
     return false;
   }
 }
