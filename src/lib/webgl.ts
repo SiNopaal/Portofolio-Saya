@@ -19,7 +19,12 @@ function checkWebGL(): boolean {
       canvas.getContext("webgl2") ||
       canvas.getContext("webgl") ||
       canvas.getContext("experimental-webgl");
-    return !!gl;
+    const supported = !!gl;
+    if (gl) {
+      const loseExt = (gl as WebGLRenderingContext).getExtension?.("WEBGL_lose_context");
+      loseExt?.loseContext();
+    }
+    return supported;
   } catch {
     return false;
   }

@@ -7705,7 +7705,7 @@ function World({
     camera.lookAt(camTarget);
 
     /* ---- Dynamic Sun follows avatar for realistic shadows ---- */
-    if (sunRef.current && !isMobile) {
+    if (sunRef.current) {
       const dx = car.pos.x - sunTarget.position.x;
       const dz = car.pos.z - sunTarget.position.z;
       if (dx * dx + dz * dz > 1.2) {
@@ -7782,13 +7782,14 @@ function World({
 
   return (
     <>
-      <ambientLight intensity={isMobile ? 1.05 : 0.85} color="#cbd5e1" />
+      <ambientLight intensity={0.9} color="#cbd5e1" />
       <directionalLight
         ref={sunRef}
         position={[7, 14, 5]}
         intensity={2.8}
-        castShadow={!isMobile}
-        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-near={0.5}
         shadow-camera-far={45}
         shadow-camera-left={-22}
@@ -7855,7 +7856,7 @@ function World({
 /* ============================================================
    WORLD HERO (Canvas, Mobile Controls & HUD)
 ============================================================ */
-function WorldHero({ isInView = true }: { isInView?: boolean }) {
+function WorldHero() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -8015,22 +8016,19 @@ function WorldHero({ isInView = true }: { isInView?: boolean }) {
       onPointerUp={handlePointerUp}
     >
       <Canvas
-        frameloop={isInView ? "always" : "never"}
-        shadows={isMobile ? false : { type: THREE.PCFShadowMap }}
-        dpr={isMobile ? [1, 1] : [1, 1.2]}
+        shadows={{ type: THREE.PCFShadowMap }}
+        dpr={[1, 1.25]}
         gl={{
-          antialias: !isMobile,
+          antialias: true,
           powerPreference: "high-performance",
           stencil: false,
           alpha: false,
           depth: true,
-          precision: isMobile ? "mediump" : "highp",
         }}
-        camera={{ position: [0, 4.6, -7.2], fov: isMobile ? 54 : 48 }}
+        camera={{ position: [0, 4.6, -7.2], fov: 48 }}
         className="absolute inset-0 cursor-crosshair touch-none"
       >
         <World
-          isMobile={isMobile}
           onActiveLandmark={setActiveLandmark}
           onNearbyTech={setNearbyTech}
           onNearbyQuantumNode={setNearbyQuantumNode}
@@ -8732,8 +8730,6 @@ function StaticFallback() {
    MAIN EXPORT
 ============================================================ */
 export function WorldExperience() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isInView, setIsInView] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [supported, setSupported] = useState(false);
 
@@ -8742,29 +8738,15 @@ export function WorldExperience() {
     setSupported(hasWebGL());
   }, []);
 
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting);
-      },
-      { threshold: 0.02 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [mounted]);
-
   return (
     <section
-      ref={sectionRef}
       id="top"
       className="relative h-svh min-h-[620px] w-full overflow-hidden bg-[#0b0e18]"
     >
       {!mounted ? (
         <div className="absolute inset-0 bg-[#0b0e18]" />
       ) : supported ? (
-        <WorldHero isInView={isInView} />
+        <WorldHero />
       ) : (
         <StaticFallback />
       )}
