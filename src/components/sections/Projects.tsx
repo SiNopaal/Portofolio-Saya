@@ -13,6 +13,9 @@ import {
   TrendingUp,
   ShieldCheck,
   Smartphone,
+  Droplets,
+  Bell,
+  Database,
 } from "lucide-react";
 import { Github } from "@/components/ui/icons";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
@@ -89,19 +92,21 @@ export function Projects() {
 
   const tabs = [
     { id: 0, label: "01. Central Laundry Express", color: "cyan" },
-    { id: 1, label: "02. Management Ternak", color: "emerald" },
+    { id: 1, label: "02. Kandang Utuk (Ternak)", color: "emerald" },
     { id: 2, label: "03. Patukrejomulyo E-Gov", color: "indigo" },
+    { id: 3, label: "04. AquaReminder (Flutter)", color: "sky" },
   ];
 
   const auraColors = [
     "bg-cyan-500/15",
     "bg-emerald-500/15",
     "bg-indigo-500/15",
+    "bg-sky-500/15",
   ];
 
   const paginate = (newDirection: number) => {
     setSlide(([prev]) => {
-      const next = (prev + newDirection + 3) % 3;
+      const next = (prev + newDirection + 4) % 4;
       return [next, newDirection];
     });
   };
@@ -121,10 +126,10 @@ export function Projects() {
         <div>
           <div className="mb-2 flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-cyan-400">
             <span className="h-2 w-2 animate-ping rounded-full bg-cyan-400" />
-            <span>Live Web Showcase</span>
+            <span>Featured Web &amp; Mobile Projects</span>
           </div>
           <h2 className="text-3xl font-extrabold text-white sm:text-4xl">
-            Featured Web Projects
+            Featured Projects &amp; Applications
           </h2>
         </div>
 
@@ -152,7 +157,7 @@ export function Projects() {
           </div>
 
           <span className="font-mono text-xs text-slate-400">
-            0{currentSlide + 1} / 03
+            0{currentSlide + 1} / 04
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -208,7 +213,7 @@ export function Projects() {
       {/* ANIMATED SLIDER CONTAINER */}
       <div className="relative min-h-[580px] overflow-hidden rounded-3xl">
         <AnimatePresence initial={false} custom={direction} mode="wait">
-          {/* SLIDE 0: Central Laundry Express */}
+          {/* SLIDE 0: Central Laundry Express (Web & APK Suite) */}
           {currentSlide === 0 && (
             <motion.div
               key="slide-0"
@@ -234,29 +239,30 @@ export function Projects() {
                 <div className="space-y-5 lg:col-span-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 font-mono text-xs text-cyan-300">
-                      Live Production &bull; 2026
+                      Live Web &amp; Android APK &bull; 2026
                     </span>
                     <span className="font-mono text-xs font-bold text-emerald-400">
                       Project Lead &bull; UI/UX &amp; FE
                     </span>
                   </div>
                   <h3 className="text-2xl font-bold leading-snug text-white sm:text-3xl">
-                    Central Laundry Express
+                    Central Laundry Express &bull; Web &amp; APK Suite
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-300">
-                    Platform website resmi <strong className="text-cyan-300">Central Laundry Express</strong> di Purbalingga. Menghadirkan booking antar-jemput kilat via WhatsApp, estimasi harga transparan, dan desain landing page mobile-first berkecepatan tinggi.
+                    Ekosistem digital komersial untuk <strong className="text-cyan-300">Central Laundry Express</strong> di Purbalingga. Mencakup platform web publik, aplikasi operasional Android (APK), order antar-jemput kilat WhatsApp, dan backend manajemen order.
                   </p>
                   <div className="space-y-2 pt-1 font-mono text-xs">
                     <div className="flex items-center gap-2 text-slate-300">
                       <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-                      <span>Alur pemesanan laundry kilat 3 jam terintegrasi WhatsApp API</span>
+                      <span>Alur pemesanan express 3 jam via web &amp; WhatsApp API</span>
                     </div>
                     <div className="flex items-center gap-2 text-slate-300">
                       <CheckCircle className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-                      <span>Desain responsif modern &amp; optimasi performa Next.js App Router</span>
+                      <span>Tersedia build aplikasi mobile Android (APK) &amp; Next.js App Router</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 font-mono text-xs text-cyan-300">Android APK</span>
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-cyan-300">Next.js</span>
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">Tailwind CSS</span>
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">TypeScript</span>
@@ -277,10 +283,19 @@ export function Projects() {
                       href="https://github.com/wewolk/compro-laundry-central"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-slate-300 transition-all hover:border-cyan-400/40 hover:bg-white/10 hover:text-white"
+                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-slate-300 transition-all hover:border-cyan-400/40 hover:bg-white/10 hover:text-white"
                     >
                       <Github className="h-4 w-4" />
                       <span>compro-central</span>
+                    </a>
+                    <a
+                      href="https://github.com/wewolk/londri-admin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-slate-300 transition-all hover:border-cyan-400/40 hover:bg-white/10 hover:text-white"
+                    >
+                      <Github className="h-4 w-4" />
+                      <span>londri-admin</span>
                     </a>
                   </div>
                 </div>
@@ -372,7 +387,7 @@ export function Projects() {
                         <div className="mt-3 flex items-center justify-between rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-[11px] text-cyan-300">
                           <span className="flex items-center gap-1.5 font-mono">
                             <Smartphone className="h-3.5 w-3.5" />
-                            <span>100% Mobile Optimized Web Experience</span>
+                            <span>Tersedia Web Platform &amp; Android APK Client</span>
                           </span>
                           <a
                             href="https://www.centrallaundryexpress.com/"
@@ -392,7 +407,7 @@ export function Projects() {
             </motion.div>
           )}
 
-          {/* SLIDE 1: Management Ternak (TernakPro) */}
+          {/* SLIDE 1: Kandang Utuk / Management Ternak */}
           {currentSlide === 1 && (
             <motion.div
               key="slide-1"
@@ -418,17 +433,17 @@ export function Projects() {
                 <div className="space-y-5 lg:col-span-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 font-mono text-xs text-emerald-300">
-                      Cloud App &bull; 2025 &ndash; 2026
+                      Cloud Web App &bull; 2025 &ndash; 2026
                     </span>
                     <span className="font-mono text-xs font-bold text-cyan-400">
-                      Fullstack Web System
+                      Fullstack Web &amp; Marketplace
                     </span>
                   </div>
                   <h3 className="text-2xl font-bold leading-snug text-white sm:text-3xl">
-                    TernakPro &bull; Management Ternak
+                    Kandang Utuk &bull; Management Ternak
                   </h3>
                   <p className="text-sm leading-relaxed text-slate-300">
-                    Sistem manajemen peternakan berbasis web dengan pelacakan identifikasi barcode digital. Memudahkan pencatatan populasi hewan, rekam medis vaksinasi, pemantauan siklus pakan, dan analitik pertumbuhan ternak.
+                    Platform web manajemen peternakan digital dan marketplace terintegrasi (&quot;Kandang Utuk&quot;). Dilengkapi pelacakan profil hewan via barcode/QR digital, sistem lelang &amp; pasar ternak, manajemen stok pakan, dan rekam medis vaksinasi.
                   </p>
                   <div className="space-y-2 pt-1 font-mono text-xs">
                     <div className="flex items-center gap-2 text-slate-300">
@@ -437,14 +452,15 @@ export function Projects() {
                     </div>
                     <div className="flex items-center gap-2 text-slate-300">
                       <CheckCircle className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-                      <span>Monitoring stok pakan, bobot ternak &amp; rekam jadwal vaksinasi</span>
+                      <span>Katalog lelang &amp; marketplace ternak, monitoring bobot &amp; pakan</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-emerald-300">Next.js</span>
-                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">React.js</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-emerald-300">Next.js 15</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">React 18</span>
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">Tailwind CSS</span>
-                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-cyan-300">Vercel Cloud</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-cyan-300">Recharts</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-emerald-300">Vercel</span>
                   </div>
                   <div className="flex flex-wrap items-center gap-3 pt-3 font-mono text-xs">
                     <a
@@ -458,13 +474,13 @@ export function Projects() {
                       <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                     </a>
                     <a
-                      href="https://github.com/SiNopaal"
+                      href="https://github.com/SiNopaal/Website-Kandang-Utuk.git"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-slate-300 transition-all hover:border-emerald-400/40 hover:bg-white/10 hover:text-white"
                     >
                       <Github className="h-4 w-4" />
-                      <span>Source Profile</span>
+                      <span>Website-Kandang-Utuk</span>
                     </a>
                   </div>
                 </div>
@@ -500,28 +516,28 @@ export function Projects() {
                       <div className="flex items-center justify-between border-b border-white/5 pb-3">
                         <div className="flex items-center gap-2">
                           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500 text-xs font-black text-black">
-                            TP
+                            KU
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-white leading-tight">TernakPro</div>
-                            <div className="text-[9px] text-emerald-400 font-mono tracking-wider">MANAJEMEN &amp; BARCODE</div>
+                            <div className="text-xs font-bold text-white leading-tight">Kandang Utuk</div>
+                            <div className="text-[9px] text-emerald-400 font-mono tracking-wider">MANAJEMEN &amp; MARKETPLACE</div>
                           </div>
                         </div>
                         <div className="hidden sm:flex items-center gap-3 font-mono text-[11px] text-slate-300">
                           <span className="text-emerald-300">Dashboard</span>
-                          <span className="hover:text-white">Data Ternak</span>
+                          <span className="hover:text-white">Marketplace</span>
+                          <span className="hover:text-white">Lelang</span>
                           <span className="hover:text-white">Pakan</span>
-                          <span className="hover:text-white">Laporan</span>
                         </div>
                         <span className="rounded-full bg-white/5 border border-white/10 px-2.5 py-1 text-[10px] font-mono text-slate-300">
-                          Admin Aktif
+                          Admin Peternak
                         </span>
                       </div>
 
                       {/* Mock Website Dashboard View */}
                       <div className="pt-4 pb-2 space-y-3">
                         <div className="flex items-center justify-between">
-                          <div className="text-xs sm:text-sm font-bold text-white">Ringkasan Peternakan</div>
+                          <div className="text-xs sm:text-sm font-bold text-white">Ringkasan Peternakan &amp; Lelang</div>
                           <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
                             <TrendingUp className="h-3 w-3" /> Data Realtime
                           </span>
@@ -560,7 +576,7 @@ export function Projects() {
                               <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[10px] text-cyan-300">#TRN-089</span>
                               <span className="text-white text-xs">Kambing Etawa (54 kg)</span>
                             </div>
-                            <span className="text-cyan-400 text-[10px]">Jadwal Pakan Teratur</span>
+                            <span className="text-cyan-400 text-[10px]">Lelang Terbuka &bull; Aktif</span>
                           </div>
                         </div>
 
@@ -762,6 +778,184 @@ export function Projects() {
                           </a>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </TiltCard>
+              </div>
+            </motion.div>
+          )}
+
+          {/* SLIDE 3: AquaReminder Mobile App (Flutter & Android) */}
+          {currentSlide === 3 && (
+            <motion.div
+              key="slide-3"
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(_, { offset, velocity }) => {
+                const swipe = Math.abs(offset.x) * velocity.x;
+                if (swipe < -100 || offset.x < -60) {
+                  paginate(1);
+                } else if (swipe > 100 || offset.x > 60) {
+                  paginate(-1);
+                }
+              }}
+              className="w-full cursor-grab active:cursor-grabbing"
+            >
+              <div className="grid grid-cols-1 items-center gap-8 rounded-3xl border border-sky-500/20 bg-[#07131e]/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8 lg:grid-cols-12">
+                <div className="space-y-5 lg:col-span-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 font-mono text-xs text-sky-300">
+                      Mobile Application &bull; 2024
+                    </span>
+                    <span className="font-mono text-xs font-bold text-cyan-400">
+                      Flutter &bull; Android APK
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold leading-snug text-white sm:text-3xl">
+                    AquaReminder &bull; Smart Hydration Tracker
+                  </h3>
+                  <p className="text-sm leading-relaxed text-slate-300">
+                    Aplikasi mobile berbasis <strong className="text-sky-300">Flutter &amp; Dart</strong> untuk membantu pengguna menjaga hidrasi tubuh secara optimal. Dilengkapi notifikasi alarm background terjadwal, penyimpanan offline SQLite (<code className="text-cyan-300">sqflite</code>), serta visualisasi grafik konsumsi harian.
+                  </p>
+                  <div className="space-y-2 pt-1 font-mono text-xs">
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <CheckCircle className="h-4 w-4 text-sky-400 flex-shrink-0" />
+                      <span>Local scheduled background notifications &amp; smart reminder alarm</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <CheckCircle className="h-4 w-4 text-sky-400 flex-shrink-0" />
+                      <span>Offline-first database SQLite (sqflite) &amp; grafik hidrasi fl_chart</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <span className="rounded-lg border border-sky-500/40 bg-sky-500/10 px-2.5 py-1 font-mono text-xs text-sky-300">Flutter</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-sky-300">Dart</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-cyan-300">Android APK</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">SQLite (sqflite)</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 font-mono text-xs text-slate-300">fl_chart</span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 pt-3 font-mono text-xs">
+                    <a
+                      href="https://github.com/SiNopaal/Aplikasi-AquaReminder.git"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-sky-500/25 transition-all hover:from-sky-400 hover:to-blue-500 hover:shadow-sky-500/40 active:scale-95"
+                    >
+                      <Github className="h-4 w-4" />
+                      <span>View GitHub Repository</span>
+                      <ExternalLink className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </a>
+                    <span className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-slate-300">
+                      <Smartphone className="h-4 w-4 text-sky-400" />
+                      <span>Android APK Ready</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Smartphone Device Mockup */}
+                <TiltCard className="lg:col-span-7 flex justify-center">
+                  <div className="relative w-full max-w-sm rounded-[40px] border-4 border-slate-700/80 bg-slate-950 p-3 shadow-2xl shadow-sky-950/60 sm:rounded-[46px] sm:p-3.5">
+                    {/* Phone Screen Container */}
+                    <div className="relative overflow-hidden rounded-[30px] sm:rounded-[36px] bg-gradient-to-b from-[#061826] via-[#091b2c] to-[#040e17] text-white p-4 sm:p-5">
+                      {/* Dynamic Island / Top Camera Pill */}
+                      <div className="mx-auto mb-3 flex h-5 w-24 items-center justify-between rounded-full bg-black/90 px-2.5">
+                        <span className="h-2 w-2 rounded-full bg-slate-800" />
+                        <span className="h-2.5 w-2.5 rounded-full border border-sky-400/40 bg-slate-900" />
+                      </div>
+
+                      {/* Status Bar */}
+                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 px-1 pb-2">
+                        <span>09:41</span>
+                        <div className="flex items-center gap-1.5">
+                          <span>5G</span>
+                          <span className="h-2 w-3 rounded-sm border border-slate-400 inline-block" />
+                        </div>
+                      </div>
+
+                      {/* App Header */}
+                      <div className="flex items-center justify-between border-b border-white/10 pb-3 pt-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-gradient-to-tr from-sky-500 to-cyan-400 text-black shadow-md shadow-sky-500/30">
+                            <Droplets className="h-4 w-4 text-slate-950" />
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold leading-tight text-white">AquaReminder</div>
+                            <div className="text-[9px] font-mono text-sky-400">FLUTTER MOBILE APP</div>
+                          </div>
+                        </div>
+                        <span className="rounded-full bg-sky-500/20 border border-sky-500/40 px-2 py-0.5 text-[9px] font-bold text-sky-300">
+                          🔥 7 Hari Beruntun
+                        </span>
+                      </div>
+
+                      {/* Hydration Circular Progress Ring */}
+                      <div className="my-4 flex flex-col items-center justify-center rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4 text-center">
+                        <div className="relative flex h-28 w-28 items-center justify-center rounded-full border-4 border-sky-500/30 bg-sky-950/40 shadow-inner shadow-sky-500/20">
+                          <div className="flex flex-col items-center">
+                            <span className="text-lg font-black text-white">1.850</span>
+                            <span className="text-[10px] font-mono text-slate-400">/ 2.500 ml</span>
+                            <span className="text-[9px] font-bold text-sky-400 mt-0.5">74% Target</span>
+                          </div>
+                        </div>
+                        <div className="mt-2 text-[10px] text-slate-300">
+                          Sisa <strong className="text-sky-300">650 ml</strong> untuk mencapai target hari ini
+                        </div>
+                      </div>
+
+                      {/* Quick Log Buttons */}
+                      <div className="grid grid-cols-3 gap-1.5 text-center font-mono">
+                        <div className="rounded-xl border border-white/10 bg-white/5 py-2 px-1 hover:border-sky-400/50 transition-colors">
+                          <div className="text-[10px] font-bold text-sky-300">+250ml</div>
+                          <div className="text-[8px] text-slate-400">Gelas</div>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-white/5 py-2 px-1 hover:border-sky-400/50 transition-colors">
+                          <div className="text-[10px] font-bold text-cyan-300">+500ml</div>
+                          <div className="text-[8px] text-slate-400">Botol</div>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-white/5 py-2 px-1 hover:border-sky-400/50 transition-colors">
+                          <div className="text-[10px] font-bold text-emerald-300">+750ml</div>
+                          <div className="text-[8px] text-slate-400">Tumbler</div>
+                        </div>
+                      </div>
+
+                      {/* Next Reminder Pill */}
+                      <div className="mt-3 flex items-center justify-between rounded-xl border border-sky-500/30 bg-sky-500/10 p-2 text-[10px]">
+                        <span className="flex items-center gap-1.5 text-sky-300">
+                          <Bell className="h-3.5 w-3.5" />
+                          <span>Alarm Pengingat: 14:00 WIB</span>
+                        </span>
+                        <span className="text-[9px] font-mono text-slate-400">SQLite Log</span>
+                      </div>
+
+                      {/* Weekly Intake Chart Bars Mini Preview */}
+                      <div className="mt-3 rounded-xl border border-white/5 bg-black/40 p-2.5 font-mono text-[9px]">
+                        <div className="flex items-center justify-between text-slate-400 mb-1.5">
+                          <span>RIWAYAT MINGGU INI</span>
+                          <span className="text-sky-400">Rata-rata 2.1L</span>
+                        </div>
+                        <div className="flex items-end justify-between h-8 gap-1 pt-1">
+                          {["S", "S", "R", "K", "J", "S", "M"].map((d, i) => (
+                            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                              <div
+                                className={`w-full rounded-t ${
+                                  i === 4 ? "bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.8)]" : "bg-sky-500/30"
+                                }`}
+                                style={{ height: `${[70, 85, 90, 65, 74, 80, 60][i]}%` }}
+                              />
+                              <span className="text-[8px] text-slate-500">{d}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Phone Home Indicator Bar */}
+                      <div className="mx-auto mt-4 h-1 w-28 rounded-full bg-white/30" />
                     </div>
                   </div>
                 </TiltCard>

@@ -15,14 +15,14 @@ export const projects: Project[] = [
   {
     id: "central-laundry",
     title: "Central Laundry Express",
-    subtitle: "Commercial Laundry Operations & Responsive Web Platform",
+    subtitle: "Commercial Operations, Web Platform & Android APK Suite",
     description:
-      "Spearheaded the engineering of a commercial laundry web platform in Purbalingga featuring WhatsApp online booking, pickup & delivery scheduling, responsive price catalog, and high-conversion UI/UX.",
-    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "WhatsApp API", "Figma"],
+      "Spearheaded the engineering of a commercial laundry ecosystem in Purbalingga comprising an interactive customer web platform, mobile Android APK client, and WhatsApp online booking integration.",
+    tech: ["Next.js", "React", "Android APK", "TypeScript", "TailwindCSS", "WhatsApp API", "Figma"],
     metrics: [
       { label: "Role", value: "Lead Developer & UI/UX" },
+      { label: "Ecosystem", value: "Web Platform & Android APK" },
       { label: "Deployment", value: "Production Live" },
-      { label: "Target stack", value: "Next.js & Tailwind" },
     ],
     repo: "https://github.com/wewolk/compro-laundry-central",
     demo: "https://www.centrallaundryexpress.com/",
@@ -30,18 +30,18 @@ export const projects: Project[] = [
     year: "2026",
   },
   {
-    id: "management-ternak",
-    title: "TernakPro - Sistem Manajemen Ternak",
-    subtitle: "Cloud Livestock Management & Barcode Tracking System",
+    id: "kandang-utuk",
+    title: "Kandang Utuk • Management Ternak",
+    subtitle: "Cloud Livestock Management & Marketplace Web App",
     description:
-      "Engineered a digital farm operations platform featuring automated QR/barcode animal identification, health & vaccination history, feed inventory monitoring, and growth analytics.",
-    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "Vercel", "Data Viz"],
+      "Engineered an integrated livestock management system and digital marketplace featuring QR/barcode animal identification, live auctions, vaccination tracking, and feed inventory monitoring.",
+    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "Vercel", "Recharts", "Zod"],
     metrics: [
-      { label: "Platform", value: "Web Application" },
+      { label: "Platform", value: "Fullstack Web & Marketplace" },
       { label: "Deployment", value: "Vercel Cloud" },
-      { label: "Key Tech", value: "Barcode & Analytics" },
+      { label: "Key Tech", value: "Barcode & Data Analytics" },
     ],
-    repo: "https://github.com/SiNopaal",
+    repo: "https://github.com/SiNopaal/Website-Kandang-Utuk.git",
     demo: "https://managementternak.vercel.app/",
     accent: "from-emerald-500 via-teal-500 to-cyan-500",
     year: "2025 – 2026",
@@ -61,6 +61,22 @@ export const projects: Project[] = [
     repo: "https://github.com/SiNopaal",
     demo: "https://www.patukrejomulyo.web.id/",
     accent: "from-indigo-600 via-violet-500 to-blue-500",
+    year: "2024",
+  },
+  {
+    id: "aqua-reminder",
+    title: "AquaReminder • Smart Hydration App",
+    subtitle: "Aplikasi Pengingat Minum Air & Pencatat Hidrasi Harian",
+    description:
+      "Engineered a cross-platform mobile hydration tracker built with Flutter and Dart. Features scheduled local background push notifications, offline SQLite persistence, interactive fl_chart analytics, and customizable daily intake goals.",
+    tech: ["Flutter", "Dart", "Android APK", "SQLite (sqflite)", "Local Notifications", "fl_chart"],
+    metrics: [
+      { label: "Platform", value: "Mobile (Flutter & Android)" },
+      { label: "Database", value: "SQLite Offline-First" },
+      { label: "Notification", value: "Background Alarm Service" },
+    ],
+    repo: "https://github.com/SiNopaal/Aplikasi-AquaReminder.git",
+    accent: "from-sky-500 via-blue-500 to-cyan-400",
     year: "2024",
   },
 ];
