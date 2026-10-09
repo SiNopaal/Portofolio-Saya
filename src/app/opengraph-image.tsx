@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Naufal Ananta — Backend & AI Engineer";
+export const alt = "Naufal Maulana Izzuddin — Frontend Engineer & AI Automations";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -15,7 +15,7 @@ export default function Image() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 80,
-          background: "#090909",
+          background: "#0b0e18",
           fontFamily: "sans-serif",
         }}
       >
@@ -27,7 +27,7 @@ export default function Image() {
             width: 600,
             height: 600,
             borderRadius: "50%",
-            background: "rgba(139,92,246,0.25)",
+            background: "rgba(6,182,212,0.25)",
             filter: "blur(120px)",
           }}
         />
@@ -43,26 +43,26 @@ export default function Image() {
             filter: "blur(120px)",
           }}
         />
-        <div style={{ fontSize: 24, color: "#a78bfa", letterSpacing: 8 }}>
-          BACKEND · AI · OPEN SOURCE
+        <div style={{ fontSize: 24, color: "#38bdf8", letterSpacing: 8, fontWeight: 700 }}>
+          FRONTEND · WEB · AI AUTOMATIONS · UI/UX
         </div>
         <div
           style={{
-            fontSize: 110,
+            fontSize: 90,
             fontWeight: 900,
             marginTop: 16,
-            background: "linear-gradient(90deg,#a78bfa,#60a5fa,#fb923c)",
+            background: "linear-gradient(90deg,#38bdf8,#818cf8,#34d399)",
             backgroundClip: "text",
             color: "transparent",
           }}
         >
-          Naufal Ananta
+          Naufal Maulana
         </div>
-        <div style={{ fontSize: 32, color: "#a3a3a3", marginTop: 20 }}>
-          Building scalable backend systems, microservices,
+        <div style={{ fontSize: 32, color: "#cbd5e1", marginTop: 20 }}>
+          Crafting high-performance web applications, modern interfaces,
         </div>
-        <div style={{ fontSize: 32, color: "#a3a3a3" }}>
-          cloud infrastructure & AI-powered applications.
+        <div style={{ fontSize: 32, color: "#94a3b8" }}>
+          and intelligent AI-powered automation workflows.
         </div>
       </div>
     ),
