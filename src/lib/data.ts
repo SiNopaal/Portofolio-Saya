@@ -13,27 +13,45 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: "laundry-suite",
-    title: "Commercial Laundry Operations & Client Suite",
-    subtitle: "Enterprise Laundry Admin & Responsive Company Profile",
+    id: "central-laundry",
+    title: "Central Laundry Express",
+    subtitle: "Commercial Laundry Operations & Responsive Web Platform",
     description:
-      "Directed cross-functional development squads as Project Lead. Designed and built 'Londri-Admin' (order lifecycle tracking, status workflows, and revenue reporting) alongside the 'Laundry Central' responsive company profile.",
-    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "Figma", "REST APIs"],
+      "Spearheaded the engineering of a commercial laundry web platform in Purbalingga featuring WhatsApp online booking, pickup & delivery scheduling, responsive price catalog, and high-conversion UI/UX.",
+    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "WhatsApp API", "Figma"],
     metrics: [
-      { label: "Role", value: "Project Lead & UI/UX" },
-      { label: "Repositories", value: "3 Repositories" },
-      { label: "Target stack", value: "React & Next.js" },
+      { label: "Role", value: "Lead Developer & UI/UX" },
+      { label: "Deployment", value: "Production Live" },
+      { label: "Target stack", value: "Next.js & Tailwind" },
     ],
-    repo: "https://github.com/wewolk/londri-admin",
+    repo: "https://github.com/wewolk/compro-laundry-central",
+    demo: "https://www.centrallaundryexpress.com/",
     accent: "from-cyan-500 via-sky-500 to-indigo-500",
     year: "2026",
+  },
+  {
+    id: "management-ternak",
+    title: "TernakPro - Sistem Manajemen Ternak",
+    subtitle: "Cloud Livestock Management & Barcode Tracking System",
+    description:
+      "Engineered a digital farm operations platform featuring automated QR/barcode animal identification, health & vaccination history, feed inventory monitoring, and growth analytics.",
+    tech: ["Next.js", "React", "TypeScript", "TailwindCSS", "Vercel", "Data Viz"],
+    metrics: [
+      { label: "Platform", value: "Web Application" },
+      { label: "Deployment", value: "Vercel Cloud" },
+      { label: "Key Tech", value: "Barcode & Analytics" },
+    ],
+    repo: "https://github.com/SiNopaal",
+    demo: "https://managementternak.vercel.app/",
+    accent: "from-emerald-500 via-teal-500 to-cyan-500",
+    year: "2025 – 2026",
   },
   {
     id: "patukrejomulyo-egov",
     title: "Patukrejomulyo E-Gov Incident Platform",
     subtitle: "Civic Public Incident Management & Spatial Mapping",
     description:
-      "Engineered an administrative civic reporting web dashboard for public infrastructure damage with Google Maps API clustering and AI report triage, accelerating official resolution response times by 50%.",
+      "Engineered an official civic reporting web dashboard for public infrastructure damage with Google Maps spatial clustering and AI incident triage, accelerating official resolution response times by 50%.",
     tech: ["Next.js App Router", "NestJS", "PostgreSQL", "Google Maps API", "TailwindCSS"],
     metrics: [
       { label: "QA Pass Rate", value: "100% Pass" },
@@ -41,40 +59,9 @@ export const projects: Project[] = [
       { label: "Triage Speed", value: "50% Faster" },
     ],
     repo: "https://github.com/SiNopaal",
+    demo: "https://www.patukrejomulyo.web.id/",
     accent: "from-indigo-600 via-violet-500 to-blue-500",
     year: "2024",
-  },
-  {
-    id: "ai-bot-scripting",
-    title: "AI Bot Scripting & Automated Web Solutions",
-    subtitle: "Autonomous Worker Bots & Event-Driven Pipelines",
-    description:
-      "Engineered automated worker bots leveraging Python and Node.js with LLM APIs for autonomous data extraction, dynamic content generation, webhook listeners, and Next.js control dashboards.",
-    tech: ["Python", "Node.js", "LLM APIs", "Webhooks", "Next.js", "REST APIs"],
-    metrics: [
-      { label: "Runtime", value: "Python & Node" },
-      { label: "Success Rate", value: "99.9%" },
-      { label: "Active Period", value: "2024 – 2026" },
-    ],
-    repo: "https://github.com/SiNopaal",
-    accent: "from-emerald-500 via-teal-500 to-cyan-500",
-    year: "2024 – 2026",
-  },
-  {
-    id: "seven-inc-uiux",
-    title: "Titik Visual & Nebeng UI/UX Ecosystem",
-    subtitle: "Enterprise Landing Ecosystem & Multi-Role Ride-Sharing",
-    description:
-      "UI/UX Designer Intern at PT Seven Inc (Yogyakarta). Scaled the commercial landing presence of 'Titik Visual' across 13+ responsive pages and designed 4-role user flows for the 'Nebeng' ride-sharing application in Figma.",
-    tech: ["Figma", "Design Systems", "Prototyping", "User Flows", "BRD Documentation"],
-    metrics: [
-      { label: "Pages Shipped", value: "13+ Pages" },
-      { label: "Personas", value: "4 Roles" },
-      { label: "Handoff Fidelity", value: "100%" },
-    ],
-    repo: "https://github.com/SiNopaal",
-    accent: "from-pink-500 via-rose-500 to-orange-400",
-    year: "2025",
   },
 ];
 
