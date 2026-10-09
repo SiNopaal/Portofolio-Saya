@@ -74,7 +74,7 @@ export function GithubSection() {
             rel="noopener noreferrer"
             className="glass flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-violet-500/50"
           >
-            <Github className="h-4 w-4" /> @NaufalAnantaSE
+            <Github className="h-4 w-4" /> @SiNopaal
           </a>
         </Magnetic>
       </Reveal>

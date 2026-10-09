@@ -46,7 +46,7 @@ export function Preloader() {
               transition={{ duration: 0.6 }}
               className="text-xs font-medium uppercase tracking-[0.5em] text-neutral-500"
             >
-              Naufal Ananta
+              Naufal Maulana
             </motion.span>
             <span className="text-gradient-static mt-2 text-7xl font-black tabular-nums tracking-tighter md:text-8xl">
               {count}
@@ -64,10 +64,10 @@ export function Preloader() {
 
           {/* corner marks */}
           <span className="absolute left-6 top-6 text-[10px] uppercase tracking-[0.4em] text-neutral-700">
-            Portfolio © 2025
+            Portfolio © 2026
           </span>
           <span className="absolute bottom-6 right-6 text-[10px] uppercase tracking-[0.4em] text-neutral-700">
-            Backend · AI · Cloud
+            Frontend · Web · AI Automations
           </span>
         </motion.div>
       )}
